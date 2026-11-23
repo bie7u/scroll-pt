@@ -9,7 +9,9 @@ Nauka portugalskiego (europejskiego, pt-PT) od zera w formie przewijanego feedu,
   podróż, przymiotniki, czasowniki, przyimki miejsca, dni tygodnia
 - przy każdym słówku osobny post ze zdaniem A1/A2 (słowo podświetlone, lektor, tłumaczenie do odsłonięcia)
 - liczby jako system: ściągi z zasadami + karty „złóż liczbę z klocków” + quiz z losowymi liczbami 1–1000
-- powtórki błędów, XP, combo, streak, cel dnia, skrzynki z nagrodami, rzadkie karty
+- system powtórek (przegródki): powtórki na dziś przed nowym materiałem, limit nowych słówek dziennie (domyślnie 10)
+- powtórki w komentarzach: wpisujesz odpowiedź po portugalsku, sprawdzanie toleruje brak akcentów i literówki
+- XP, combo, streak, cel dnia, skrzynki z nagrodami, rzadkie karty
 
 Całość w jednym pliku `index.html`, bez budowania. Demo: https://bie7u.github.io/scroll-pt/
 
@@ -28,3 +30,20 @@ Całość w jednym pliku `index.html`, bez budowania. Demo: https://bie7u.github
 3. W `VIDEOS` w `index.html` ustaw `src: 'video/nazwa.mp4'` i dla każdej kwestii w `lines` podaj `start` i `end` w sekundach.
    Napisy PT/PL/EN aplikacja nakłada sama, więc działa przełącznik języka.
 4. Każda nagrana osoba musi wyrazić zgodę na publikację wizerunku.
+
+## System powtórek
+
+Postęp zapisuje się w `localStorage` przeglądarki (klucz `scroll-pt-v2`), więc tylko na tym jednym urządzeniu.
+Każde słowo ma kartotekę w `S.srs`:
+
+```js
+"cafe:4": { box: 3, due: "2026-11-27", lapses: 1, last: "2026-11-20" }
+```
+
+- `box` 1–6 = przegródka; następna powtórka za 1, 3, 7, 14, 30, 90 dni.
+- Ocena: zła odpowiedź → przegródka 1 (jutro); dobra po namyśle (> 6 s) → bez zmian; dobra szybko → +1;
+  komentarz bezbłędnie (z akcentami) → +2. Awans najwyżej raz dziennie i tylko po terminie.
+- Samo rozpoznanie (quiz PT → PL) nie podnosi słowa powyżej przegródki 3. Dalej trzeba umieć je przypomnieć:
+  quiz PL → PT, odsłuch albo komentarz.
+- Rano: słowa z `due <= dziś` (max 40, najpierw najsłabsze) lecą jako powtórki, zanim pojawi się nowy materiał.
+- Synchronizacja między urządzeniami wymaga logowania i bazy (np. Supabase/Firebase). Kartotekę da się przenieść 1:1.

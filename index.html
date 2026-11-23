@@ -134,7 +134,7 @@
     font-size: 14px; color: var(--muted); animation: bob 1.6s ease-in-out infinite; max-width: none; }
   @keyframes bob { 50% { transform: translateY(-8px) } }
 
-  #toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  #toast { z-index: 50 !important; position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
     background: rgba(0,0,0,.8); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 20;
     opacity: 0; transition: opacity .25s; pointer-events: none; max-width: calc(100% - 32px); text-align: center; }
   #toast.show { opacity: 1; }
@@ -185,6 +185,45 @@
   .rare .pt { color: #ffe08a; }
   .sent { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.25; margin: 0 0 22px; font-weight: 700; }
   .sent mark { background: none; color: #ffd23f; }
+  /* komentarze */
+  .ask-cta { margin-top: 22px; border: 0; border-radius: 14px; padding: 15px 18px; font-size: 17px; font-weight: 700;
+    color: #111; background: #ffd23f; cursor: pointer; width: 100%; }
+  .gap { color: #ffd23f; letter-spacing: .05em; }
+  #sheet { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+  #sheet .sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .25s; }
+  #sheet .sheet-panel { position: absolute; left: 0; right: 0; bottom: 0; height: 68dvh; max-width: 640px; margin: 0 auto;
+    background: #17181d; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; transform: translateY(100%);
+    transition: transform .28s ease-out; padding-bottom: env(safe-area-inset-bottom); }
+  #sheet.show { pointer-events: auto; }
+  #sheet.show .sheet-bg { opacity: 1; }
+  #sheet.show .sheet-panel { transform: none; }
+  .sheet-head { display: flex; align-items: center; justify-content: center; position: relative; padding: 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .sheet-x { position: absolute; right: 10px; top: 8px; border: 0; background: none; color: var(--fg); font-size: 20px; padding: 6px 10px; cursor: pointer; }
+  .sheet-list { flex: 1; overflow-y: auto; padding: 10px 16px; overscroll-behavior: contain; }
+  .cm { display: flex; gap: 10px; padding: 9px 0; font-size: 15px; line-height: 1.4; }
+  .cm .cbody { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .cm.me .cbody > b { color: #ffd23f; }
+  .ctr { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .creply { margin-top: 6px; padding-left: 10px; border-left: 2px solid rgba(255,255,255,.2); font-size: 14px; animation: bubbleIn .3s; }
+  .clike { color: #ff3b5c; font-size: 14px; text-align: center; min-width: 24px; }
+  .clike small { display: block; font-size: 11px; color: var(--muted); }
+  .cempty { color: var(--muted); text-align: center; padding: 30px 10px; }
+  .sheet-form { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid rgba(255,255,255,.08); }
+  .sheet-form input { flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: var(--fg);
+    border-radius: 999px; padding: 11px 16px; font-size: 16px; outline: none; }
+  .sheet-form button { border: 0; background: none; color: #5ac8fa; font-weight: 700; font-size: 16px; cursor: pointer; padding: 0 8px; }
+  /* panel dnia */
+  .daypanel { max-width: 380px; width: 100%; }
+  .daypanel h2 { margin: 0 0 8px; }
+  .boxes { display: flex; justify-content: space-between; align-items: flex-end; gap: 6px; margin: 20px 0 8px; height: 110px; }
+  .box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; }
+  .box i { display: block; width: 100%; background: #ffd23f; border-radius: 6px 6px 0 0; }
+  .box b { font-size: 14px; } .box small { font-size: 10px; color: var(--muted); }
+  .limits { display: flex; gap: 8px; justify-content: center; margin: 6px 0 18px; }
+  .limits button, .resetbtn { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: var(--fg);
+    border-radius: 10px; padding: 9px 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .limits button.on { background: #ffd23f; color: #111; border-color: #ffd23f; }
+  .daypanel p.lim { margin-top: 14px; }
   .bparts { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .brow, .bjoin, .bsum { opacity: 0; }
   .card.active .brow, .card.active .bjoin, .card.active .bsum { animation: fadeUp .4s ease-out forwards; }
@@ -234,15 +273,20 @@
     <svg class="ring" viewBox="0 0 24 24"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" id="goalRing" cx="12" cy="12" r="9" stroke-dasharray="56.5" stroke-dashoffset="56.5"/></svg>
     <span id="xpN">0</span>
   </span>
+  <button class="pill" id="dayBtn" title="Powtórki / Reviews">📚</button>
   <button class="pill" id="langBtn" title="Język / Language">🇵🇱</button>
   <button class="pill" id="soundBtn" title="Dźwięk / Sound">🔊</button>
-  <button class="pill" id="resetBtn" title="Od nowa / Restart">↺</button>
 </div>
 <main id="feed" aria-live="polite"></main>
 <canvas id="fx"></canvas>
 <div id="combo"></div>
 <div id="overlay"></div>
 <div id="toast"></div>
+<div id="sheet"><div class="sheet-bg"></div><div class="sheet-panel">
+  <div class="sheet-head"><b class="sheet-title">Komentarze</b><button class="sheet-x" aria-label="Zamknij">✕</button></div>
+  <div class="sheet-list"></div>
+  <form class="sheet-form"><input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send"><button type="submit">Wyślij</button></form>
+</div></div>
 
 <script>
 /* =========================================================
@@ -779,6 +823,21 @@ const T = {
     noVoice: v => `Brak głosu pt-PT, czyta głos ${v}`, noTTS: 'Ta przeglądarka nie umie czytać na głos',
     langSet: 'Tłumaczenia: polski 🇵🇱', start: '🇵🇹 Portugalski od zera',
     unmute: '🔇 dotknij, żeby włączyć dźwięk', sample: 'przykład · głos syntetyczny',
+    you: 'Ty', comments: 'Komentarze', addComment: 'Dodaj komentarz…', post: 'Wyślij', noComments: 'Jeszcze nikt nie skomentował. Bądź pierwszy!',
+    askTag: 'Powtórka w komentarzu', askTranslate: 'Jak powiesz po portugalsku?', askCloze: 'Uzupełnij lukę:',
+    askCta: '💬 Napisz odpowiedź w komentarzu', seeComments: '💬 Zobacz komentarze', askPlaceholder: 'Napisz po portugalsku…',
+    askFirst: 'Napisz odpowiedź jako pierwszy 👇 Akcenty nie są obowiązkowe.',
+    capAsk: 'Kto pierwszy w komentarzu? 👇 <span class="hash">#powtórka</span>',
+    okReply: ['Perfeito! 👏', 'Muito bem! 🎉', 'Isso mesmo! 💪'],
+    accentReply: x => `Quase perfeito! Uwaga na akcenty: ${x} 😉`, typoReply: x => `Quase! Poprawnie: ${x} ✍️`,
+    wrongReply: x => `Nie do końca. Poprawnie: ${x}. Wróci jutro 🔁`, usedWord: w => `Boa! Jest „${w}” w zdaniu 👏`,
+    genericReply: ['😄👍', 'Boa! 🙌', '👏👏'],
+    revDoneT: 'Powtórki na dziś zrobione!', revDoneS: n => `${n} słówek odświeżonych. Teraz nowy materiał 🚀`,
+    dayTitle: 'Twój dzień', dayReviews: (d, n) => `Powtórki: ${d}/${n}`, dayNew: (d, n) => `Nowe słówka: ${d}/${n || '∞'}`,
+    boxNames: ['jutro', '3 dni', 'tydzień', '2 tyg.', 'miesiąc', 'opanowane'], limitLabel: 'Nowe słówka dziennie:',
+    limitSet: n => n ? `Limit: ${n} nowych słówek dziennie` : 'Bez limitu nowych słówek', restartBtn: 'Zacznij od nowa',
+    limitTag: 'Na dziś', limitT: n => `${n} nowych słówek zrobione!`, limitS: 'Jutro kolejne, a teraz feed leci dalej z powtórkami i ćwiczeniami. Mózg potrzebuje czasu, żeby to utrwalić 🧠',
+    limitBtn: '⚙️ Zmień limit', capLimit: 'Dobra robota na dziś 💪 <span class="hash">#postęp</span>',
     build: 'Złóż liczbę z klocków', capBuild: 'Tak się buduje każdą liczbę do 1000 🧱 <span class="hash">#liczby</span>',
     sentence: 'Zdanie z użyciem', capSentence: w => `Zdanie dnia ze słowem „${w}” ✍️ <span class="hash">#A1 #zdania</span>`,
   },
@@ -811,6 +870,21 @@ const T = {
     noVoice: v => `No pt-PT voice found, using ${v}`, noTTS: 'This browser can’t read aloud',
     langSet: 'Translations: English 🇬🇧', start: '🇵🇹 Portuguese from zero',
     unmute: '🔇 tap for sound', sample: 'sample · synthetic voice',
+    you: 'You', comments: 'Comments', addComment: 'Add a comment…', post: 'Post', noComments: 'No comments yet. Be the first!',
+    askTag: 'Review in the comments', askTranslate: 'How do you say it in Portuguese?', askCloze: 'Fill in the gap:',
+    askCta: '💬 Write your answer in the comments', seeComments: '💬 See comments', askPlaceholder: 'Write in Portuguese…',
+    askFirst: 'Be the first to answer 👇 Accents are optional.',
+    capAsk: 'Who’s first in the comments? 👇 <span class="hash">#review</span>',
+    okReply: ['Perfeito! 👏', 'Muito bem! 🎉', 'Isso mesmo! 💪'],
+    accentReply: x => `Almost perfect! Watch the accents: ${x} 😉`, typoReply: x => `Almost! Correct form: ${x} ✍️`,
+    wrongReply: x => `Not quite. Correct: ${x}. It’ll come back tomorrow 🔁`, usedWord: w => `Boa! You used “${w}” 👏`,
+    genericReply: ['😄👍', 'Boa! 🙌', '👏👏'],
+    revDoneT: 'Today’s reviews done!', revDoneS: n => `${n} words refreshed. Now new material 🚀`,
+    dayTitle: 'Your day', dayReviews: (d, n) => `Reviews: ${d}/${n}`, dayNew: (d, n) => `New words: ${d}/${n || '∞'}`,
+    boxNames: ['tomorrow', '3 days', '1 week', '2 weeks', '1 month', 'mastered'], limitLabel: 'New words per day:',
+    limitSet: n => n ? `Limit: ${n} new words a day` : 'No limit on new words', restartBtn: 'Start over',
+    limitTag: 'Today', limitT: n => `${n} new words done!`, limitS: 'More tomorrow. For now the feed keeps going with reviews and practice. Your brain needs time to make it stick 🧠',
+    limitBtn: '⚙️ Change limit', capLimit: 'Great work today 💪 <span class="hash">#progress</span>',
     build: 'Build the number', capBuild: 'This is how every number up to 1000 is built 🧱 <span class="hash">#numbers</span>',
     sentence: 'Example sentence', capSentence: w => `Sentence of the day with “${w}” ✍️ <span class="hash">#A1 #sentences</span>`,
   },
@@ -839,7 +913,7 @@ const KEY = 'scroll-pt-v2';   // v2: nowe działy i posty ze zdaniami (stary pos
 const defaultLang = () => /^pl/i.test(navigator.language || '') ? 'pl' : 'en';
 const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: true, seen: 0,
   xp: 0, combo: 0, bestCombo: 0, streak: 0, lastDay: null, today: null, todayXp: 0, rares: [], boost: 0,
-  follows: [], watched: [], lang: defaultLang() });
+  follows: [], watched: [], lang: defaultLang(), srs: {}, newLimit: 10, day: {} });
 let S = fresh();
 try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
@@ -859,6 +933,222 @@ UNITS.forEach(u => {
 });
 
 /* =========================================================
+   SYSTEM POWTÓREK (przegródki Leitnera)
+   Każde słowo ma kartotekę w S.srs[id] = { box, due, lapses, last }:
+   box 1..6 = przegródka, due = dzień następnej powtórki (RRRR-MM-DD, czas lokalny),
+   lapses = ile razy zapomniane, last = dzień ostatniej oceny.
+   ========================================================= */
+const BOX_DAYS = [0, 1, 3, 7, 14, 30, 90];     // przegródka -> za ile dni następna powtórka
+const REVIEW_CAP = 40;                          // max powtórek dziennie (zaległości nie zalewają)
+const pad2 = n => String(n).padStart(2, '0');
+const localDay = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return localDay(d); };
+let dueQueue = [];                              // powtórki na dziś, które jeszcze nie trafiły do feedu
+
+function srsNew(id) {
+  if (!S.srs[id]) S.srs[id] = { box: 1, due: addDays(1), lapses: 0, last: localDay(new Date()) };
+}
+/* g: 'again' (nie zna) | 'hard' (ledwo) | 'good' (zna) | 'easy' (napisał bezbłędnie)
+   strong: odpowiedź wymagała przypomnienia (PL→PT, odsłuch, komentarz), a nie tylko rozpoznania */
+function srsGrade(id, g, strong, wasReview) {
+  if (!BY_ID[id]) return;
+  const today = localDay(new Date());
+  const r = S.srs[id] || (S.srs[id] = { box: 1, due: today, lapses: 0, last: null });
+  if (g === 'again') { r.box = 1; r.lapses++; r.due = addDays(1); }
+  else if (r.due <= today && r.last !== today) {          // awans tylko raz dziennie i tylko gdy minął termin
+    let box = r.box + (g === 'easy' ? 2 : g === 'good' ? 1 : 0);
+    if (!strong) box = Math.min(box, 3);                    // samo rozpoznanie nie wystarcza na długie odstępy
+    r.box = Math.max(1, Math.min(6, box)); r.due = addDays(BOX_DAYS[r.box]);
+  }
+  r.last = today;
+  if (wasReview) {
+    S.day.reviewDone++;
+    if (S.day.reviewDone >= S.day.reviewTotal && S.day.reviewTotal > 0 && !S.day.celebrated) {
+      S.day.celebrated = true;
+      setTimeout(() => celebrate('📚', t('revDoneT'), t('revDoneS')(S.day.reviewTotal)), 1200);
+    }
+  }
+  paintDay(); save();
+}
+/* Start dnia: liczy powtórki na dziś (najpierw najsłabsze przegródki i najstarsze terminy) */
+function startDay() {
+  const today = localDay(new Date());
+  S.learned.forEach(id => { if (BY_ID[id] && !S.srs[id]) S.srs[id] = { box: 1, due: today, lapses: 0, last: null }; });
+  dueQueue = Object.keys(S.srs).filter(id => BY_ID[id] && S.srs[id].due <= today)
+    .sort((a, b) => S.srs[a].box - S.srs[b].box || (S.srs[a].due < S.srs[b].due ? -1 : 1));
+  if (S.day.date !== today) {
+    dueQueue = dueQueue.slice(0, REVIEW_CAP);
+    S.day = { date: today, newCount: 0, reviewDone: 0, reviewTotal: dueQueue.length, celebrated: false, limitShown: false };
+  } else {
+    dueQueue = dueQueue.slice(0, Math.max(0, S.day.reviewTotal - S.day.reviewDone));
+  }
+  save();
+}
+const newLimitReached = () => S.newLimit > 0 && S.day.newCount >= S.newLimit;
+function paintDay() {
+  const b = document.getElementById('dayBtn'); if (!b) return;
+  const left = S.day.reviewTotal - S.day.reviewDone;
+  b.textContent = left > 0 ? `📚 ${S.day.reviewDone}/${S.day.reviewTotal}` : `🆕 ${S.day.newCount}/${S.newLimit || '∞'}`;
+}
+/* Powtórka: quiz albo (co ~4.) zadanie w komentarzu. Na wyższych przegródkach częściej trudniejsze kierunki */
+function makeReview(id, review) {
+  const item = BY_ID[id], box = (S.srs[id] || {}).box || 1;
+  let c;
+  if (Math.random() < (review ? .28 : .12)) c = makeAsk(id);   // pisanie męczy: w ćwiczeniach dodatkowych rzadziej
+  else {
+    c = makeQuiz(id);
+    if (box >= 3 && c.kind === 'pt2pl' && Math.random() < .7) c.kind = pick(['pl2pt', 'listen']);
+  }
+  c.review = !!review;
+  return c;
+}
+/* Zadanie w komentarzu: przetłumacz słowo albo uzupełnij lukę w zdaniu */
+function makeAsk(id) {
+  const item = BY_ID[id];
+  const hl = item.ex && item.ex[3];
+  const canCloze = hl && new RegExp('(^|[^\\p{L}])' + hl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=[^\\p{L}]|$)', 'iu').test(item.ex[0]);
+  if (canCloze && Math.random() < .5) return { type: 'ask', mode: 'cloze', item, expected: [hl] };
+  return { type: 'ask', mode: 'translate', item, expected: item.pt.split(' / ').map(s => s.replace(/…/g, '').trim()) };
+}
+
+/* ===== Sprawdzanie odpowiedzi: tolerancja na brak akcentów i literówki ===== */
+const normTxt = s => s.toLowerCase().replace(/[.,!?¿¡…"“”'’;:()]/g, ' ').replace(/\s+/g, ' ').trim();
+const stripArt = s => { const w = s.split(' '); return w.length > 1 && ['o', 'a', 'os', 'as', 'um', 'uma'].includes(w[0]) ? w.slice(1).join(' ') : s; };
+const deacc = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function checkAnswer(input, expected) {
+  const rank = { easy: 3, good: 2, hard: 1, again: 0 };
+  let best = { grade: 'again', exp: expected[0] };
+  const a = stripArt(normTxt(input));
+  for (const exp of expected) {
+    const e = stripArt(normTxt(exp)); let g = 'again';
+    if (a === e) g = 'easy';
+    else if (deacc(a) === deacc(e)) g = 'good';
+    else if (lev(deacc(a), deacc(e)) <= (e.length >= 8 ? 2 : e.length >= 4 ? 1 : 0)) g = 'hard';
+    if (rank[g] > rank[best.grade]) best = { grade: g, exp };
+  }
+  return best;
+}
+/* Czy w wolnym komentarzu padło ćwiczone słowo */
+function usesWord(input, item) {
+  const a = ' ' + deacc(normTxt(input)) + ' ';
+  return item.pt.split(' / ').some(p => { const w = deacc(stripArt(normTxt(p.replace(/…/g, '')))); return w && a.includes(' ' + w + ' '); });
+}
+
+/* ===== Komentarze pod postami ===== */
+const SEED_COMMENTS = [
+  { u: 'ana_lx', pt: 'Uso isto todos os dias! 🙌', pl: 'Używam tego codziennie! 🙌', en: 'I use this every day! 🙌' },
+  { u: 'joao.p', pt: 'Obrigado pela dica! ❤️', pl: 'Dzięki za wskazówkę! ❤️', en: 'Thanks for the tip! ❤️' },
+  { u: 'tom.learns', pt: 'Finalmente percebi 😅', pl: 'Wreszcie zrozumiałem 😅', en: 'Finally I get it 😅' },
+  { u: 'maria_porto', pt: 'Adoro estas aulas 😄', pl: 'Uwielbiam te lekcje 😄', en: 'I love these lessons 😄' },
+  { u: 'lucas.br', pt: 'Mais um para a lista! ✍️', pl: 'Kolejne do listy! ✍️', en: 'One more for the list! ✍️' },
+  { u: 'kasia_w_lizbonie', pl: 'Zapisuję! 📌', en: 'Saving this! 📌' },
+  { u: 'mike.abroad', pl: 'Przyda się na wakacje ☀️', en: 'This will come in handy on holiday ☀️' },
+];
+function seedComments(c) {
+  if (c.type === 'ask' && !c.done) return [];                // nie zdradzamy odpowiedzi przed próbą
+  if (!c.seeds) {
+    const key = (c.item && (c.item.id || c.item.pt)) || (c.video && c.video.id) || (c.unit && c.unit.title) || c.type;
+    const h = hash(key + 'cm'), n = 2 + h % 2, list = [];
+    for (let i = 0; i < n; i++) list.push(SEED_COMMENTS[(h + i * 3) % SEED_COMMENTS.length]);
+    if (c.item && c.item.ex && c.type !== 'sentence') list.unshift({ u: 'ines.lisboa', pt: c.item.ex[0], pl: c.item.ex[1], en: c.item.ex[2], ex: true });
+    c.seeds = list.map(s => Object.assign({ likes: 1 + hash(s.u + key) % 40 }, s));
+  }
+  return c.seeds;
+}
+const commentCount = c => seedComments(c).length + (c.mine || []).length;
+let sheetCard = null, sheetEl = null;
+function renderComments() {
+  const c = sheetCard, list = document.querySelector('#sheet .sheet-list');
+  const rows = [...(c.mine || []), ...seedComments(c)].map(m => {
+    const who = m.me ? t('you') : '@' + m.u, sub = m.pt && !m.me ? `<div class="ctr">${esc(isEn() ? m.en : m.pl)}</div>` : '';
+    const text = m.me || !m.pt ? (m.me ? m.text : (isEn() ? m.en : m.pl)) : m.pt;
+    const reply = m.reply ? `<div class="creply"><b>@professor.rui</b> ${esc(m.reply)}</div>` : '';
+    return `<div class="cm ${m.me ? 'me' : ''}"><div class="cbody"><b>${esc(who)}</b> ${esc(text)}${sub}${reply}</div>
+      <div class="clike">♥<small>${m.likes || ''}</small></div></div>`;
+  }).join('');
+  list.innerHTML = rows || `<div class="cempty">${t(c.type === 'ask' ? 'askFirst' : 'noComments')}</div>`;
+  if (sheetEl) { const cc = sheetEl.querySelector('.ccount'); if (cc) cc.textContent = commentCount(c); }
+}
+function openComments(el, c) {
+  sheetCard = c; sheetEl = el;
+  const sh = document.getElementById('sheet');
+  sh.querySelector('.sheet-title').textContent = t('comments');
+  const inp = sh.querySelector('input');
+  inp.placeholder = c.type === 'ask' && !c.done ? t('askPlaceholder') : t('addComment');
+  sh.querySelector('.sheet-form button').textContent = t('post');
+  renderComments(); sh.classList.add('show');
+  if (c.type === 'ask' && !c.done) setTimeout(() => inp.focus(), 250);
+}
+function closeSheet() { document.getElementById('sheet').classList.remove('show'); document.querySelector('#sheet input').blur(); }
+function postComment(text) {
+  const c = sheetCard; if (!c || !text.trim()) return;
+  const mine = { me: true, text: text.trim(), likes: 0 };
+  (c.mine = c.mine || []).unshift(mine);
+  let reply = null;
+  if (c.type === 'ask' && !c.done) {
+    c.done = true;
+    const res = checkAnswer(text, c.expected), shown = c.mode === 'cloze' ? c.expected[0] : c.item.pt;
+    reply = res.grade === 'easy' ? pick(t('okReply')) : res.grade === 'good' ? t('accentReply')(res.exp)
+          : res.grade === 'hard' ? t('typoReply')(res.exp) : t('wrongReply')(shown);
+    srsGrade(c.item.id, res.grade, true, c.review);
+    const fbEl = sheetEl.querySelector('.feedback');
+    if (res.grade !== 'again') {
+      S.combo++; S.bestCombo = Math.max(S.bestCombo, S.combo);
+      const gain = { easy: 20, good: 15, hard: 8 }[res.grade];
+      setTimeout(() => { addXP(gain, innerWidth / 2, innerHeight * .5); burst(innerWidth / 2, innerHeight * .45, 40, res.grade === 'easy'); sfx('ok'); buzz(15); }, 900);
+      if (fbEl) fbEl.innerHTML = `✅ ${esc(shown)}`;
+    } else {
+      S.combo = 0; S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
+      reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
+      setTimeout(() => { sfx('bad'); buzz([30, 40, 30]); }, 900);
+      if (fbEl) fbEl.innerHTML = `🔁 ${esc(shown)}`;
+    }
+    const cta = sheetEl.querySelector('.ask-cta'); if (cta) cta.textContent = t('seeComments');
+    setTimeout(() => speak(c.mode === 'cloze' ? c.item.ex[0] : c.item.pt), 1100);
+  } else if (c.item && BY_ID[c.item.id] && !c.freeUsed && usesWord(text, c.item)) {
+    c.freeUsed = true; reply = t('usedWord')(c.item.pt.split(' / ')[0].replace(/…/g, ''));
+    srsGrade(c.item.id, 'good', true, false);
+    setTimeout(() => { addXP(10, innerWidth / 2, innerHeight * .5); sfx('ok'); }, 900);
+  } else reply = pick(t('genericReply'));
+  renderComments();
+  // odpowiedź "nauczyciela" i serduszka pod komentarzem przychodzą po chwili
+  setTimeout(() => { mine.reply = reply; if (sheetCard === c) renderComments(); }, 900);
+  const target = 1 + Math.floor(Math.random() * 6);
+  const tick = () => { if (mine.likes >= target) return; mine.likes++; if (sheetCard === c) { renderComments(); sfx('pop'); } setTimeout(tick, 700 + Math.random() * 1500); };
+  setTimeout(tick, 1800);
+  save();
+}
+
+/* ===== Panel dnia: limit nowych słówek, statystyki przegródek, reset ===== */
+function openDayPanel() {
+  const o = document.getElementById('overlay');
+  const boxes = [1, 2, 3, 4, 5, 6].map(b => Object.values(S.srs).filter(r => r.box === b).length);
+  const maxB = Math.max(1, ...boxes);
+  o.innerHTML = `<div class="daypanel">
+      <h2>📚 ${t('dayTitle')}</h2>
+      <p>${t('dayReviews')(S.day.reviewDone, S.day.reviewTotal)}<br>${t('dayNew')(S.day.newCount, S.newLimit)}</p>
+      <div class="boxes">${boxes.map((n, i) => `<div class="box"><i style="height:${Math.round(n / maxB * 60) + 4}px"></i><b>${n}</b><small>${t('boxNames')[i]}</small></div>`).join('')}</div>
+      <p class="lim">${t('limitLabel')}</p>
+      <div class="limits">${[5, 10, 20, 0].map(n => `<button data-n="${n}" class="${S.newLimit === n ? 'on' : ''}">${n || '∞'}</button>`).join('')}</div>
+      <button class="resetbtn">↺ ${t('restartBtn')}</button>
+      <p style="margin-top:18px;font-size:13px">${t('tapContinue')}</p></div>`;
+  o.classList.add('show'); clearTimeout(celebrate._t);
+  o.onclick = e => {
+    const lb = e.target.closest('.limits button');
+    if (lb) { S.newLimit = +lb.dataset.n; save(); paintDay(); toast(t('limitSet')(S.newLimit)); o.classList.remove('show'); feed.lastElementChild && ensureBuffer(); return; }
+    if (e.target.closest('.resetbtn')) { o.classList.remove('show'); doReset(); return; }
+    if (!e.target.closest('.daypanel') || e.target.closest('p')) o.classList.remove('show');
+  };
+}
+
+/* =========================================================
    GENERATOR FEEDU: nieskończony, miesza nowe słowa z powtórkami
    ========================================================= */
 let cardNo = 0;             // ile kart wygenerowano w tej sesji
@@ -875,7 +1165,7 @@ function weightedLearned() {
   // słowa z błędami i polubione (❤️) pojawiają się częściej
   const pool = [];
   S.learned.forEach(id => {
-    const w = 1 + (S.mistakes[id] || 0) * 2 + (S.saved.includes(id) ? 2 : 0);
+    const w = 1 + (S.mistakes[id] || 0) * 2 + (S.saved.includes(id) ? 2 : 0) + (6 - ((S.srs[id] || {}).box || 1));
     for (let i = 0; i < w; i++) pool.push(id);
   });
   return pool;
@@ -944,18 +1234,25 @@ function nextCard() {
   // 1d) rzadka karta z małą szansą
   const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
   if (S.learned.length >= 5 && rareLeft.length && Math.random() < 0.06) return { type: 'rare', unit: RARE_UNIT, item: pick(rareLeft) };
+  // 1e) POWTÓRKI NA DZIŚ: zanim pojawi się nowy materiał
+  if (dueQueue.length) { sinceQuiz = 0; return makeReview(dueQueue.shift(), true); }
   // 2) co ~3 karty quiz z tego, co już znasz
   if (S.learned.length >= 3 && sinceQuiz >= 3) { sinceQuiz = 0; return numbersDone() && Math.random() < .3 ? numCard() : makeQuiz(pick(weightedLearned())); }
   // 3) nowa treść z planu
-  if (S.step < PLAN.length) {
+  const blocked = S.step < PLAN.length && PLAN[S.step].type === 'learn' && newLimitReached();
+  if (blocked && !S.day.limitShown) { S.day.limitShown = true; save(); return { type: 'limit', unit: { emoji: '✅', title: '', bg: ['#0a6b4a', '#03301f'] } }; }
+  if (S.step < PLAN.length && !blocked) {
     const c = PLAN[S.step++];
-    if (c.type === 'learn') { if (!S.learned.includes(c.item.id)) S.learned.push(c.item.id); sinceQuiz++; }
+    if (c.type === 'learn') {
+      if (!S.learned.includes(c.item.id)) S.learned.push(c.item.id);
+      srsNew(c.item.id); S.day.newCount++; paintDay(); sinceQuiz++;
+    }
     save();
     return c;
   }
-  // 4) koniec materiału: nieskończone powtórki
+  // 4) limit nowych na dziś albo koniec materiału: dodatkowe ćwiczenia (słabsze słowa częściej)
   sinceQuiz = 0;
-  return numbersDone() && Math.random() < .3 ? numCard() : makeQuiz(pick(weightedLearned()));
+  return numbersDone() && Math.random() < .3 ? numCard() : makeReview(pick(weightedLearned()), false);
 }
 
 /* =========================================================
@@ -994,7 +1291,7 @@ function authorFor(c) {
   if (c.type === 'tip') return AUTHORS.tiago;
   if (c.type === 'rare') return AUTHORS.marta;
   if (c.type === 'sentence') return AUTHORS.frases;
-  if (c.type === 'build') return AUTHORS.rui;
+  if (c.type === 'build' || c.type === 'ask') return AUTHORS.rui;
   if (c.type === 'learn') return c.item.unit.id === 'cafe' ? AUTHORS.cafe : c.item.unit.id === 'city' ? AUTHORS.tiago : AUTHORS.ines;
   return AUTHORS.app;
 }
@@ -1009,6 +1306,8 @@ function caption(c) {
     case 'tip': return t('capTip');
     case 'sentence': return t('capSentence')(esc(c.item.pt));
     case 'build': return t('capBuild');
+    case 'ask': return t('capAsk');
+    case 'limit': return t('capLimit');
     case 'rare': return t('capRare');
     case 'video': return esc(listOf(c.video, 'caption')) + ` <span class="hash">${t('tagVideo')}</span>`;
     case 'chest': return t('capChest');
@@ -1032,10 +1331,11 @@ function decorate(el, c) {
     <div class="caption">${caption(c)}</div>`;
   el.appendChild(meta);
 
-  const speakable = (c.item && c.type !== 'quiz') || c.type === 'build';   // w quizie głośnik zdradzałby odpowiedź
+  const speakable = (c.item && c.type !== 'quiz' && c.type !== 'ask') || c.type === 'build';   // w quizie głośnik zdradzałby odpowiedź
   const speakText = c.speakText || (c.type === 'sentence' ? c.item.ex[0] : c.item && c.item.pt);
   const actions = document.createElement('div'); actions.className = 'actions';
   actions.innerHTML = `<button class="act ${liked ? 'on' : ''}" data-a="like" aria-label="Like"><span>❤</span><small>${fmt(base + (liked ? 1 : 0))}</small></button>
+    <button class="act" data-a="comment" aria-label="${t('comments')}"><span>💬</span><small class="ccount">${commentCount(c)}</small></button>
     ${speakable ? `<button class="act" data-a="speak" aria-label="${t('listen')}"><span>🔊</span><small>${t('listen')}</small></button>` : ''}
     <button class="act" data-a="share" aria-label="${t('send')}"><span>↗</span><small>${t('send')}</small></button>`;
   el.appendChild(actions);
@@ -1059,6 +1359,7 @@ function decorate(el, c) {
   likeBtn.onclick = () => { setLike(!liked); if (liked) { heart(el); nextPost(); } };
   addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); nextPost(); });
   if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(speakText);
+  actions.querySelector('[data-a=comment]').onclick = () => openComments(el, c);
   actions.querySelector('[data-a=share]').onclick = () => {
     const txt = c.type === 'sentence' ? `🇵🇹 ${c.item.ex[0]} = ${isEn() ? c.item.ex[2] : c.item.ex[1]}` : c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
     if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else toast(t('shareMobile'));
@@ -1238,6 +1539,26 @@ function renderInner(c) {
       </div>`;
     el.querySelector('.pl').onclick = e => { c.revealed = true; e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
   }
+  else if (c.type === 'ask') {
+    const it = c.item;
+    const head = c.mode === 'cloze'
+      ? `<div class="q-prompt">${t('askCloze')}</div><h2 class="sent">${esc(it.ex[0]).replace(new RegExp('(^|[^\\p{L}])(' + esc(it.ex[3]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?=[^\\p{L}]|$)', 'iu'), '$1<span class="gap">_____</span>')}</h2><div class="note">${esc(isEn() ? it.ex[2] : it.ex[1])}</div>`
+      : `<div class="q-prompt">${t('askTranslate')}</div><div class="q-word">${esc(tr(it))}</div>`;
+    el.innerHTML = `<div>
+        <div class="tag">💬 ${t('askTag')} · ${esc(titleOf(unit))}</div>
+        ${head}
+        <button class="ask-cta">${c.done ? t('seeComments') : t('askCta')}</button>
+        <div class="feedback">${c.done ? '✅' : ''}</div>
+      </div>`;
+    el.querySelector('.ask-cta').onclick = e => { e.stopPropagation(); openComments(el, c); };
+  }
+  else if (c.type === 'limit') {
+    el.classList.add('tip');
+    el.innerHTML = `<div><div class="big-emoji">✅</div><div class="tag">${t('limitTag')}</div>
+      <h3>${t('limitT')(S.newLimit)}</h3><p>${t('limitS')}</p>
+      <button class="ask-cta">${t('limitBtn')}</button></div>`;
+    el.querySelector('.ask-cta').onclick = e => { e.stopPropagation(); openDayPanel(); };
+  }
   else if (c.type === 'build') {
     const parts = numParts(c.n);
     const rows = parts.map((p, i) => (i ? `<div class="bjoin" style="animation-delay:${i * .5 - .25}s">+ e</div>` : '')
@@ -1293,6 +1614,10 @@ function renderInner(c) {
 function answer(el, c, i) {
   const chosen = c.options[i], ok = chosen === c.item;
   c.answered = true;
+  if (!c.gen) {                                   // ocena do systemu powtórek: poprawność + czas odpowiedzi
+    const ms = Date.now() - (c.shownAt || Date.now()) - (c.kind === 'listen' ? 2000 : 0);
+    srsGrade(c.item.id, !ok ? 'again' : ms <= 6000 ? 'good' : 'hard', c.kind !== 'pt2pl', c.review);
+  }
   const btns = el.querySelectorAll('.opt');
   btns.forEach((b, j) => { b.disabled = true; if (c.options[j] === c.item) b.classList.add('ok'); });
   const fb = el.querySelector('.feedback');
@@ -1491,7 +1816,10 @@ function ensureBuffer(rebuildAhead) {
   if (rebuildAhead) {
     while (feed.children.length - 1 > idx + 1) {
       const last = feed.lastElementChild;
-      if (last._card.type === 'quiz') { io.unobserve(last); feed.removeChild(last); cardNo--; }
+      if (last._card.type === 'quiz' || last._card.type === 'ask') {
+        if (last._card.review) dueQueue.unshift(last._card.item.id);
+        io.unobserve(last); feed.removeChild(last); cardNo--;
+      }
       else break;
     }
   }
@@ -1509,7 +1837,7 @@ const io = new IntersectionObserver(entries => {
     document.getElementById('unitLabel').textContent = el.dataset.unit;
     if (c.play) setTimeout(() => { if (el._active) c.play(); }, 450);   // filmik startuje sam
     if (c.seen) return;
-    c.seen = true;
+    c.seen = true; c.shownAt = Date.now();
     S.seen++; save();
     document.getElementById('progress').style.width = Math.min(100, S.step / PLAN.length * 100) + '%';
     if (c.type === 'learn') addXP(2);
@@ -1530,6 +1858,7 @@ function observe(el) { io.observe(el); return el; }
 
 /* Klawiatura na komputerze: strzałki / spacja */
 document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
   if (['ArrowDown', 'ArrowUp', ' ', 'PageDown', 'PageUp'].includes(e.key)) {
     e.preventDefault();
     const dir = ['ArrowUp', 'PageUp'].includes(e.key) ? -1 : 1;
@@ -1558,7 +1887,7 @@ langBtn.onclick = () => {
   const idx = activeIndex();
   [...feed.children].forEach((el, i) => {
     const c = el._card;
-    if (c.type === 'quiz' && c.answered) return;             // rozwiązany quiz zostawiamy jak był
+    if ((c.type === 'quiz' && c.answered) || (c.type === 'ask' && c.done)) return;             // rozwiązany quiz zostawiamy jak był
     if (c.type === 'video' && el._active) return;             // nie przerywamy oglądanego filmiku
     if (c.stop) c.stop();
     const n = render(c);
@@ -1568,19 +1897,27 @@ langBtn.onclick = () => {
   toast(t('langSet'));
 };
 
-document.getElementById('resetBtn').onclick = () => {
+function doReset() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   S = Object.assign(fresh(), { lang: S.lang, sound: S.sound }); save();
   feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
   nextChestAt = 10; nextVideoAt = 6; shownVideos.clear();
-  ensureBuffer(); paintSound(); paintStats();
+  startDay(); ensureBuffer(); paintSound(); paintStats(); paintDay();
   feed.scrollTop = 0; toast(t('restart'));
+}
+document.getElementById('dayBtn').onclick = openDayPanel;
+/* Panel komentarzy */
+document.querySelector('#sheet .sheet-bg').onclick = closeSheet;
+document.querySelector('#sheet .sheet-x').onclick = closeSheet;
+document.querySelector('#sheet .sheet-form').onsubmit = e => {
+  e.preventDefault(); const inp = e.target.querySelector('input'); postComment(inp.value); inp.value = '';
+  if (sheetCard && sheetCard.type === 'ask') inp.placeholder = t('addComment');
 };
 
 /* Start: jeśli wracasz, zaczynasz od krótkiej powtórki */
 paintSound(); paintLang(); paintStats();
 document.getElementById('unitLabel').textContent = t('start');
-if (S.learned.length >= 3) { for (let k = 0; k < 2; k++) reviewQueue.push({ id: pick(weightedLearned()), due: 0 }); }
+startDay(); paintDay();
 ensureBuffer();
 setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast(t('noVoice')(voice.lang)); }, 1500);
 </script>
