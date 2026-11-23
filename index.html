@@ -43,15 +43,15 @@
   /* ===== Górny pasek ===== */
   #top {
     position: fixed; inset: 0 0 auto 0; z-index: 10;
-    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-    display: flex; align-items: center; gap: 12px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px 16px;
+    display: flex; align-items: center; gap: 8px;
     background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent);
     pointer-events: none;
   }
   #top > * { pointer-events: auto; }
-  #unitLabel { font-weight: 600; font-size: 15px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #unitLabel { font-weight: 600; font-size: 15px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pill { background: rgba(255,255,255,.14); border: 0; color: var(--fg); border-radius: 999px;
-    padding: 7px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    padding: 7px 10px; font-size: 14px; font-weight: 600; cursor: pointer; flex: none; }
   #progress { position: fixed; top: 0; left: 0; height: 3px; background: #fff; z-index: 11; transition: width .3s; }
 
   /* ===== Typografia kart ===== */
@@ -115,12 +115,15 @@
   .opt { padding: 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,.18); background: var(--card-glass);
     color: var(--fg); font-size: 18px; font-weight: 600; cursor: pointer; transition: transform .1s, background .2s, border-color .2s; }
   .opt:active { transform: scale(.98); }
-  .opt.ok { background: var(--ok); border-color: var(--ok); }
-  .opt.bad { background: var(--bad); border-color: var(--bad); }
+  .opt.ok { background: var(--ok); border-color: var(--ok); animation: okPop .35s; }
+  .opt.bad { background: var(--bad); border-color: var(--bad); animation: shake .35s; }
   .opt:disabled { cursor: default; }
+  @keyframes okPop { 50% { transform: scale(1.06) } }
+  @keyframes shake { 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
   .feedback { min-height: 28px; margin-top: 16px; font-size: 16px; font-weight: 600; }
   .listen-btn { font-size: 54px; width: 110px; height: 110px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16);
     color: #fff; cursor: pointer; margin: 0 auto 26px; display: grid; place-items: center; }
+  .boost { color: #7cf; }
 
   /* ===== Animacje ===== */
   .heart { position: absolute; left: 50%; top: 50%; font-size: 110px; transform: translate(-50%,-50%) scale(0);
@@ -137,8 +140,8 @@
   #toast.show { opacity: 1; }
 
   /* ===== Dopamina: XP, streak, combo, efekty ===== */
-  .stat { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border-radius: 999px;
-    padding: 5px 10px 5px 6px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .stat { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.14); border-radius: 999px;
+    padding: 5px 9px 5px 6px; font-size: 14px; font-weight: 700; white-space: nowrap; flex: none; }
   .stat.bump { animation: bump .45s; }
   @keyframes bump { 40% { transform: scale(1.25) } }
   .ring { width: 22px; height: 22px; transform: rotate(-90deg); }
@@ -157,13 +160,6 @@
   #combo.go { animation: comboPop 1.3s ease-out forwards; }
   @keyframes comboPop { 15% { transform: translate(-50%,-50%) scale(1.3) rotate(-4deg) } 30% { transform: translate(-50%,-50%) scale(1) }
                         80% { opacity: 1 } 100% { transform: translate(-50%,-80%) scale(1); opacity: 0 } }
-  .combo-meter { position: absolute; top: calc(64px + env(safe-area-inset-top)); left: 0; right: 0; max-width: none;
-    font-size: 15px; font-weight: 800; color: #ffd23f; }
-  .opt.ok { animation: okPop .35s; }
-  @keyframes okPop { 50% { transform: scale(1.06) } }
-  .opt.bad { animation: shake .35s; }
-  @keyframes shake { 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
-  .boost { color: #7cf; }
 
   #overlay { position: fixed; inset: 0; z-index: 29; display: none; place-items: center; text-align: center; padding: 24px;
     background: radial-gradient(circle, rgba(60,30,120,.92), rgba(0,0,0,.94)); }
@@ -192,14 +188,15 @@
 <body>
 <div id="progress"></div>
 <div id="top">
-  <span id="unitLabel">🇵🇹 Portugalski od zera</span>
-  <span class="stat" id="streak" title="Dni z rzędu">🔥 <span id="streakN">0</span></span>
-  <span class="stat" id="xpStat" title="XP (pierścień = cel dnia)">
+  <span id="unitLabel">🇵🇹 Scroll PT</span>
+  <span class="stat" id="streak" title="Streak">🔥 <span id="streakN">0</span></span>
+  <span class="stat" id="xpStat" title="XP">
     <svg class="ring" viewBox="0 0 24 24"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" id="goalRing" cx="12" cy="12" r="9" stroke-dasharray="56.5" stroke-dashoffset="56.5"/></svg>
     <span id="xpN">0</span>
   </span>
-  <button class="pill" id="soundBtn" title="Dźwięk">🔊</button>
-  <button class="pill" id="resetBtn" title="Zacznij od nowa">↺</button>
+  <button class="pill" id="langBtn" title="Język / Language">🇵🇱</button>
+  <button class="pill" id="soundBtn" title="Dźwięk / Sound">🔊</button>
+  <button class="pill" id="resetBtn" title="Od nowa / Restart">↺</button>
 </div>
 <main id="feed" aria-live="polite"></main>
 <canvas id="fx"></canvas>
@@ -210,50 +207,69 @@
 <script>
 /* =========================================================
    TREŚCI: portugalski europejski (pt-PT) od podstaw.
-   Wymowa zapisana "po polsku", w przybliżeniu.
+   pl / en = tłumaczenia, say = wymowa zapisana "po polsku"
+   (dla angielskiego przerabiana automatycznie: sz->sh itd.)
    ========================================================= */
 const UNITS = [
-  { id: 'ola', title: 'Powitania', emoji: '👋', bg: ['#1d3b8b', '#0f1f4d'],
+  { id: 'ola', title: 'Powitania', titleEn: 'Greetings', emoji: '👋', bg: ['#1d3b8b', '#0f1f4d'],
     intro: ['Zaczynamy od słów, które usłyszysz pierwszego dnia w Portugalii.',
-            'Przewijaj w górę. Dotknij rozmazanego tłumaczenia, żeby je odsłonić. Dwuklik = zapisz słówko ❤️'],
+            'Przewijaj w górę. Dotknij rozmazanego tłumaczenia, żeby je odsłonić. Dwuklik = polub słówko ❤️'],
+    introEn: ['Let’s start with the words you’ll hear on your first day in Portugal.',
+              'Scroll up. Tap the blurred translation to reveal it. Double-tap = like the word ❤️'],
     items: [
-      { pt: 'Olá', pl: 'Cześć / Dzień dobry', say: 'olá', note: 'Pasuje prawie zawsze, także w sklepie.' },
-      { pt: 'Bom dia', pl: 'Dzień dobry (rano)', say: 'bõ dija', note: 'Mówi się mniej więcej do pory obiadu.' },
-      { pt: 'Boa tarde', pl: 'Dzień dobry (po południu)', say: 'boa tard', note: 'Końcowe „e” prawie znika: tard.' },
-      { pt: 'Boa noite', pl: 'Dobry wieczór / Dobranoc', say: 'boa nojt' },
-      { pt: 'Tudo bem?', pl: 'Co słychać? / Wszystko dobrze?', say: 'tudu bãj', note: 'Odpowiedź: „Tudo bem, obrigado.”' },
-      { pt: 'Até logo', pl: 'Na razie / Do zobaczenia', say: 'ate logu' },
-      { pt: 'Adeus', pl: 'Do widzenia', say: 'adeusz', note: 'Końcowe „s” czytasz jak polskie „sz”.' },
+      { pt: 'Olá', pl: 'Cześć / Dzień dobry', en: 'Hi / Hello', say: 'olá',
+        note: 'Pasuje prawie zawsze, także w sklepie.', noteEn: 'Works almost everywhere, even in shops.' },
+      { pt: 'Bom dia', pl: 'Dzień dobry (rano)', en: 'Good morning', say: 'bõ dija',
+        note: 'Mówi się mniej więcej do pory obiadu.', noteEn: 'Used until roughly lunchtime.' },
+      { pt: 'Boa tarde', pl: 'Dzień dobry (po południu)', en: 'Good afternoon', say: 'boa tard',
+        note: 'Końcowe „e” prawie znika: tard.', noteEn: 'The final “e” almost disappears: tard.' },
+      { pt: 'Boa noite', pl: 'Dobry wieczór / Dobranoc', en: 'Good evening / Good night', say: 'boa nojt' },
+      { pt: 'Tudo bem?', pl: 'Co słychać? / Wszystko dobrze?', en: 'How are you? / All good?', say: 'tudu bãj',
+        note: 'Odpowiedź: „Tudo bem, obrigado.”', noteEn: 'Answer: “Tudo bem, obrigado.”' },
+      { pt: 'Até logo', pl: 'Na razie / Do zobaczenia', en: 'See you later', say: 'ate logu' },
+      { pt: 'Adeus', pl: 'Do widzenia', en: 'Goodbye', say: 'adeusz',
+        note: 'Końcowe „s” czytasz jak polskie „sz”.', noteEn: 'The final “s” sounds like English “sh”.' },
     ] },
-  { tip: true, emoji: '🗣️', title: 'Zasada wymowy nr 1', bg: ['#4a2a7a', '#22133d'],
+  { tip: true, emoji: '🗣️', title: 'Zasada wymowy nr 1', titleEn: 'Pronunciation rule #1', bg: ['#4a2a7a', '#22133d'],
     text: ['„S” na końcu słowa i przed spółgłoską brzmi jak polskie „sz”.',
            'adeus → adeusz, dois → dojsz, português → purtugesz.',
-           'To jedna z rzeczy, po których słychać portugalski z Portugalii, a nie z Brazylii.'] },
-  { id: 'obrigado', title: 'Grzeczności', emoji: '🙏', bg: ['#0d6b5c', '#06352e'],
+           'To jedna z rzeczy, po których słychać portugalski z Portugalii, a nie z Brazylii.'],
+    textEn: ['“S” at the end of a word and before a consonant sounds like English “sh”.',
+             'adeus → adeush, dois → doysh, português → purtugesh.',
+             'It’s one of the things that makes European Portuguese sound different from Brazilian.'] },
+  { id: 'obrigado', title: 'Grzeczności', titleEn: 'Politeness', emoji: '🙏', bg: ['#0d6b5c', '#06352e'],
     intro: ['Te słowa otwierają każde drzwi.', 'Uwaga: „obrigado / obrigada” zależy od tego, KTO mówi, a nie do kogo.'],
+    introEn: ['These words open every door.', 'Note: “obrigado / obrigada” depends on WHO is speaking, not who you talk to.'],
     items: [
-      { pt: 'Obrigado', pl: 'Dziękuję (mówi mężczyzna)', say: 'obrigadu', note: 'Kobieta mówi: obrigada.' },
-      { pt: 'Por favor', pl: 'Proszę (prosząc o coś)', say: 'pur fawor' },
-      { pt: 'De nada', pl: 'Nie ma za co', say: 'dy nada' },
-      { pt: 'Desculpe', pl: 'Przepraszam', say: 'deszkulp' },
-      { pt: 'Com licença', pl: 'Przepraszam (żeby przejść)', say: 'kõ lisẽsa' },
-      { pt: 'Sim', pl: 'Tak', say: 'sĩ', note: '„m” na końcu tylko unosowia samogłoskę.' },
-      { pt: 'Não', pl: 'Nie', say: 'nãu' },
+      { pt: 'Obrigado', pl: 'Dziękuję (mówi mężczyzna)', en: 'Thank you (said by a man)', say: 'obrigadu',
+        note: 'Kobieta mówi: obrigada.', noteEn: 'A woman says: obrigada.' },
+      { pt: 'Por favor', pl: 'Proszę (prosząc o coś)', en: 'Please', say: 'pur fawor' },
+      { pt: 'De nada', pl: 'Nie ma za co', en: 'You’re welcome', say: 'dy nada' },
+      { pt: 'Desculpe', pl: 'Przepraszam', en: 'Sorry / Excuse me', say: 'deszkulp' },
+      { pt: 'Com licença', pl: 'Przepraszam (żeby przejść)', en: 'Excuse me (to get past)', say: 'kõ lisẽsa' },
+      { pt: 'Sim', pl: 'Tak', en: 'Yes', say: 'sĩ',
+        note: '„m” na końcu tylko unosowia samogłoskę.', noteEn: 'The final “m” just makes the vowel nasal.' },
+      { pt: 'Não', pl: 'Nie', en: 'No', say: 'nãu' },
     ] },
-  { id: 'eu', title: 'Przedstawianie się', emoji: '🙋', bg: ['#8a3b12', '#45190a'],
+  { id: 'eu', title: 'Przedstawianie się', titleEn: 'Introducing yourself', emoji: '🙋', bg: ['#8a3b12', '#45190a'],
     intro: ['Powiesz, jak się nazywasz, skąd jesteś i że dopiero się uczysz.'],
+    introEn: ['You’ll say your name, where you’re from and that you’re just learning.'],
     items: [
-      { pt: 'Chamo-me…', pl: 'Nazywam się…', say: 'szamu-my', note: 'W Portugalii „me” stoi PO czasowniku.' },
-      { pt: 'Como se chama?', pl: 'Jak się Pan/Pani nazywa?', say: 'komu sy szama' },
-      { pt: 'Muito prazer', pl: 'Bardzo mi miło', say: 'mũjtu prazer' },
-      { pt: 'Sou da Polónia', pl: 'Jestem z Polski', say: 'so da polonja' },
-      { pt: 'Não percebo', pl: 'Nie rozumiem', say: 'nãu persebu', note: 'Typowe dla Portugalii (w Brazylii: não entendo).' },
-      { pt: 'Fala inglês?', pl: 'Mówi Pan/Pani po angielsku?', say: 'fala inglesz' },
-      { pt: 'Estou a aprender português', pl: 'Uczę się portugalskiego', say: 'isztoł a aprẽder purtugesz',
-        note: '„estou a + bezokolicznik” = robię coś teraz. Bardzo portugalska konstrukcja.' },
+      { pt: 'Chamo-me…', pl: 'Nazywam się…', en: 'My name is…', say: 'szamu-my',
+        note: 'W Portugalii „me” stoi PO czasowniku.', noteEn: 'In Portugal “me” goes AFTER the verb.' },
+      { pt: 'Como se chama?', pl: 'Jak się Pan/Pani nazywa?', en: 'What’s your name? (formal)', say: 'komu sy szama' },
+      { pt: 'Muito prazer', pl: 'Bardzo mi miło', en: 'Nice to meet you', say: 'mũjtu prazer' },
+      { pt: 'Sou da Polónia', pl: 'Jestem z Polski', en: 'I’m from Poland', say: 'so da polonja' },
+      { pt: 'Não percebo', pl: 'Nie rozumiem', en: 'I don’t understand', say: 'nãu persebu',
+        note: 'Typowe dla Portugalii (w Brazylii: não entendo).', noteEn: 'Typical of Portugal (in Brazil: não entendo).' },
+      { pt: 'Fala inglês?', pl: 'Mówi Pan/Pani po angielsku?', en: 'Do you speak English? (formal)', say: 'fala inglesz' },
+      { pt: 'Estou a aprender português', pl: 'Uczę się portugalskiego', en: 'I’m learning Portuguese', say: 'isztoł a aprẽder purtugesz',
+        note: '„estou a + bezokolicznik” = robię coś teraz. Bardzo portugalska konstrukcja.',
+        noteEn: '“estou a + infinitive” = I’m doing something right now. A very Portuguese structure.' },
     ] },
-  { id: 'num', title: 'Liczby 1–10', emoji: '🔢', bg: ['#6b1d5c', '#350d2d'],
+  { id: 'num', title: 'Liczby 1–10', titleEn: 'Numbers 1–10', emoji: '🔢', bg: ['#6b1d5c', '#350d2d'],
     intro: ['Liczby przydadzą się od razu: ceny, godziny, numer pokoju.'],
+    introEn: ['Numbers are useful right away: prices, times, room numbers.'],
     items: [
       { pt: 'um', pl: '1', say: 'ũ' }, { pt: 'dois', pl: '2', say: 'dojsz' },
       { pt: 'três', pl: '3', say: 'tresz' }, { pt: 'quatro', pl: '4', say: 'kuatru' },
@@ -261,75 +277,65 @@ const UNITS = [
       { pt: 'sete', pl: '7', say: 'set' }, { pt: 'oito', pl: '8', say: 'ojtu' },
       { pt: 'nove', pl: '9', say: 'now' }, { pt: 'dez', pl: '10', say: 'desz' },
     ] },
-  { tip: true, emoji: '☕', title: 'Kawa po portugalsku', bg: ['#5a3a1a', '#2a1a0a'],
+  { tip: true, emoji: '☕', title: 'Kawa po portugalsku', titleEn: 'Coffee, Portuguese style', bg: ['#5a3a1a', '#2a1a0a'],
     text: ['„Um café” to w Portugalii małe espresso, nie duży kubek.',
            'W Lizbonie na espresso mówi się też „uma bica”.',
-           'Chcesz z mlekiem w szklance? Zamów „um galão”.'] },
-  { id: 'cafe', title: 'W kawiarni', emoji: '🥐', bg: ['#7a5a12', '#3d2c08'],
+           'Chcesz z mlekiem w szklance? Zamów „um galão”.'],
+    textEn: ['In Portugal “um café” is a small espresso, not a big mug.',
+             'In Lisbon an espresso is also called “uma bica”.',
+             'Want it milky, in a glass? Order “um galão”.'] },
+  { id: 'cafe', title: 'W kawiarni', titleEn: 'At the café', emoji: '🥐', bg: ['#7a5a12', '#3d2c08'],
     intro: ['Zamówisz kawę, pastel de nata i poprosisz o rachunek.'],
+    introEn: ['You’ll order coffee and a pastel de nata, and ask for the bill.'],
     items: [
-      { pt: 'Queria…', pl: 'Poproszę… / Chciałbym…', say: 'kerija', note: 'Grzeczniej niż „quero” (chcę).' },
-      { pt: 'Um café', pl: 'Espresso', say: 'ũ kafe' },
-      { pt: 'Um galão', pl: 'Kawa z mlekiem w szklance', say: 'ũ galãu' },
-      { pt: 'Um pastel de nata', pl: 'Babeczka z kremem', say: 'ũ pasztel dy nata' },
-      { pt: 'Água', pl: 'Woda', say: 'agua' },
-      { pt: 'Pão', pl: 'Chleb', say: 'pãu' },
-      { pt: 'Quanto custa?', pl: 'Ile kosztuje?', say: 'kuantu kuszta' },
-      { pt: 'A conta, por favor', pl: 'Rachunek, proszę', say: 'a kõta pur fawor' },
+      { pt: 'Queria…', pl: 'Poproszę… / Chciałbym…', en: 'I’d like…', say: 'kerija',
+        note: 'Grzeczniej niż „quero” (chcę).', noteEn: 'More polite than “quero” (I want).' },
+      { pt: 'Um café', pl: 'Espresso', en: 'An espresso', say: 'ũ kafe' },
+      { pt: 'Um galão', pl: 'Kawa z mlekiem w szklance', en: 'Milky coffee in a glass', say: 'ũ galãu' },
+      { pt: 'Um pastel de nata', pl: 'Babeczka z kremem', en: 'Custard tart', say: 'ũ pasztel dy nata' },
+      { pt: 'Água', pl: 'Woda', en: 'Water', say: 'agua' },
+      { pt: 'Pão', pl: 'Chleb', en: 'Bread', say: 'pãu' },
+      { pt: 'Quanto custa?', pl: 'Ile kosztuje?', en: 'How much is it?', say: 'kuantu kuszta' },
+      { pt: 'A conta, por favor', pl: 'Rachunek, proszę', en: 'The bill, please', say: 'a kõta pur fawor' },
     ] },
-  { id: 'city', title: 'W mieście', emoji: '🏙️', bg: ['#125a7a', '#082d3d'],
+  { id: 'city', title: 'W mieście', titleEn: 'In the city', emoji: '🏙️', bg: ['#125a7a', '#082d3d'],
     intro: ['Zapytasz o drogę i zrozumiesz odpowiedź.'],
+    introEn: ['You’ll ask for directions and understand the answer.'],
     items: [
-      { pt: 'Onde fica…?', pl: 'Gdzie jest…?', say: 'õd fika' },
-      { pt: 'A casa de banho', pl: 'Toaleta / łazienka', say: 'a kaza dy bańu' },
-      { pt: 'O comboio', pl: 'Pociąg', say: 'u kõboju', note: 'W Brazylii: trem. W Portugalii zawsze comboio.' },
-      { pt: 'O autocarro', pl: 'Autobus', say: 'u ałtukaru' },
-      { pt: 'A praia', pl: 'Plaża', say: 'a praja' },
-      { pt: 'À esquerda', pl: 'W lewo', say: 'a iszkerda' },
-      { pt: 'À direita', pl: 'W prawo', say: 'a direjta' },
-      { pt: 'Em frente', pl: 'Prosto', say: 'ãj frẽt' },
+      { pt: 'Onde fica…?', pl: 'Gdzie jest…?', en: 'Where is…?', say: 'õd fika' },
+      { pt: 'A casa de banho', pl: 'Toaleta / łazienka', en: 'Toilet / bathroom', say: 'a kaza dy bańu' },
+      { pt: 'O comboio', pl: 'Pociąg', en: 'Train', say: 'u kõboju',
+        note: 'W Brazylii: trem. W Portugalii zawsze comboio.', noteEn: 'In Brazil: trem. In Portugal it’s always comboio.' },
+      { pt: 'O autocarro', pl: 'Autobus', en: 'Bus', say: 'u ałtukaru' },
+      { pt: 'A praia', pl: 'Plaża', en: 'Beach', say: 'a praja' },
+      { pt: 'À esquerda', pl: 'W lewo', en: 'Left / on the left', say: 'a iszkerda' },
+      { pt: 'À direita', pl: 'W prawo', en: 'Right / on the right', say: 'a direjta' },
+      { pt: 'Em frente', pl: 'Prosto', en: 'Straight ahead', say: 'ãj frẽt' },
     ] },
 ];
-
-/* Płaska lista słówek z id */
-const ALL = [];
-UNITS.forEach(u => (u.items || []).forEach((it, i) => { it.id = u.id + ':' + i; it.unit = u; ALL.push(it); }));
-const BY_ID = Object.fromEntries(ALL.map(it => [it.id, it]));
-
-/* =========================================================
-   STAN (z bezpiecznym localStorage)
-   ========================================================= */
-const KEY = 'scroll-pt-v1';
-const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: true, seen: 0,
-  xp: 0, combo: 0, bestCombo: 0, streak: 0, lastDay: null, today: null, todayXp: 0, rares: [], boost: 0,
-  follows: [], watched: [] });
-let S = fresh();
-try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
-
-/* Plan "nowych" kart: intro działu -> słówka -> tip ... */
-const PLAN = [];
-UNITS.forEach(u => {
-  if (u.tip) { PLAN.push({ type: 'tip', unit: u }); return; }
-  PLAN.push({ type: 'intro', unit: u });
-  u.items.forEach(it => PLAN.push({ type: 'learn', item: it }));
-  PLAN.push({ type: 'done', unit: u });
-});
 
 /* Rzadkie karty do kolekcji: słowa "smaczki" z Portugalii */
 const RARES = [
-  { pt: 'Saudade', pl: 'Tęsknota, nostalgia', say: 'sałdad', note: 'Słowo-symbol Portugalii. Śpiewa się o nim w fado.' },
-  { pt: 'Fixe!', pl: 'Super! / Fajnie!', say: 'fisz', note: 'Slang typowy dla Portugalii. W Brazylii go nie usłyszysz.' },
-  { pt: 'Pois', pl: 'No tak / Właśnie', say: 'pojsz', note: 'Portugalczycy mówią to non stop. Uniwersalne „mhm”.' },
-  { pt: 'Giro', pl: 'Ładny, fajny', say: 'żiru', note: '„Que giro!” = Ale fajne!' },
-  { pt: 'Desenrascar', pl: 'Poradzić sobie (jakoś, na szybko)', say: 'dyzẽraszkar', note: 'Narodowa umiejętność: improwizować i wyjść z kłopotu.' },
-  { pt: 'Alfacinha', pl: 'Mieszkaniec Lizbony', say: 'alfasińa', note: 'Dosłownie „sałatka”.' },
-  { pt: 'Tripeiro', pl: 'Mieszkaniec Porto', say: 'tripejru', note: 'Od „tripas”, flaków, lokalnego przysmaku.' },
-  { pt: 'Está bem', pl: 'OK, w porządku', say: 'isztá bãj', note: 'Na co dzień skracane do „tá bem”.' },
+  { pt: 'Saudade', pl: 'Tęsknota, nostalgia', en: 'Longing, nostalgia', say: 'sałdad',
+    note: 'Słowo-symbol Portugalii. Śpiewa się o nim w fado.', noteEn: 'Portugal’s signature word. Fado is all about it.' },
+  { pt: 'Fixe!', pl: 'Super! / Fajnie!', en: 'Cool! / Great!', say: 'fisz',
+    note: 'Slang typowy dla Portugalii. W Brazylii go nie usłyszysz.', noteEn: 'Slang typical of Portugal. You won’t hear it in Brazil.' },
+  { pt: 'Pois', pl: 'No tak / Właśnie', en: 'Right / Exactly', say: 'pojsz',
+    note: 'Portugalczycy mówią to non stop. Uniwersalne „mhm”.', noteEn: 'Portuguese people say it all the time. A universal “mhm”.' },
+  { pt: 'Giro', pl: 'Ładny, fajny', en: 'Pretty, cool', say: 'żiru',
+    note: '„Que giro!” = Ale fajne!', noteEn: '“Que giro!” = How cool!' },
+  { pt: 'Desenrascar', pl: 'Poradzić sobie (jakoś, na szybko)', en: 'To get by (somehow, improvising)', say: 'dyzẽraszkar',
+    note: 'Narodowa umiejętność: improwizować i wyjść z kłopotu.', noteEn: 'A national skill: improvising your way out of trouble.' },
+  { pt: 'Alfacinha', pl: 'Mieszkaniec Lizbony', en: 'A Lisbon local', say: 'alfasińa',
+    note: 'Dosłownie „sałatka” (alface = sałata).', noteEn: 'Literally “little lettuce” (alface = lettuce).' },
+  { pt: 'Tripeiro', pl: 'Mieszkaniec Porto', en: 'A Porto local', say: 'tripejru',
+    note: 'Od „tripas”, flaków, lokalnego przysmaku.', noteEn: 'From “tripas” (tripe), a local dish.' },
+  { pt: 'Está bem', pl: 'OK, w porządku', en: 'OK, alright', say: 'isztá bãj',
+    note: 'Na co dzień skracane do „tá bem”.', noteEn: 'Shortened to “tá bem” in everyday speech.' },
 ];
-const RARE_UNIT = { emoji: '✨', title: 'Rzadka karta', bg: ['#8a6a10', '#3a2a00'] };
-const CHEST_UNIT = { emoji: '🎁', title: 'Niespodzianka', bg: ['#5b2a9a', '#1e0d3a'] };
-const LEVELS = ['Turysta', 'Ouvinte', 'Aprendiz', 'Curioso', 'Conversador', 'Explorador', 'Lisboeta', 'Alfacinha', 'Mestre'];
+const RARE_UNIT = { emoji: '✨', title: 'Rzadka karta', titleEn: 'Rare card', bg: ['#8a6a10', '#3a2a00'] };
+const CHEST_UNIT = { emoji: '🎁', title: 'Niespodzianka', titleEn: 'Surprise', bg: ['#5b2a9a', '#1e0d3a'] };
+const LEVELS = ['Turista', 'Ouvinte', 'Aprendiz', 'Curioso', 'Conversador', 'Explorador', 'Lisboeta', 'Alfacinha', 'Mestre'];
 const levelOf = xp => Math.floor(Math.sqrt(xp / 25)) + 1;           // 25, 100, 225, 400... XP
 const levelName = l => LEVELS[Math.min(l - 1, LEVELS.length - 1)];
 const DAILY_GOAL = 60;
@@ -337,44 +343,48 @@ const DAILY_GOAL = 60;
 /* Filmiki: mini-scenki z dialogiem (lektor = głos przeglądarki).
    Pole `src` (mp4) pozwoli później podpiąć prawdziwe nagrania. `req` = słowo, które trzeba już znać. */
 const VIDEOS = [
-  { id: 'v-ola', req: 'ola:6', author: 'ines', title: 'Spotkanie na ulicy', scene: '🚶‍♀️☀️🚶', bg: ['#1d4f8b', '#0b1d3d'],
-    caption: 'Tak wygląda najkrótsza rozmowa w Lizbonie 😄',
+  { id: 'v-ola', req: 'ola:6', author: 'ines', scene: '🚶‍♀️☀️🚶', bg: ['#1d4f8b', '#0b1d3d'],
+    title: 'Spotkanie na ulicy', titleEn: 'Meeting on the street',
+    caption: 'Tak wygląda najkrótsza rozmowa w Lizbonie 😄', captionEn: 'The shortest conversation in Lisbon 😄',
     lines: [
-      { who: 'A', pt: 'Olá! Bom dia!', pl: 'Cześć! Dzień dobry!' },
-      { who: 'B', pt: 'Bom dia! Tudo bem?', pl: 'Dzień dobry! Co słychać?' },
-      { who: 'A', pt: 'Tudo bem. E tu?', pl: 'Wszystko dobrze. A u ciebie?' },
-      { who: 'B', pt: 'Tudo bem! Até logo!', pl: 'Dobrze! Na razie!' },
-      { who: 'A', pt: 'Adeus!', pl: 'Do widzenia!' },
+      { who: 'A', pt: 'Olá! Bom dia!', pl: 'Cześć! Dzień dobry!', en: 'Hi! Good morning!' },
+      { who: 'B', pt: 'Bom dia! Tudo bem?', pl: 'Dzień dobry! Co słychać?', en: 'Good morning! How are you?' },
+      { who: 'A', pt: 'Tudo bem. E tu?', pl: 'Wszystko dobrze. A u ciebie?', en: 'All good. And you?' },
+      { who: 'B', pt: 'Tudo bem! Até logo!', pl: 'Dobrze! Na razie!', en: 'Good! See you later!' },
+      { who: 'A', pt: 'Adeus!', pl: 'Do widzenia!', en: 'Goodbye!' },
     ] },
-  { id: 'v-eu', req: 'eu:6', author: 'tiago', title: 'Pierwsza rozmowa', scene: '🙋‍♂️🤝🙋‍♀️', bg: ['#8a3b12', '#3a1505'],
-    caption: 'Poznałem dziś kogoś z Polski 🇵🇱🤝🇵🇹',
+  { id: 'v-eu', req: 'eu:6', author: 'tiago', scene: '🙋‍♂️🤝🙋‍♀️', bg: ['#8a3b12', '#3a1505'],
+    title: 'Pierwsza rozmowa', titleEn: 'First conversation',
+    caption: 'Poznałem dziś kogoś z Polski 🇵🇱🤝🇵🇹', captionEn: 'Met someone from Poland today 🇵🇱🤝🇵🇹',
     lines: [
-      { who: 'A', pt: 'Olá! Chamo-me Pedro.', pl: 'Cześć! Mam na imię Pedro.' },
-      { who: 'B', pt: 'Olá! Chamo-me Ana. Muito prazer!', pl: 'Cześć! Jestem Ana. Bardzo mi miło!' },
-      { who: 'A', pt: 'Muito prazer! És de onde?', pl: 'Miło mi! Skąd jesteś?' },
-      { who: 'B', pt: 'Sou da Polónia.', pl: 'Jestem z Polski.' },
-      { who: 'A', pt: 'Falas português?', pl: 'Mówisz po portugalsku?' },
-      { who: 'B', pt: 'Um pouco. Estou a aprender!', pl: 'Trochę. Uczę się!' },
+      { who: 'A', pt: 'Olá! Chamo-me Pedro.', pl: 'Cześć! Mam na imię Pedro.', en: 'Hi! My name is Pedro.' },
+      { who: 'B', pt: 'Olá! Chamo-me Ana. Muito prazer!', pl: 'Cześć! Jestem Ana. Bardzo mi miło!', en: 'Hi! I’m Ana. Nice to meet you!' },
+      { who: 'A', pt: 'Muito prazer! És de onde?', pl: 'Miło mi! Skąd jesteś?', en: 'Nice to meet you! Where are you from?' },
+      { who: 'B', pt: 'Sou da Polónia.', pl: 'Jestem z Polski.', en: 'I’m from Poland.' },
+      { who: 'A', pt: 'Falas português?', pl: 'Mówisz po portugalsku?', en: 'Do you speak Portuguese?' },
+      { who: 'B', pt: 'Um pouco. Estou a aprender!', pl: 'Trochę. Uczę się!', en: 'A little. I’m learning!' },
     ] },
-  { id: 'v-cafe', req: 'cafe:7', author: 'cafe', title: 'W pastelarii', scene: '☕🥐👨‍🍳', bg: ['#6a4a12', '#2a1c05'],
-    caption: 'Zamawianie jak lokals. Zapisz sobie! ☕',
+  { id: 'v-cafe', req: 'cafe:7', author: 'cafe', scene: '☕🥐👨‍🍳', bg: ['#6a4a12', '#2a1c05'],
+    title: 'W pastelarii', titleEn: 'At the pastelaria',
+    caption: 'Zamawianie jak lokals. Zapisz sobie! ☕', captionEn: 'Order like a local. Save this! ☕',
     lines: [
-      { who: 'A', pt: 'Bom dia! O que deseja?', pl: 'Dzień dobry! Co podać?' },
-      { who: 'B', pt: 'Queria um café e um pastel de nata, por favor.', pl: 'Poproszę espresso i pastel de nata.' },
-      { who: 'A', pt: 'Mais alguma coisa?', pl: 'Coś jeszcze?' },
-      { who: 'B', pt: 'Não, obrigado. Quanto custa?', pl: 'Nie, dziękuję. Ile płacę?' },
-      { who: 'A', pt: 'São dois euros e vinte.', pl: 'Dwa euro dwadzieścia.' },
-      { who: 'B', pt: 'Obrigado! Bom dia!', pl: 'Dziękuję! Miłego dnia!' },
+      { who: 'A', pt: 'Bom dia! O que deseja?', pl: 'Dzień dobry! Co podać?', en: 'Good morning! What would you like?' },
+      { who: 'B', pt: 'Queria um café e um pastel de nata, por favor.', pl: 'Poproszę espresso i pastel de nata.', en: 'I’d like an espresso and a pastel de nata, please.' },
+      { who: 'A', pt: 'Mais alguma coisa?', pl: 'Coś jeszcze?', en: 'Anything else?' },
+      { who: 'B', pt: 'Não, obrigado. Quanto custa?', pl: 'Nie, dziękuję. Ile płacę?', en: 'No, thank you. How much is it?' },
+      { who: 'A', pt: 'São dois euros e vinte.', pl: 'Dwa euro dwadzieścia.', en: 'That’s two euros twenty.' },
+      { who: 'B', pt: 'Obrigado! Bom dia!', pl: 'Dziękuję! Miłego dnia!', en: 'Thank you! Have a nice day!' },
     ] },
-  { id: 'v-city', req: 'city:7', author: 'tiago', title: 'Gdzie jest plaża?', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
-    caption: 'Turyści pytają mnie o to codziennie 😅',
+  { id: 'v-city', req: 'city:7', author: 'tiago', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
+    title: 'Gdzie jest plaża?', titleEn: 'Where is the beach?',
+    caption: 'Turyści pytają mnie o to codziennie 😅', captionEn: 'Tourists ask me this every day 😅',
     lines: [
-      { who: 'A', pt: 'Desculpe, onde fica a praia?', pl: 'Przepraszam, gdzie jest plaża?' },
-      { who: 'B', pt: 'É em frente e depois à direita.', pl: 'Prosto, a potem w prawo.' },
-      { who: 'A', pt: 'E a casa de banho?', pl: 'A toaleta?' },
-      { who: 'B', pt: 'Ali, à esquerda.', pl: 'Tam, po lewej.' },
-      { who: 'A', pt: 'Muito obrigado!', pl: 'Bardzo dziękuję!' },
-      { who: 'B', pt: 'De nada!', pl: 'Nie ma za co!' },
+      { who: 'A', pt: 'Desculpe, onde fica a praia?', pl: 'Przepraszam, gdzie jest plaża?', en: 'Excuse me, where is the beach?' },
+      { who: 'B', pt: 'É em frente e depois à direita.', pl: 'Prosto, a potem w prawo.', en: 'Straight ahead and then right.' },
+      { who: 'A', pt: 'E a casa de banho?', pl: 'A toaleta?', en: 'And the toilet?' },
+      { who: 'B', pt: 'Ali, à esquerda.', pl: 'Tam, po lewej.', en: 'Over there, on the left.' },
+      { who: 'A', pt: 'Muito obrigado!', pl: 'Bardzo dziękuję!', en: 'Thank you very much!' },
+      { who: 'B', pt: 'De nada!', pl: 'Nie ma za co!', en: 'You’re welcome!' },
     ] },
 ];
 
@@ -387,6 +397,106 @@ const AUTHORS = {
   cafe:  { h: 'pastelaria.esquina', av: '☕', c: '#8a5a2b' },
   marta: { h: 'marta.fado', av: '🎤', c: '#8e44ad' },
 };
+
+/* =========================================================
+   JĘZYK INTERFEJSU I TŁUMACZEŃ: pl / en
+   ========================================================= */
+const T = {
+  pl: {
+    newWord: 'Nowe słowo', say: 'wymowa', tapReveal: 'dotknij, żeby zobaczyć tłumaczenie', newUnit: 'Nowy dział',
+    tip: 'Ciekawostka', check: 'Sprawdź się', qMeaning: 'Co to znaczy?', qSay: 'Jak to powiesz po portugalsku?',
+    qListen: 'Co słyszysz?', praise: ['Muito bem! 🎉', 'Perfeito! ✨', 'Isso mesmo! 👏', 'Excelente! 💪', 'Boa! 🙌'],
+    wrong: (pt, t) => `To: ${pt} = ${t}. Wróci za chwilę 🔁`, boost: n => `⚡x2 (zostało ${n})`,
+    comboBroken: (n, b) => `Seria przerwana na ${n}. Rekord: ${b} 🔥`,
+    unitDone: 'Dział ukończony', doneText: (n, perfect) => `Znasz już ${n} nowych słów${perfect ? ' i nie było ani jednej pomyłki 🎯' : ''}.`,
+    chestTag: 'Tajemnicza skrzynka', chestTap: 'dotknij, żeby otworzyć',
+    jackpot: 'JACKPOT! +100 XP<small>Trafia się raz na 20 skrzynek 🤯</small>',
+    rareGot: 'Rzadka karta', collection: 'Kolekcja',
+    double: '⚡ Podwójne XP<small>za 5 następnych dobrych odpowiedzi</small>',
+    xp40: '+40 XP<small>Ładnie!</small>', xp15: '+15 XP<small>Następna skrzynka może być lepsza 👀</small>',
+    rareTag: (n, m) => `✨ Rzadka karta · kolekcja ${n}/${m}`,
+    streak: n => `🔥 ${n} dni z rzędu!`, goalT: 'Cel dnia zaliczony!', goalS: g => `${g} XP dzisiaj. Streak bezpieczny 🔥`,
+    level: (l, nm) => `Poziom ${l}: ${nm}`, toNext: n => `Do następnego: ${n} XP`, tapContinue: 'dotknij, żeby kontynuować',
+    follow: 'Obserwuj', following: 'Obserwujesz', followed: h => `Obserwujesz @${h}`,
+    listen: 'posłuchaj', send: 'wyślij', liked: 'Polubione: słowo częściej wróci w powtórkach',
+    shareText: 'Uczę się portugalskiego 🇵🇹', shareMobile: 'Udostępnianie działa na telefonie',
+    ago: ['teraz', '2 min', '14 min', '1 godz.', '3 godz.', 'wczoraj'], k: ' tys.', dec: ',',
+    capLearn: pt => [`Słówko na dziś: <b>${pt}</b> 🇵🇹`, `Zapamiętaj: <b>${pt}</b> 💡`, `Używam tego codziennie: <b>${pt}</b>`],
+    tagLearn: '#portugalski #słówka', capQuiz: ['Sprawdźmy, czy pamiętasz 👇', 'Szybki test! Odpowiedz, zanim przewiniesz 😉', 'Wiesz to? 🤔'],
+    capTip: 'Tego nie ma w podręcznikach 😄 <span class="hash">#ciekawostki</span>',
+    capRare: 'Złota karta! Mało kto ją trafia ✨ <span class="hash">#kolekcja</span>', tagVideo: '#rozmowa #słuchanie',
+    capChest: 'Dla aktywnych mamy coś specjalnego 🎁', capDone: t => `Brawo! Dział „${t}” zaliczony 🏆`,
+    capIntro: t => `Nowy dział: ${t}`, video: 'Filmik', swipe: '↑ przewiń w górę',
+    soundOn: 'Dźwięk: wł.', soundOff: 'Dźwięk: wył.', restart: 'Zaczynamy od nowa',
+    noVoice: v => `Brak głosu pt-PT, czyta głos ${v}`, noTTS: 'Ta przeglądarka nie umie czytać na głos',
+    langSet: 'Tłumaczenia: polski 🇵🇱', start: '🇵🇹 Portugalski od zera',
+  },
+  en: {
+    newWord: 'New word', say: 'say it', tapReveal: 'tap to see the translation', newUnit: 'New unit',
+    tip: 'Fun fact', check: 'Quick check', qMeaning: 'What does it mean?', qSay: 'How do you say it in Portuguese?',
+    qListen: 'What do you hear?', praise: ['Muito bem! 🎉', 'Perfeito! ✨', 'Isso mesmo! 👏', 'Excelente! 💪', 'Boa! 🙌'],
+    wrong: (pt, t) => `It’s: ${pt} = ${t}. It’ll come back soon 🔁`, boost: n => `⚡x2 (${n} left)`,
+    comboBroken: (n, b) => `Streak broken at ${n}. Best: ${b} 🔥`,
+    unitDone: 'Unit complete', doneText: (n, perfect) => `You now know ${n} new words${perfect ? ' without a single mistake 🎯' : ''}.`,
+    chestTag: 'Mystery box', chestTap: 'tap to open',
+    jackpot: 'JACKPOT! +100 XP<small>Only 1 box in 20 has this 🤯</small>',
+    rareGot: 'Rare card', collection: 'Collection',
+    double: '⚡ Double XP<small>for your next 5 correct answers</small>',
+    xp40: '+40 XP<small>Nice!</small>', xp15: '+15 XP<small>The next box might be better 👀</small>',
+    rareTag: (n, m) => `✨ Rare card · collection ${n}/${m}`,
+    streak: n => `🔥 ${n}-day streak!`, goalT: 'Daily goal reached!', goalS: g => `${g} XP today. Your streak is safe 🔥`,
+    level: (l, nm) => `Level ${l}: ${nm}`, toNext: n => `Next level in ${n} XP`, tapContinue: 'tap to continue',
+    follow: 'Follow', following: 'Following', followed: h => `Following @${h}`,
+    listen: 'listen', send: 'share', liked: 'Liked: this word will come back more often',
+    shareText: 'I’m learning Portuguese 🇵🇹', shareMobile: 'Sharing works on mobile',
+    ago: ['now', '2m', '14m', '1h', '3h', 'yesterday'], k: 'K', dec: '.',
+    capLearn: pt => [`Word of the day: <b>${pt}</b> 🇵🇹`, `Remember this: <b>${pt}</b> 💡`, `I use this every day: <b>${pt}</b>`],
+    tagLearn: '#portuguese #vocab', capQuiz: ['Let’s see if you remember 👇', 'Quick test! Answer before you scroll 😉', 'Do you know this? 🤔'],
+    capTip: 'You won’t find this in textbooks 😄 <span class="hash">#funfacts</span>',
+    capRare: 'Golden card! Hardly anyone gets one ✨ <span class="hash">#collection</span>', tagVideo: '#conversation #listening',
+    capChest: 'Something special for active learners 🎁', capDone: t => `Well done! “${t}” complete 🏆`,
+    capIntro: t => `New unit: ${t}`, video: 'Video', swipe: '↑ swipe up',
+    soundOn: 'Sound: on', soundOff: 'Sound: off', restart: 'Starting over',
+    noVoice: v => `No pt-PT voice found, using ${v}`, noTTS: 'This browser can’t read aloud',
+    langSet: 'Translations: English 🇬🇧', start: '🇵🇹 Portuguese from zero',
+  },
+};
+const t = k => T[S.lang][k];
+const isEn = () => S.lang === 'en';
+const tr = o => isEn() ? (o.en || o.pl) : o.pl;                     // tłumaczenie słowa / zdania
+const noteOf = o => isEn() ? o.noteEn : o.note;
+const titleOf = u => (isEn() && u.titleEn) || u.title;
+const listOf = (o, k) => (isEn() && o[k + 'En']) || o[k];
+/* Wymowa: zapis "po polsku" -> przybliżenie dla anglojęzycznych */
+const sayOf = it => !isEn() ? it.say : it.say
+  .replace(/y/g, 'ə').replace(/j/g, 'y').replace(/w/g, 'v').replace(/ł/g, 'w')
+  .replace(/sz/g, 'sh').replace(/ż/g, 'zh').replace(/ń/g, 'ny');
+
+/* Płaska lista słówek z id */
+const ALL = [];
+UNITS.forEach(u => (u.items || []).forEach((it, i) => { it.id = u.id + ':' + i; it.unit = u; ALL.push(it); }));
+const BY_ID = {}; ALL.forEach(it => { BY_ID[it.id] = it; });
+
+/* =========================================================
+   STAN (z bezpiecznym localStorage)
+   ========================================================= */
+const KEY = 'scroll-pt-v1';
+const defaultLang = () => /^pl/i.test(navigator.language || '') ? 'pl' : 'en';
+const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: true, seen: 0,
+  xp: 0, combo: 0, bestCombo: 0, streak: 0, lastDay: null, today: null, todayXp: 0, rares: [], boost: 0,
+  follows: [], watched: [], lang: defaultLang() });
+let S = fresh();
+try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* Plan "nowych" kart: intro działu -> słówka -> puchar, między działami ciekawostki */
+const PLAN = [];
+UNITS.forEach(u => {
+  if (u.tip) { PLAN.push({ type: 'tip', unit: u }); return; }
+  PLAN.push({ type: 'intro', unit: u });
+  u.items.forEach(it => PLAN.push({ type: 'learn', item: it }));
+  PLAN.push({ type: 'done', unit: u });
+});
 
 /* =========================================================
    GENERATOR FEEDU: nieskończony, miesza nowe słowa z powtórkami
@@ -402,7 +512,7 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 function weightedLearned() {
-  // słowa z błędami i zapisane (❤️) pojawiają się częściej
+  // słowa z błędami i polubione (❤️) pojawiają się częściej
   const pool = [];
   S.learned.forEach(id => {
     const w = 1 + (S.mistakes[id] || 0) * 2 + (S.saved.includes(id) ? 2 : 0);
@@ -424,7 +534,7 @@ function nextCard() {
   // 1) zaległa powtórka po błędzie
   const dueIdx = reviewQueue.findIndex(r => r.due <= cardNo);
   if (dueIdx >= 0) { const r = reviewQueue.splice(dueIdx, 1)[0]; sinceQuiz = 0; return makeQuiz(r.id); }
-  // 1b) losowe nagrody: skrzynka co 8–14 kart, rzadka karta z małą szansą
+  // 1b) losowe nagrody: skrzynka co 8–14 kart
   if (S.learned.length >= 3 && cardNo >= nextChestAt) { nextChestAt = cardNo + 8 + Math.floor(Math.random() * 7); return { type: 'chest', unit: CHEST_UNIT }; }
   // 1c) filmik co 7–10 kart (z tego, co już umiesz zrozumieć)
   const vids = VIDEOS.filter(v => S.learned.includes(v.req) && !shownVideos.has(v.id));
@@ -434,6 +544,7 @@ function nextCard() {
     const v = pick(unseen.length ? unseen : vids); shownVideos.add(v.id);   // każdy filmik max raz na sesję
     return { type: 'video', video: v };
   }
+  // 1d) rzadka karta z małą szansą
   const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
   if (S.learned.length >= 5 && rareLeft.length && Math.random() < 0.06) return { type: 'rare', unit: RARE_UNIT, item: pick(rareLeft) };
   // 2) co ~3 karty quiz z tego, co już znasz
@@ -462,7 +573,7 @@ function pickVoice() {
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 let ttsWarned = false;
 function speak(text, pitch, onend) {
-  if (!('speechSynthesis' in window)) { if (!ttsWarned) { ttsWarned = true; toast('Ta przeglądarka nie umie czytać na głos'); } return; }
+  if (!('speechSynthesis' in window)) { if (!ttsWarned) { ttsWarned = true; toast(t('noTTS')); } return; }
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace('…', ''));
   u.lang = 'pt-PT'; if (voice) u.voice = voice; u.rate = .85; u.pitch = pitch || 1;
@@ -489,51 +600,51 @@ function authorFor(c) {
   return AUTHORS.app;
 }
 function hash(s) { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); }
-const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' tys.' : String(n);
-const AGO = ['teraz', '2 min', '14 min', '1 godz.', '3 godz.', 'wczoraj'];
+const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.', t('dec')) + t('k') : String(n);
 function caption(c) {
+  // podpis losujemy raz na post, żeby nie zmieniał się przy przełączaniu języka
+  if (c.capSeed === undefined) c.capSeed = Math.floor(Math.random() * 3);
   switch (c.type) {
-    case 'learn': return pick([`Słówko na dziś: <b>${esc(c.item.pt)}</b> 🇵🇹`, `Zapamiętaj: <b>${esc(c.item.pt)}</b> 💡`,
-                               `Używam tego codziennie: <b>${esc(c.item.pt)}</b>`]) + ' <span class="hash">#portugalski #słówka</span>';
-    case 'quiz': return pick(['Sprawdźmy, czy pamiętasz 👇', 'Szybki test! Odpowiedz, zanim przewiniesz 😉', 'Wiesz to? 🤔'])
-                        + ' <span class="hash">#quiz</span>';
-    case 'tip': return 'Tego nie ma w podręcznikach 😄 <span class="hash">#ciekawostki</span>';
-    case 'rare': return 'Złota karta! Mało kto ją trafia ✨ <span class="hash">#kolekcja</span>';
-    case 'video': return esc(c.video.caption) + ' <span class="hash">#rozmowa #słuchanie</span>';
-    case 'chest': return 'Dla aktywnych mamy coś specjalnego 🎁';
-    case 'done': return `Brawo! Dział „${esc(c.unit.title)}” zaliczony 🏆`;
-    default: return `Nowy dział: ${esc(c.unit.title)} ${c.unit.emoji}`;
+    case 'learn': return t('capLearn')(esc(c.item.pt))[c.capSeed] + ` <span class="hash">${t('tagLearn')}</span>`;
+    case 'quiz': return t('capQuiz')[c.capSeed] + ' <span class="hash">#quiz</span>';
+    case 'tip': return t('capTip');
+    case 'rare': return t('capRare');
+    case 'video': return esc(listOf(c.video, 'caption')) + ` <span class="hash">${t('tagVideo')}</span>`;
+    case 'chest': return t('capChest');
+    case 'done': return t('capDone')(esc(titleOf(c.unit)));
+    default: return t('capIntro')(esc(titleOf(c.unit))) + ' ' + c.unit.emoji;
   }
 }
 function decorate(el, c) {
   const a = authorFor(c);
   const key = (c.item && (c.item.id || c.item.pt)) || (c.video && c.video.id) || (c.unit && c.unit.title) || '';
   const base = 120 + hash(key + c.type) % 9000;               // stała "liczba polubień" dla danego posta
+  if (c.ago === undefined) c.ago = Math.floor(Math.random() * 6);
   const isLearn = c.type === 'learn';
-  let liked = isLearn && S.saved.includes(c.item.id);
+  let liked = isLearn ? S.saved.includes(c.item.id) : !!c.liked;
   const following = S.follows.includes(a.h);
 
   const meta = document.createElement('div'); meta.className = 'post-meta';
   meta.innerHTML = `<div class="author"><span class="av" style="background:${a.c}">${a.av}</span><b>${esc(a.h)}</b>
-      <span class="ago">· ${pick(AGO)}</span>
-      ${a === AUTHORS.app ? '' : `<button class="follow ${following ? 'on' : ''}">${following ? 'Obserwujesz' : 'Obserwuj'}</button>`}</div>
+      <span class="ago">· ${t('ago')[c.ago]}</span>
+      ${a === AUTHORS.app ? '' : `<button class="follow ${following ? 'on' : ''}">${following ? t('following') : t('follow')}</button>`}</div>
     <div class="caption">${caption(c)}</div>`;
   el.appendChild(meta);
 
   const speakable = c.item && c.type !== 'quiz';             // w quizie głośnik zdradzałby odpowiedź
   const actions = document.createElement('div'); actions.className = 'actions';
-  actions.innerHTML = `<button class="act ${liked ? 'on' : ''}" data-a="like" aria-label="Polub"><span>❤</span><small>${fmt(base + (liked ? 1 : 0))}</small></button>
-    ${speakable ? '<button class="act" data-a="speak" aria-label="Posłuchaj"><span>🔊</span><small>posłuchaj</small></button>' : ''}
-    <button class="act" data-a="share" aria-label="Udostępnij"><span>↗</span><small>wyślij</small></button>`;
+  actions.innerHTML = `<button class="act ${liked ? 'on' : ''}" data-a="like" aria-label="Like"><span>❤</span><small>${fmt(base + (liked ? 1 : 0))}</small></button>
+    ${speakable ? `<button class="act" data-a="speak" aria-label="${t('listen')}"><span>🔊</span><small>${t('listen')}</small></button>` : ''}
+    <button class="act" data-a="share" aria-label="${t('send')}"><span>↗</span><small>${t('send')}</small></button>`;
   el.appendChild(actions);
 
   const likeBtn = actions.querySelector('[data-a=like]');
   const setLike = on => {
-    liked = on; likeBtn.classList.toggle('on', on); likeBtn.querySelector('small').textContent = fmt(base + (on ? 1 : 0));
+    liked = on; c.liked = on; likeBtn.classList.toggle('on', on); likeBtn.querySelector('small').textContent = fmt(base + (on ? 1 : 0));
     if (on) { sfx('pop'); buzz(10); }
     if (isLearn) {
       const i = S.saved.indexOf(c.item.id);
-      if (on && i < 0) { S.saved.push(c.item.id); toast('Polubione: słowo częściej wróci w powtórkach'); }
+      if (on && i < 0) { S.saved.push(c.item.id); toast(t('liked')); }
       if (!on && i >= 0) S.saved.splice(i, 1);
       save();
     }
@@ -542,14 +653,14 @@ function decorate(el, c) {
   addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); });
   if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(c.item.pt);
   actions.querySelector('[data-a=share]').onclick = () => {
-    const t = c.item ? `🇵🇹 ${c.item.pt} = ${c.item.pl}` : 'Uczę się portugalskiego 🇵🇹';
-    if (navigator.share) navigator.share({ text: t }).catch(() => {}); else toast('Udostępnianie działa na telefonie');
+    const txt = c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
+    if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else toast(t('shareMobile'));
   };
   const fb = meta.querySelector('.follow');
   if (fb) fb.onclick = () => {
     const i = S.follows.indexOf(a.h);
-    if (i < 0) { S.follows.push(a.h); fb.textContent = 'Obserwujesz'; fb.classList.add('on'); toast(`Obserwujesz @${a.h}`); sfx('pop'); }
-    else { S.follows.splice(i, 1); fb.textContent = 'Obserwuj'; fb.classList.remove('on'); }
+    if (i < 0) { S.follows.push(a.h); fb.textContent = t('following'); fb.classList.add('on'); toast(t('followed')(a.h)); sfx('pop'); }
+    else { S.follows.splice(i, 1); fb.textContent = t('follow'); fb.classList.remove('on'); }
     save();
   };
   return el;
@@ -558,7 +669,7 @@ function decorate(el, c) {
 /* ===== Filmik: scenka z dymkami + lektor ===== */
 function renderVideo(el, c) {
   const v = c.video;
-  el.style.background = bg(v); el._card = c; el.dataset.unit = '🎬 Filmik';
+  el.style.background = bg(v); el._card = c; el.dataset.unit = '🎬 ' + t('video');
   if (v.src) {                                               // prawdziwe nagranie, gdy się pojawi
     el.innerHTML = `<video src="${esc(v.src)}" playsinline loop style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none"></video>`;
     const vid = el.querySelector('video');
@@ -566,8 +677,8 @@ function renderVideo(el, c) {
     return el;
   }
   el.innerHTML = `<div class="vprog"><i></i></div>
-    <div><div class="tag">🎬 Filmik · ${esc(v.title)}</div><div class="scene">${v.scene}</div><div class="bubbles"></div></div>
-    <button class="vplay" aria-label="Odtwórz">▶</button>`;
+    <div><div class="tag">🎬 ${t('video')} · ${esc(titleOf(v))}</div><div class="scene">${v.scene}</div><div class="bubbles"></div></div>
+    <button class="vplay" aria-label="Play">▶</button>`;
   const bubbles = el.querySelector('.bubbles'), prog = el.querySelector('.vprog i'), playBtn = el.querySelector('.vplay');
   let i = 0, playing = false, timer = null, token = 0;
   function step() {
@@ -582,7 +693,7 @@ function renderVideo(el, c) {
     }
     const L = v.lines[i++], b = document.createElement('div');
     b.className = 'bubble ' + L.who;
-    b.innerHTML = `<div class="bpt">${esc(L.pt)}</div><div class="bpl">${esc(L.pl)}</div>`;
+    b.innerHTML = `<div class="bpt">${esc(L.pt)}</div><div class="bpl">${esc(tr(L))}</div>`;
     bubbles.appendChild(b);
     while (bubbles.children.length > 4) bubbles.firstChild.remove();
     prog.style.width = (i / v.lines.length * 100) + '%';
@@ -611,52 +722,50 @@ function renderInner(c) {
   el.className = 'card';
   if (c.type === 'video') return renderVideo(el, c);
   const unit = c.unit || c.item.unit;
+  el.style.background = bg(unit);
+  el.dataset.unit = `${unit.emoji} ${titleOf(unit)}`;
+  el._card = c;
   if (c.type === 'chest') return renderChest(el, c);
   if (c.type === 'rare') return renderRare(el, c);
-  if (c.type === 'done') {
-    el.style.background = bg(unit); el._card = c; el.dataset.unit = `${unit.emoji} ${unit.title}`;
-    const n = unit.items.length, errs = unit.items.reduce((a, it) => a + (S.mistakes[it.id] || 0), 0);
-    el.innerHTML = `<div><div class="big-emoji">🏆</div><div class="tag">Dział ukończony</div>
-      <h2 style="font-size:32px;margin:0 0 12px">${esc(unit.title)}</h2>
-      <p style="font-size:18px;color:var(--muted)">Znasz już ${n} nowych słów${errs === 0 ? ' i nie było ani jednej pomyłki 🎯' : ''}.</p>
-      <div class="reward">+50 XP</div></div>`;
-    return el;
-  }
-  el.style.background = bg(unit);
-  el.dataset.unit = `${unit.emoji} ${unit.title}`;
-  el._card = c;
 
-  if (c.type === 'intro') {
+  if (c.type === 'done') {
+    const n = unit.items.length, errs = unit.items.reduce((a, it) => a + (S.mistakes[it.id] || 0), 0);
+    el.innerHTML = `<div><div class="big-emoji">🏆</div><div class="tag">${t('unitDone')}</div>
+      <h2 style="font-size:32px;margin:0 0 12px">${esc(titleOf(unit))}</h2>
+      <p style="font-size:18px;color:var(--muted)">${esc(t('doneText')(n, errs === 0))}</p>
+      <div class="reward">+50 XP</div></div>`;
+  }
+  else if (c.type === 'intro') {
     el.classList.add('intro');
-    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">Nowy dział</div>
-      <h2>${esc(unit.title)}</h2>${unit.intro.map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
+    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">${t('newUnit')}</div>
+      <h2>${esc(titleOf(unit))}</h2>${listOf(unit, 'intro').map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
   }
   else if (c.type === 'tip') {
     el.classList.add('tip');
-    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">Ciekawostka</div>
-      <h3>${esc(unit.title)}</h3>${unit.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
+    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">${t('tip')}</div>
+      <h3>${esc(titleOf(unit))}</h3>${listOf(unit, 'text').map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
   }
   else if (c.type === 'learn') {
-    const it = c.item;
+    const it = c.item, note = noteOf(it);
     el.innerHTML = `<div>
-        <div class="tag">Nowe słowo · ${esc(unit.title)}</div>
+        <div class="tag">${t('newWord')} · ${esc(titleOf(unit))}</div>
         <h1 class="pt">${esc(it.pt)}</h1>
-        <div class="say">wymowa: <b>[${esc(it.say)}]</b></div>
-        <div class="pl">${esc(it.pl)}</div>
-        <div class="reveal-hint">dotknij, żeby zobaczyć tłumaczenie</div>
-        ${it.note ? `<div class="note">💡 ${esc(it.note)}</div>` : ''}
+        <div class="say">${t('say')}: <b>[${esc(sayOf(it))}]</b></div>
+        <div class="pl ${c.revealed ? 'shown' : ''}">${esc(tr(it))}</div>
+        <div class="reveal-hint" style="${c.revealed ? 'visibility:hidden' : ''}">${t('tapReveal')}</div>
+        ${note ? `<div class="note">💡 ${esc(note)}</div>` : ''}
       </div>`;
-    el.querySelector('.pl').onclick = e => { e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
+    el.querySelector('.pl').onclick = e => { c.revealed = true; e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
   }
   else if (c.type === 'quiz') {
     const it = c.item;
-    const prompt = c.kind === 'pt2pl' ? 'Co to znaczy?' : c.kind === 'pl2pt' ? 'Jak to powiesz po portugalsku?' : 'Co słyszysz?';
+    const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : t('qListen');
     const head = c.kind === 'listen'
-      ? `<button class="listen-btn" aria-label="Odtwórz">🔊</button>`
-      : `<div class="q-word">${esc(c.kind === 'pt2pl' ? it.pt : it.pl)}</div>`;
-    const label = o => c.kind === 'pt2pl' ? o.pl : o.pt;
+      ? `<button class="listen-btn" aria-label="Play">🔊</button>`
+      : `<div class="q-word">${esc(c.kind === 'pt2pl' ? it.pt : tr(it))}</div>`;
+    const label = o => c.kind === 'pt2pl' ? tr(o) : o.pt;
     el.innerHTML = `<div>
-        <div class="tag">Sprawdź się · ${esc(unit.title)}</div>
+        <div class="tag">${t('check')} · ${esc(titleOf(unit))}</div>
         <div class="q-prompt">${prompt}</div>
         ${head}
         <div class="opts">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
@@ -667,7 +776,7 @@ function renderInner(c) {
   }
 
   if (cardNo === 1 && feed.children.length === 0) {
-    const h = document.createElement('div'); h.className = 'swipe-hint'; h.textContent = '↑ przewiń w górę';
+    const h = document.createElement('div'); h.className = 'swipe-hint'; h.textContent = t('swipe');
     el.appendChild(h);
   }
   return el;
@@ -675,6 +784,7 @@ function renderInner(c) {
 
 function answer(el, c, i) {
   const chosen = c.options[i], ok = chosen === c.item;
+  c.answered = true;
   const btns = el.querySelectorAll('.opt');
   btns.forEach((b, j) => { b.disabled = true; if (c.options[j] === c.item) b.classList.add('ok'); });
   const fb = el.querySelector('.feedback');
@@ -683,8 +793,7 @@ function answer(el, c, i) {
     S.combo++; S.bestCombo = Math.max(S.bestCombo, S.combo);
     let gain = 10 + Math.min(S.combo - 1, 10) * 2;            // combo podbija nagrodę
     const boosted = S.boost > 0; if (boosted) { gain *= 2; S.boost--; }
-    fb.innerHTML = esc(pick(['Muito bem! 🎉', 'Perfeito! ✨', 'Isso mesmo! 👏', 'Excelente! 💪', 'Boa! 🙌']))
-      + (boosted ? ` <span class="boost">⚡x2 (zostało ${S.boost})</span>` : '');
+    fb.innerHTML = esc(pick(t('praise'))) + (boosted ? ` <span class="boost">${t('boost')(S.boost)}</span>` : '');
     if (S.mistakes[c.item.id]) S.mistakes[c.item.id]--;
     addXP(gain, x, y);
     burst(x, y, 18 + Math.min(S.combo, 10) * 4);
@@ -694,9 +803,9 @@ function answer(el, c, i) {
     setTimeout(() => speak(c.item.pt), 350);
   } else {
     btns[i].classList.add('bad');
-    if (S.combo >= 3) toast(`Seria przerwana na ${S.combo}. Rekord: ${S.bestCombo} 🔥`);
+    if (S.combo >= 3) toast(t('comboBroken')(S.combo, S.bestCombo));
     S.combo = 0;
-    fb.textContent = `To: ${c.item.pt} = ${c.item.pl}. Wróci za chwilę 🔁`;
+    fb.textContent = t('wrong')(c.item.pt, tr(c.item));
     S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
     reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
     ensureBuffer(true);
@@ -708,10 +817,11 @@ function answer(el, c, i) {
 
 /* ===== Skrzynka z losową nagrodą ===== */
 function renderChest(el, c) {
-  el.style.background = bg(c.unit); el._card = c; el.dataset.unit = '🎁 Niespodzianka';
-  el.innerHTML = `<div><div class="tag">Tajemnicza skrzynka</div><div class="chest-box">🎁</div>
-    <div class="reveal-hint" style="font-size:16px">dotknij, żeby otworzyć</div><div class="slot"></div></div>`;
+  el.innerHTML = `<div><div class="tag">${t('chestTag')}</div><div class="chest-box">${c.opened ? '🎉' : '🎁'}</div>
+    <div class="reveal-hint" style="font-size:16px;${c.opened ? 'display:none' : ''}">${t('chestTap')}</div>
+    <div class="slot">${c.rewardHtml ? `<div class="reward">${c.rewardHtml()}</div>` : ''}</div></div>`;
   const box = el.querySelector('.chest-box');
+  if (c.opened) box.style.animation = 'none';
   box.onclick = () => {
     if (c.opened) return; c.opened = true;
     box.classList.add('opening'); sfx('chest'); buzz([20, 30, 20, 30, 20]);
@@ -719,17 +829,17 @@ function renderChest(el, c) {
       box.textContent = '🎉'; box.classList.remove('opening'); box.style.animation = 'none';
       el.querySelector('.reveal-hint').style.display = 'none';
       const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
-      const roll = Math.random(); let html;
-      if (roll < 0.05) { html = 'JACKPOT! +100 XP<small>Trafia się raz na 20 skrzynek 🤯</small>'; addXP(100); }
+      const roll = Math.random();
+      if (roll < 0.05) { c.rewardHtml = () => t('jackpot'); addXP(100); }
       else if (roll < 0.15 && rareLeft.length) {
         const rr = pick(rareLeft); S.rares.push(rr.pt);
-        html = `Rzadka karta: ${esc(rr.pt)}<small>${esc(rr.pl)} · [${esc(rr.say)}]<br>Kolekcja: ${S.rares.length}/${RARES.length}</small>`;
+        c.rewardHtml = () => `${t('rareGot')}: ${esc(rr.pt)}<small>${esc(tr(rr))} · [${esc(sayOf(rr))}]<br>${t('collection')}: ${S.rares.length}/${RARES.length}</small>`;
         addXP(30); speak(rr.pt);
       }
-      else if (roll < 0.40) { S.boost += 5; html = '⚡ Podwójne XP<small>za 5 następnych dobrych odpowiedzi</small>'; }
-      else if (roll < 0.65) { html = '+40 XP<small>Ładnie!</small>'; addXP(40); }
-      else { html = '+15 XP<small>Następna skrzynka może być lepsza 👀</small>'; addXP(15); }
-      el.querySelector('.slot').innerHTML = `<div class="reward">${html}</div>`;
+      else if (roll < 0.40) { S.boost += 5; c.rewardHtml = () => t('double'); }
+      else if (roll < 0.65) { c.rewardHtml = () => t('xp40'); addXP(40); }
+      else { c.rewardHtml = () => t('xp15'); addXP(15); }
+      el.querySelector('.slot').innerHTML = `<div class="reward">${c.rewardHtml()}</div>`;
       const r = box.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 80, true);
       save();
     }, 650);
@@ -740,10 +850,11 @@ function renderChest(el, c) {
 /* ===== Rzadka karta (złota, do kolekcji) ===== */
 function renderRare(el, c) {
   const it = c.item;
-  el.classList.add('rare'); el.style.background = bg(c.unit); el._card = c; el.dataset.unit = '✨ Rzadka karta';
-  el.innerHTML = `<div><div class="tag">✨ Rzadka karta · kolekcja ${S.rares.length + 1}/${RARES.length}</div>
-    <h1 class="pt">${esc(it.pt)}</h1><div class="say">wymowa: <b>[${esc(it.say)}]</b></div>
-    <div class="pl shown">${esc(it.pl)}</div><div class="note">💡 ${esc(it.note)}</div>
+  el.classList.add('rare');
+  if (c.collectNo === undefined) c.collectNo = S.rares.length + 1;
+  el.innerHTML = `<div><div class="tag">${t('rareTag')(c.collectNo, RARES.length)}</div>
+    <h1 class="pt">${esc(it.pt)}</h1><div class="say">${t('say')}: <b>[${esc(sayOf(it))}]</b></div>
+    <div class="pl shown">${esc(tr(it))}</div><div class="note">💡 ${esc(noteOf(it))}</div>
     <div class="reward">+30 XP</div></div>`;
   return el;
 }
@@ -755,23 +866,23 @@ function addXP(n, x, y) {
   if (S.today !== today) {                                   // pierwszy XP dnia -> streak
     S.streak = S.lastDay === yest ? S.streak + 1 : 1;
     S.lastDay = S.today = today; S.todayXp = 0;
-    if (S.streak > 1) setTimeout(() => toast(`🔥 ${S.streak} dni z rzędu!`), 600);
+    if (S.streak > 1) setTimeout(() => toast(t('streak')(S.streak)), 600);
   }
   const lvBefore = levelOf(S.xp), goalBefore = S.todayXp >= DAILY_GOAL;
   S.xp += n; S.todayXp += n;
   if (x !== undefined) floatXP('+' + n + ' XP', x, y);
   paintStats(true);
-  if (!goalBefore && S.todayXp >= DAILY_GOAL) setTimeout(() => celebrate('🎯', 'Cel dnia zaliczony!', `${DAILY_GOAL} XP dzisiaj. Streak bezpieczny 🔥`), 900);
+  if (!goalBefore && S.todayXp >= DAILY_GOAL) setTimeout(() => celebrate('🎯', t('goalT'), t('goalS')(DAILY_GOAL)), 900);
   const lv = levelOf(S.xp);
-  if (lv > lvBefore) setTimeout(() => celebrate(lv, `Poziom ${lv}: ${levelName(lv)}`, `Do następnego: ${Math.pow(lv, 2) * 25 - S.xp} XP`), 700);
+  if (lv > lvBefore) setTimeout(() => celebrate(lv, t('level')(lv, levelName(lv)), t('toNext')(Math.pow(lv, 2) * 25 - S.xp)), 700);
   save();
 }
 function paintStats(bump) {
   document.getElementById('xpN').textContent = S.xp;
   document.getElementById('streakN').textContent = S.streak;
-  const alive = S.lastDay === dayStr(new Date()) || S.lastDay === dayStr(new Date(Date.now() - 864e5));
-  document.getElementById('streak').classList.toggle('cold', !alive || S.today !== dayStr(new Date()));
-  const p = Math.min(1, (S.today === dayStr(new Date()) ? S.todayXp : 0) / DAILY_GOAL);
+  const today = dayStr(new Date());
+  document.getElementById('streak').classList.toggle('cold', S.today !== today);
+  const p = Math.min(1, (S.today === today ? S.todayXp : 0) / DAILY_GOAL);
   document.getElementById('goalRing').style.strokeDashoffset = 56.5 * (1 - p);
   if (bump) { const s = document.getElementById('xpStat'); s.classList.remove('bump'); void s.offsetWidth; s.classList.add('bump'); }
 }
@@ -788,7 +899,7 @@ function comboBanner(n) {
 function celebrate(big, title, sub) {
   const o = document.getElementById('overlay');
   o.innerHTML = `<div><div class="lv">${big}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
-    <p style="margin-top:28px;font-size:14px">dotknij, żeby kontynuować</p></div>`;
+    <p style="margin-top:28px;font-size:14px">${t('tapContinue')}</p></div>`;
   o.classList.add('show'); sfx('level'); buzz([40, 50, 40, 50, 120]);
   const boom = () => burst(innerWidth * (.2 + Math.random() * .6), innerHeight * (.25 + Math.random() * .3), 90, true);
   boom(); setTimeout(boom, 300); setTimeout(boom, 650);
@@ -825,10 +936,10 @@ function tick() {
 let AC = null;
 addEventListener('pointerdown', () => { if (!AC) try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }, { once: true });
 function tone(f, t0, dur, type = 'sine', vol = .18) {
-  const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + t0;
-  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.001, t + dur);
-  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .05);
+  const o = AC.createOscillator(), g = AC.createGain(), tt = AC.currentTime + t0;
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, tt);
+  g.gain.linearRampToValueAtTime(vol, tt + .01); g.gain.exponentialRampToValueAtTime(.001, tt + dur);
+  o.connect(g).connect(AC.destination); o.start(tt); o.stop(tt + dur + .05);
 }
 function sfx(kind) {
   if (!S.sound || !AC) return;
@@ -844,18 +955,10 @@ function sfx(kind) {
 }
 function buzz(p) { try { if (S.sound && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
 
-function toggleSave(el, it) {
-  const i = S.saved.indexOf(it.id);
-  if (i >= 0) S.saved.splice(i, 1); else S.saved.push(it.id);
-  el.querySelector('[data-a=save]').classList.toggle('on', i < 0);
-  toast(i < 0 ? 'Zapisane: będzie częściej w powtórkach' : 'Usunięte z zapisanych');
-  save();
-}
-
 function addDoubleTap(el, fn) {
   let last = 0;
   el.addEventListener('pointerup', e => {
-    if (e.target.closest('button, .pl')) return;
+    if (e.target.closest('button, .pl, .chest-box')) return;
     const now = Date.now();
     if (now - last < 300) { fn(); last = 0; } else last = now;
   });
@@ -877,12 +980,11 @@ function ensureBuffer(rebuildAhead) {
   if (rebuildAhead) {
     while (feed.children.length - 1 > idx + 1) {
       const last = feed.lastElementChild;
-      if (last._card.type === 'quiz') { feed.removeChild(last); cardNo--; }
+      if (last._card.type === 'quiz') { io.unobserve(last); feed.removeChild(last); cardNo--; }
       else break;
     }
   }
   while (feed.children.length - idx <= BUFFER) feed.appendChild(observe(render(nextCard())));
-  // stare karty daleko w tyle można usuwać, ale przy kilkuset kartach DOM spokojnie daje radę
 }
 
 const io = new IntersectionObserver(entries => {
@@ -893,18 +995,18 @@ const io = new IntersectionObserver(entries => {
       return;
     }
     el._active = true;
+    document.getElementById('unitLabel').textContent = el.dataset.unit;
     if (c.play) setTimeout(() => { if (el._active) c.play(); }, 450);   // filmik startuje sam
-    if (el._seen) return;
-    el._seen = true;
+    if (c.seen) return;
+    c.seen = true;
     S.seen++; save();
+    document.getElementById('progress').style.width = Math.min(100, S.step / PLAN.length * 100) + '%';
     if (c.type === 'learn') addXP(2);
     if (c.type === 'done') { addXP(50, innerWidth / 2, innerHeight * .55); burst(innerWidth / 2, innerHeight * .4, 120, true); sfx('combo'); buzz([20, 30, 60]); }
     if (c.type === 'rare' && !S.rares.includes(c.item.pt)) {
       S.rares.push(c.item.pt); addXP(30, innerWidth / 2, innerHeight * .6);
       burst(innerWidth / 2, innerHeight * .35, 100, true); sfx('chest');
     }
-    document.getElementById('unitLabel').textContent = el.dataset.unit;
-    document.getElementById('progress').style.width = Math.min(100, S.step / PLAN.length * 100) + '%';
     if (S.sound && c.type === 'learn') setTimeout(() => speak(c.item.pt), 250);
     if (S.sound && c.type === 'quiz' && c.kind === 'listen') setTimeout(() => speak(c.item.pt), 250);
     ensureBuffer();
@@ -925,24 +1027,45 @@ document.addEventListener('keydown', e => {
    UI
    ========================================================= */
 function toast(msg) {
-  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 1800);
 }
-const soundBtn = document.getElementById('soundBtn');
+const soundBtn = document.getElementById('soundBtn'), langBtn = document.getElementById('langBtn');
 const paintSound = () => soundBtn.textContent = S.sound ? '🔊' : '🔇';
-soundBtn.onclick = () => { S.sound = !S.sound; paintSound(); save(); toast(S.sound ? 'Automatyczne czytanie: wł.' : 'Automatyczne czytanie: wył.'); };
+const paintLang = () => { langBtn.textContent = isEn() ? '🇬🇧' : '🇵🇱'; document.documentElement.lang = S.lang; };
+soundBtn.onclick = () => { S.sound = !S.sound; paintSound(); save(); toast(S.sound ? t('soundOn') : t('soundOff')); };
+
+/* Przełącznik języka: przerysowuje karty w miejscu, zachowując ich stan (odpowiedzi, skrzynki, polubienia) */
+langBtn.onclick = () => {
+  S.lang = isEn() ? 'pl' : 'en'; save(); paintLang();
+  const idx = activeIndex();
+  [...feed.children].forEach((el, i) => {
+    const c = el._card;
+    if (c.type === 'quiz' && c.answered) return;             // rozwiązany quiz zostawiamy jak był
+    if (c.type === 'video' && el._active) return;             // nie przerywamy oglądanego filmiku
+    if (c.stop) c.stop();
+    const n = render(c);
+    io.unobserve(el); feed.replaceChild(observe(n), el);
+    if (i === idx) document.getElementById('unitLabel').textContent = n.dataset.unit;
+  });
+  toast(t('langSet'));
+};
+
 document.getElementById('resetBtn').onclick = () => {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
-  S = fresh(); save(); feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
-  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear(); ensureBuffer(); paintSound(); paintStats();
-  feed.scrollTop = 0; toast('Zaczynamy od nowa');
+  S = Object.assign(fresh(), { lang: S.lang, sound: S.sound }); save();
+  feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
+  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear();
+  ensureBuffer(); paintSound(); paintStats();
+  feed.scrollTop = 0; toast(t('restart'));
 };
 
 /* Start: jeśli wracasz, zaczynasz od krótkiej powtórki */
-paintSound(); paintStats();
+paintSound(); paintLang(); paintStats();
+document.getElementById('unitLabel').textContent = t('start');
 if (S.learned.length >= 3) { for (let k = 0; k < 2; k++) reviewQueue.push({ id: pick(weightedLearned()), due: 0 }); }
 ensureBuffer();
-setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast('Brak głosu pt-PT, czyta głos ' + voice.lang); }, 1500);
+setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast(t('noVoice')(voice.lang)); }, 1500);
 </script>
 </body>
 </html>

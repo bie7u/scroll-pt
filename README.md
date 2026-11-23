@@ -3,6 +3,7 @@
 Nauka portugalskiego (europejskiego, pt-PT) od zera w formie przewijanego feedu, jak Reels/Instagram.
 
 - jeden ekran = jedna karta (CSS scroll-snap), nieskończony feed
+- przełącznik tłumaczeń 🇵🇱 polski / 🇬🇧 angielski (cały interfejs)
 - posty fikcyjnych autorów: słówka, quizy, ciekawostki, scenki-filmiki z lektorem
 - powtórki błędów, XP, combo, streak, cel dnia, skrzynki z nagrodami, rzadkie karty
 
