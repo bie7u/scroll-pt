@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0f13">
+<title>Scroll PT</title>
+<style>
+  :root {
+    --bg: #0e0f13;
+    --fg: #f4f4f6;
+    --muted: rgba(244,244,246,.62);
+    --card-glass: rgba(255,255,255,.08);
+    --ok: #34c77b;
+    --bad: #ff5a5f;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+
+  /* ===== Mechanizm scrollowania: jeden ekran = jedna karta ===== */
+  #feed {
+    height: 100dvh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;      /* zawsze dociąga do karty */
+    overscroll-behavior-y: contain;     /* bez "odbijania" całej strony */
+    scrollbar-width: none;
+  }
+  #feed::-webkit-scrollbar { display: none; }
+  .card {
+    height: 100dvh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;           /* jeden swipe = jedna karta, jak Reels */
+    position: relative;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: calc(64px + env(safe-area-inset-top)) 76px calc(140px + env(safe-area-inset-bottom)) 20px;
+    text-align: center;
+    user-select: none;
+    overflow: hidden;
+  }
+  .card > * { max-width: 520px; width: 100%; }
+
+  /* ===== Górny pasek ===== */
+  #top {
+    position: fixed; inset: 0 0 auto 0; z-index: 10;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+    display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent);
+    pointer-events: none;
+  }
+  #top > * { pointer-events: auto; }
+  #unitLabel { font-weight: 600; font-size: 15px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { background: rgba(255,255,255,.14); border: 0; color: var(--fg); border-radius: 999px;
+    padding: 7px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  #progress { position: fixed; top: 0; left: 0; height: 3px; background: #fff; z-index: 11; transition: width .3s; }
+
+  /* ===== Typografia kart ===== */
+  .tag { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .pt { font-size: clamp(40px, 11vw, 64px); font-weight: 800; line-height: 1.05; margin: 0 0 12px; word-break: break-word; }
+  .say { font-size: 18px; color: var(--muted); margin-bottom: 28px; }
+  .say b { color: var(--fg); font-weight: 600; }
+  .pl { font-size: 24px; font-weight: 600; padding: 14px 18px; border-radius: 16px; background: var(--card-glass);
+    filter: blur(9px); transition: filter .25s; cursor: pointer; }
+  .pl.shown { filter: none; }
+  .reveal-hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .note { margin-top: 22px; font-size: 15px; line-height: 1.45; color: var(--muted); }
+  .big-emoji { font-size: 72px; margin-bottom: 10px; }
+  .intro h2 { font-size: 34px; margin: 0 0 14px; }
+  .intro p, .tip p { font-size: 18px; line-height: 1.5; color: var(--muted); margin: 0 0 12px; }
+  .tip h3 { font-size: 26px; margin: 0 0 14px; }
+
+  /* ===== Prawa kolumna akcji (jak w Reels) ===== */
+  .actions { position: absolute; right: 8px; bottom: calc(130px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; gap: 16px; width: auto; }
+  .act { width: 60px; border: 0; background: none; color: #fff; font-size: 30px; cursor: pointer; padding: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; text-shadow: 0 2px 8px rgba(0,0,0,.45); }
+  .act small { font-size: 12px; font-weight: 600; }
+  .act.on span { color: #ff3b5c; display: inline-block; animation: bump .4s; }
+
+  /* ===== Post: autor + podpis (lewy dół) ===== */
+  .post-meta { position: absolute; left: 16px; right: 80px; bottom: calc(22px + env(safe-area-inset-bottom));
+    text-align: left; max-width: none; width: auto; }
+  .author { display: flex; align-items: center; gap: 8px; font-size: 15px; min-width: 0; }
+  .author b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 18px;
+    border: 2px solid #fff; flex: none; }
+  .ago { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .follow { border: 1px solid #fff; background: transparent; color: #fff; border-radius: 8px; padding: 4px 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer; flex: none; }
+  .follow.on { background: rgba(255,255,255,.2); border-color: transparent; }
+  .caption { margin-top: 8px; font-size: 14.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  .hash { color: #9cd3ff; }
+
+  /* ===== Filmik ===== */
+  .vprog { position: absolute; top: calc(58px + env(safe-area-inset-top)); left: 16px; right: 16px; height: 3px;
+    background: rgba(255,255,255,.25); border-radius: 2px; max-width: none; width: auto; }
+  .vprog i { display: block; height: 100%; width: 0; background: #fff; transition: width .4s; }
+  .scene { font-size: 60px; margin-bottom: 14px; }
+  .bubbles { display: flex; flex-direction: column; gap: 10px; min-height: 200px; justify-content: flex-end; }
+  .bubble { max-width: 88%; padding: 9px 13px; border-radius: 18px; text-align: left; animation: bubbleIn .3s ease-out; }
+  .bubble.A { align-self: flex-start; background: rgba(255,255,255,.18); border-bottom-left-radius: 4px; }
+  .bubble.B { align-self: flex-end; background: #2f7cf6; border-bottom-right-radius: 4px; }
+  .bpt { font-weight: 700; font-size: 17px; }
+  .bpl { font-size: 13px; opacity: .78; margin-top: 3px; }
+  @keyframes bubbleIn { from { transform: translateY(12px); opacity: 0 } }
+  .vplay { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 96px; height: 96px;
+    border-radius: 50%; border: 0; background: rgba(0,0,0,.45); color: #fff; font-size: 44px; cursor: pointer;
+    display: grid; place-items: center; }
+
+  /* ===== Quiz ===== */
+  .q-prompt { font-size: 18px; color: var(--muted); margin-bottom: 10px; }
+  .q-word { font-size: clamp(32px, 9vw, 48px); font-weight: 800; margin-bottom: 26px; word-break: break-word; }
+  .opts { display: grid; gap: 10px; }
+  .opt { padding: 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,.18); background: var(--card-glass);
+    color: var(--fg); font-size: 18px; font-weight: 600; cursor: pointer; transition: transform .1s, background .2s, border-color .2s; }
+  .opt:active { transform: scale(.98); }
+  .opt.ok { background: var(--ok); border-color: var(--ok); }
+  .opt.bad { background: var(--bad); border-color: var(--bad); }
+  .opt:disabled { cursor: default; }
+  .feedback { min-height: 28px; margin-top: 16px; font-size: 16px; font-weight: 600; }
+  .listen-btn { font-size: 54px; width: 110px; height: 110px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16);
+    color: #fff; cursor: pointer; margin: 0 auto 26px; display: grid; place-items: center; }
+
+  /* ===== Animacje ===== */
+  .heart { position: absolute; left: 50%; top: 50%; font-size: 110px; transform: translate(-50%,-50%) scale(0);
+    pointer-events: none; animation: pop .8s ease-out forwards; width: auto; }
+  @keyframes pop { 30% { transform: translate(-50%,-50%) scale(1.15); opacity: 1 }
+                   100% { transform: translate(-50%,-60%) scale(1); opacity: 0 } }
+  .swipe-hint { position: absolute; bottom: calc(108px + env(safe-area-inset-bottom)); left: 0; right: 0;
+    font-size: 14px; color: var(--muted); animation: bob 1.6s ease-in-out infinite; max-width: none; }
+  @keyframes bob { 50% { transform: translateY(-8px) } }
+
+  #toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    background: rgba(0,0,0,.8); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 20;
+    opacity: 0; transition: opacity .25s; pointer-events: none; max-width: calc(100% - 32px); text-align: center; }
+  #toast.show { opacity: 1; }
+
+  /* ===== Dopamina: XP, streak, combo, efekty ===== */
+  .stat { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.14); border-radius: 999px;
+    padding: 5px 10px 5px 6px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .stat.bump { animation: bump .45s; }
+  @keyframes bump { 40% { transform: scale(1.25) } }
+  .ring { width: 22px; height: 22px; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 4; }
+  .ring .bg { stroke: rgba(255,255,255,.25); }
+  .ring .fg { stroke: #ffd23f; stroke-linecap: round; transition: stroke-dashoffset .5s; }
+  #streak.cold { opacity: .55; filter: grayscale(1); }
+
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
+  .floatxp { position: fixed; z-index: 31; font-weight: 800; font-size: 22px; color: #ffd23f; pointer-events: none;
+    text-shadow: 0 2px 8px rgba(0,0,0,.5); animation: floatup 1.1s ease-out forwards; transform: translate(-50%, 0); }
+  @keyframes floatup { to { transform: translate(-50%, -70px); opacity: 0 } }
+  #combo { position: fixed; left: 50%; top: 22%; z-index: 31; transform: translate(-50%,-50%) scale(0);
+    font-size: clamp(34px, 10vw, 54px); font-weight: 900; color: #ffd23f; white-space: nowrap; pointer-events: none;
+    text-shadow: 0 4px 24px rgba(255,120,0,.8); }
+  #combo.go { animation: comboPop 1.3s ease-out forwards; }
+  @keyframes comboPop { 15% { transform: translate(-50%,-50%) scale(1.3) rotate(-4deg) } 30% { transform: translate(-50%,-50%) scale(1) }
+                        80% { opacity: 1 } 100% { transform: translate(-50%,-80%) scale(1); opacity: 0 } }
+  .combo-meter { position: absolute; top: calc(64px + env(safe-area-inset-top)); left: 0; right: 0; max-width: none;
+    font-size: 15px; font-weight: 800; color: #ffd23f; }
+  .opt.ok { animation: okPop .35s; }
+  @keyframes okPop { 50% { transform: scale(1.06) } }
+  .opt.bad { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+  .boost { color: #7cf; }
+
+  #overlay { position: fixed; inset: 0; z-index: 29; display: none; place-items: center; text-align: center; padding: 24px;
+    background: radial-gradient(circle, rgba(60,30,120,.92), rgba(0,0,0,.94)); }
+  #overlay.show { display: grid; animation: fadein .3s; }
+  #overlay .lv { font-size: 96px; font-weight: 900; line-height: 1; color: #ffd23f; animation: comboPop2 .6s; }
+  #overlay h2 { font-size: 30px; margin: 12px 0 6px; }
+  #overlay p { color: var(--muted); font-size: 17px; margin: 0; }
+  @keyframes fadein { from { opacity: 0 } }
+  @keyframes comboPop2 { 0% { transform: scale(0) } 70% { transform: scale(1.2) } }
+
+  .chest-box { font-size: 120px; cursor: pointer; display: inline-block; animation: wiggle 1.4s ease-in-out infinite; }
+  @keyframes wiggle { 0%,70%,100% { transform: rotate(0) } 75% { transform: rotate(-10deg) } 85% { transform: rotate(10deg) } 95% { transform: rotate(-5deg) } }
+  .chest-box.opening { animation: shakeBig .6s; }
+  @keyframes shakeBig { 20%,60% { transform: rotate(-15deg) scale(1.1) } 40%,80% { transform: rotate(15deg) scale(1.15) } }
+  .reward { font-size: 30px; font-weight: 900; color: #ffd23f; margin-top: 14px; animation: comboPop2 .5s; }
+  .reward small { display: block; font-size: 16px; color: var(--fg); font-weight: 500; margin-top: 8px; }
+
+  .card.rare::before { content: ""; position: absolute; inset: -50%; width: auto; max-width: none;
+    background: conic-gradient(from 0deg, transparent, rgba(255,230,140,.25), transparent 30%);
+    animation: spin 6s linear infinite; }
+  .card.rare > div { position: relative; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  .rare .pt { color: #ffe08a; }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="top">
+  <span id="unitLabel">🇵🇹 Portugalski od zera</span>
+  <span class="stat" id="streak" title="Dni z rzędu">🔥 <span id="streakN">0</span></span>
+  <span class="stat" id="xpStat" title="XP (pierścień = cel dnia)">
+    <svg class="ring" viewBox="0 0 24 24"><circle class="bg" cx="12" cy="12" r="9"/><circle class="fg" id="goalRing" cx="12" cy="12" r="9" stroke-dasharray="56.5" stroke-dashoffset="56.5"/></svg>
+    <span id="xpN">0</span>
+  </span>
+  <button class="pill" id="soundBtn" title="Dźwięk">🔊</button>
+  <button class="pill" id="resetBtn" title="Zacznij od nowa">↺</button>
+</div>
+<main id="feed" aria-live="polite"></main>
+<canvas id="fx"></canvas>
+<div id="combo"></div>
+<div id="overlay"></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   TREŚCI: portugalski europejski (pt-PT) od podstaw.
+   Wymowa zapisana "po polsku", w przybliżeniu.
+   ========================================================= */
+const UNITS = [
+  { id: 'ola', title: 'Powitania', emoji: '👋', bg: ['#1d3b8b', '#0f1f4d'],
+    intro: ['Zaczynamy od słów, które usłyszysz pierwszego dnia w Portugalii.',
+            'Przewijaj w górę. Dotknij rozmazanego tłumaczenia, żeby je odsłonić. Dwuklik = zapisz słówko ❤️'],
+    items: [
+      { pt: 'Olá', pl: 'Cześć / Dzień dobry', say: 'olá', note: 'Pasuje prawie zawsze, także w sklepie.' },
+      { pt: 'Bom dia', pl: 'Dzień dobry (rano)', say: 'bõ dija', note: 'Mówi się mniej więcej do pory obiadu.' },
+      { pt: 'Boa tarde', pl: 'Dzień dobry (po południu)', say: 'boa tard', note: 'Końcowe „e” prawie znika: tard.' },
+      { pt: 'Boa noite', pl: 'Dobry wieczór / Dobranoc', say: 'boa nojt' },
+      { pt: 'Tudo bem?', pl: 'Co słychać? / Wszystko dobrze?', say: 'tudu bãj', note: 'Odpowiedź: „Tudo bem, obrigado.”' },
+      { pt: 'Até logo', pl: 'Na razie / Do zobaczenia', say: 'ate logu' },
+      { pt: 'Adeus', pl: 'Do widzenia', say: 'adeusz', note: 'Końcowe „s” czytasz jak polskie „sz”.' },
+    ] },
+  { tip: true, emoji: '🗣️', title: 'Zasada wymowy nr 1', bg: ['#4a2a7a', '#22133d'],
+    text: ['„S” na końcu słowa i przed spółgłoską brzmi jak polskie „sz”.',
+           'adeus → adeusz, dois → dojsz, português → purtugesz.',
+           'To jedna z rzeczy, po których słychać portugalski z Portugalii, a nie z Brazylii.'] },
+  { id: 'obrigado', title: 'Grzeczności', emoji: '🙏', bg: ['#0d6b5c', '#06352e'],
+    intro: ['Te słowa otwierają każde drzwi.', 'Uwaga: „obrigado / obrigada” zależy od tego, KTO mówi, a nie do kogo.'],
+    items: [
+      { pt: 'Obrigado', pl: 'Dziękuję (mówi mężczyzna)', say: 'obrigadu', note: 'Kobieta mówi: obrigada.' },
+      { pt: 'Por favor', pl: 'Proszę (prosząc o coś)', say: 'pur fawor' },
+      { pt: 'De nada', pl: 'Nie ma za co', say: 'dy nada' },
+      { pt: 'Desculpe', pl: 'Przepraszam', say: 'deszkulp' },
+      { pt: 'Com licença', pl: 'Przepraszam (żeby przejść)', say: 'kõ lisẽsa' },
+      { pt: 'Sim', pl: 'Tak', say: 'sĩ', note: '„m” na końcu tylko unosowia samogłoskę.' },
+      { pt: 'Não', pl: 'Nie', say: 'nãu' },
+    ] },
+  { id: 'eu', title: 'Przedstawianie się', emoji: '🙋', bg: ['#8a3b12', '#45190a'],
+    intro: ['Powiesz, jak się nazywasz, skąd jesteś i że dopiero się uczysz.'],
+    items: [
+      { pt: 'Chamo-me…', pl: 'Nazywam się…', say: 'szamu-my', note: 'W Portugalii „me” stoi PO czasowniku.' },
+      { pt: 'Como se chama?', pl: 'Jak się Pan/Pani nazywa?', say: 'komu sy szama' },
+      { pt: 'Muito prazer', pl: 'Bardzo mi miło', say: 'mũjtu prazer' },
+      { pt: 'Sou da Polónia', pl: 'Jestem z Polski', say: 'so da polonja' },
+      { pt: 'Não percebo', pl: 'Nie rozumiem', say: 'nãu persebu', note: 'Typowe dla Portugalii (w Brazylii: não entendo).' },
+      { pt: 'Fala inglês?', pl: 'Mówi Pan/Pani po angielsku?', say: 'fala inglesz' },
+      { pt: 'Estou a aprender português', pl: 'Uczę się portugalskiego', say: 'isztoł a aprẽder purtugesz',
+        note: '„estou a + bezokolicznik” = robię coś teraz. Bardzo portugalska konstrukcja.' },
+    ] },
+  { id: 'num', title: 'Liczby 1–10', emoji: '🔢', bg: ['#6b1d5c', '#350d2d'],
+    intro: ['Liczby przydadzą się od razu: ceny, godziny, numer pokoju.'],
+    items: [
+      { pt: 'um', pl: '1', say: 'ũ' }, { pt: 'dois', pl: '2', say: 'dojsz' },
+      { pt: 'três', pl: '3', say: 'tresz' }, { pt: 'quatro', pl: '4', say: 'kuatru' },
+      { pt: 'cinco', pl: '5', say: 'sĩku' }, { pt: 'seis', pl: '6', say: 'sejsz' },
+      { pt: 'sete', pl: '7', say: 'set' }, { pt: 'oito', pl: '8', say: 'ojtu' },
+      { pt: 'nove', pl: '9', say: 'now' }, { pt: 'dez', pl: '10', say: 'desz' },
+    ] },
+  { tip: true, emoji: '☕', title: 'Kawa po portugalsku', bg: ['#5a3a1a', '#2a1a0a'],
+    text: ['„Um café” to w Portugalii małe espresso, nie duży kubek.',
+           'W Lizbonie na espresso mówi się też „uma bica”.',
+           'Chcesz z mlekiem w szklance? Zamów „um galão”.'] },
+  { id: 'cafe', title: 'W kawiarni', emoji: '🥐', bg: ['#7a5a12', '#3d2c08'],
+    intro: ['Zamówisz kawę, pastel de nata i poprosisz o rachunek.'],
+    items: [
+      { pt: 'Queria…', pl: 'Poproszę… / Chciałbym…', say: 'kerija', note: 'Grzeczniej niż „quero” (chcę).' },
+      { pt: 'Um café', pl: 'Espresso', say: 'ũ kafe' },
+      { pt: 'Um galão', pl: 'Kawa z mlekiem w szklance', say: 'ũ galãu' },
+      { pt: 'Um pastel de nata', pl: 'Babeczka z kremem', say: 'ũ pasztel dy nata' },
+      { pt: 'Água', pl: 'Woda', say: 'agua' },
+      { pt: 'Pão', pl: 'Chleb', say: 'pãu' },
+      { pt: 'Quanto custa?', pl: 'Ile kosztuje?', say: 'kuantu kuszta' },
+      { pt: 'A conta, por favor', pl: 'Rachunek, proszę', say: 'a kõta pur fawor' },
+    ] },
+  { id: 'city', title: 'W mieście', emoji: '🏙️', bg: ['#125a7a', '#082d3d'],
+    intro: ['Zapytasz o drogę i zrozumiesz odpowiedź.'],
+    items: [
+      { pt: 'Onde fica…?', pl: 'Gdzie jest…?', say: 'õd fika' },
+      { pt: 'A casa de banho', pl: 'Toaleta / łazienka', say: 'a kaza dy bańu' },
+      { pt: 'O comboio', pl: 'Pociąg', say: 'u kõboju', note: 'W Brazylii: trem. W Portugalii zawsze comboio.' },
+      { pt: 'O autocarro', pl: 'Autobus', say: 'u ałtukaru' },
+      { pt: 'A praia', pl: 'Plaża', say: 'a praja' },
+      { pt: 'À esquerda', pl: 'W lewo', say: 'a iszkerda' },
+      { pt: 'À direita', pl: 'W prawo', say: 'a direjta' },
+      { pt: 'Em frente', pl: 'Prosto', say: 'ãj frẽt' },
+    ] },
+];
+
+/* Płaska lista słówek z id */
+const ALL = [];
+UNITS.forEach(u => (u.items || []).forEach((it, i) => { it.id = u.id + ':' + i; it.unit = u; ALL.push(it); }));
+const BY_ID = Object.fromEntries(ALL.map(it => [it.id, it]));
+
+/* =========================================================
+   STAN (z bezpiecznym localStorage)
+   ========================================================= */
+const KEY = 'scroll-pt-v1';
+const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: true, seen: 0,
+  xp: 0, combo: 0, bestCombo: 0, streak: 0, lastDay: null, today: null, todayXp: 0, rares: [], boost: 0,
+  follows: [], watched: [] });
+let S = fresh();
+try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* Plan "nowych" kart: intro działu -> słówka -> tip ... */
+const PLAN = [];
+UNITS.forEach(u => {
+  if (u.tip) { PLAN.push({ type: 'tip', unit: u }); return; }
+  PLAN.push({ type: 'intro', unit: u });
+  u.items.forEach(it => PLAN.push({ type: 'learn', item: it }));
+  PLAN.push({ type: 'done', unit: u });
+});
+
+/* Rzadkie karty do kolekcji: słowa "smaczki" z Portugalii */
+const RARES = [
+  { pt: 'Saudade', pl: 'Tęsknota, nostalgia', say: 'sałdad', note: 'Słowo-symbol Portugalii. Śpiewa się o nim w fado.' },
+  { pt: 'Fixe!', pl: 'Super! / Fajnie!', say: 'fisz', note: 'Slang typowy dla Portugalii. W Brazylii go nie usłyszysz.' },
+  { pt: 'Pois', pl: 'No tak / Właśnie', say: 'pojsz', note: 'Portugalczycy mówią to non stop. Uniwersalne „mhm”.' },
+  { pt: 'Giro', pl: 'Ładny, fajny', say: 'żiru', note: '„Que giro!” = Ale fajne!' },
+  { pt: 'Desenrascar', pl: 'Poradzić sobie (jakoś, na szybko)', say: 'dyzẽraszkar', note: 'Narodowa umiejętność: improwizować i wyjść z kłopotu.' },
+  { pt: 'Alfacinha', pl: 'Mieszkaniec Lizbony', say: 'alfasińa', note: 'Dosłownie „sałatka”.' },
+  { pt: 'Tripeiro', pl: 'Mieszkaniec Porto', say: 'tripejru', note: 'Od „tripas”, flaków, lokalnego przysmaku.' },
+  { pt: 'Está bem', pl: 'OK, w porządku', say: 'isztá bãj', note: 'Na co dzień skracane do „tá bem”.' },
+];
+const RARE_UNIT = { emoji: '✨', title: 'Rzadka karta', bg: ['#8a6a10', '#3a2a00'] };
+const CHEST_UNIT = { emoji: '🎁', title: 'Niespodzianka', bg: ['#5b2a9a', '#1e0d3a'] };
+const LEVELS = ['Turysta', 'Ouvinte', 'Aprendiz', 'Curioso', 'Conversador', 'Explorador', 'Lisboeta', 'Alfacinha', 'Mestre'];
+const levelOf = xp => Math.floor(Math.sqrt(xp / 25)) + 1;           // 25, 100, 225, 400... XP
+const levelName = l => LEVELS[Math.min(l - 1, LEVELS.length - 1)];
+const DAILY_GOAL = 60;
+
+/* Filmiki: mini-scenki z dialogiem (lektor = głos przeglądarki).
+   Pole `src` (mp4) pozwoli później podpiąć prawdziwe nagrania. `req` = słowo, które trzeba już znać. */
+const VIDEOS = [
+  { id: 'v-ola', req: 'ola:6', author: 'ines', title: 'Spotkanie na ulicy', scene: '🚶‍♀️☀️🚶', bg: ['#1d4f8b', '#0b1d3d'],
+    caption: 'Tak wygląda najkrótsza rozmowa w Lizbonie 😄',
+    lines: [
+      { who: 'A', pt: 'Olá! Bom dia!', pl: 'Cześć! Dzień dobry!' },
+      { who: 'B', pt: 'Bom dia! Tudo bem?', pl: 'Dzień dobry! Co słychać?' },
+      { who: 'A', pt: 'Tudo bem. E tu?', pl: 'Wszystko dobrze. A u ciebie?' },
+      { who: 'B', pt: 'Tudo bem! Até logo!', pl: 'Dobrze! Na razie!' },
+      { who: 'A', pt: 'Adeus!', pl: 'Do widzenia!' },
+    ] },
+  { id: 'v-eu', req: 'eu:6', author: 'tiago', title: 'Pierwsza rozmowa', scene: '🙋‍♂️🤝🙋‍♀️', bg: ['#8a3b12', '#3a1505'],
+    caption: 'Poznałem dziś kogoś z Polski 🇵🇱🤝🇵🇹',
+    lines: [
+      { who: 'A', pt: 'Olá! Chamo-me Pedro.', pl: 'Cześć! Mam na imię Pedro.' },
+      { who: 'B', pt: 'Olá! Chamo-me Ana. Muito prazer!', pl: 'Cześć! Jestem Ana. Bardzo mi miło!' },
+      { who: 'A', pt: 'Muito prazer! És de onde?', pl: 'Miło mi! Skąd jesteś?' },
+      { who: 'B', pt: 'Sou da Polónia.', pl: 'Jestem z Polski.' },
+      { who: 'A', pt: 'Falas português?', pl: 'Mówisz po portugalsku?' },
+      { who: 'B', pt: 'Um pouco. Estou a aprender!', pl: 'Trochę. Uczę się!' },
+    ] },
+  { id: 'v-cafe', req: 'cafe:7', author: 'cafe', title: 'W pastelarii', scene: '☕🥐👨‍🍳', bg: ['#6a4a12', '#2a1c05'],
+    caption: 'Zamawianie jak lokals. Zapisz sobie! ☕',
+    lines: [
+      { who: 'A', pt: 'Bom dia! O que deseja?', pl: 'Dzień dobry! Co podać?' },
+      { who: 'B', pt: 'Queria um café e um pastel de nata, por favor.', pl: 'Poproszę espresso i pastel de nata.' },
+      { who: 'A', pt: 'Mais alguma coisa?', pl: 'Coś jeszcze?' },
+      { who: 'B', pt: 'Não, obrigado. Quanto custa?', pl: 'Nie, dziękuję. Ile płacę?' },
+      { who: 'A', pt: 'São dois euros e vinte.', pl: 'Dwa euro dwadzieścia.' },
+      { who: 'B', pt: 'Obrigado! Bom dia!', pl: 'Dziękuję! Miłego dnia!' },
+    ] },
+  { id: 'v-city', req: 'city:7', author: 'tiago', title: 'Gdzie jest plaża?', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
+    caption: 'Turyści pytają mnie o to codziennie 😅',
+    lines: [
+      { who: 'A', pt: 'Desculpe, onde fica a praia?', pl: 'Przepraszam, gdzie jest plaża?' },
+      { who: 'B', pt: 'É em frente e depois à direita.', pl: 'Prosto, a potem w prawo.' },
+      { who: 'A', pt: 'E a casa de banho?', pl: 'A toaleta?' },
+      { who: 'B', pt: 'Ali, à esquerda.', pl: 'Tam, po lewej.' },
+      { who: 'A', pt: 'Muito obrigado!', pl: 'Bardzo dziękuję!' },
+      { who: 'B', pt: 'De nada!', pl: 'Nie ma za co!' },
+    ] },
+];
+
+/* Autorzy postów (fikcyjne postacie) */
+const AUTHORS = {
+  app:   { h: 'scroll.pt', av: '🇵🇹', c: '#0a8f5a' },
+  ines:  { h: 'ines.lisboa', av: '👩🏻', c: '#e5487a' },
+  rui:   { h: 'professor.rui', av: '👨🏽‍🏫', c: '#3a7bd5' },
+  tiago: { h: 'tiago.no.porto', av: '🧔🏻', c: '#e08a1e' },
+  cafe:  { h: 'pastelaria.esquina', av: '☕', c: '#8a5a2b' },
+  marta: { h: 'marta.fado', av: '🎤', c: '#8e44ad' },
+};
+
+/* =========================================================
+   GENERATOR FEEDU: nieskończony, miesza nowe słowa z powtórkami
+   ========================================================= */
+let cardNo = 0;             // ile kart wygenerowano w tej sesji
+const reviewQueue = [];     // [{id, due}] - błędy wracają po kilku kartach
+let sinceQuiz = 0;
+let nextChestAt = 10;
+let nextVideoAt = 6;
+const shownVideos = new Set();
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function weightedLearned() {
+  // słowa z błędami i zapisane (❤️) pojawiają się częściej
+  const pool = [];
+  S.learned.forEach(id => {
+    const w = 1 + (S.mistakes[id] || 0) * 2 + (S.saved.includes(id) ? 2 : 0);
+    for (let i = 0; i < w; i++) pool.push(id);
+  });
+  return pool;
+}
+
+function makeQuiz(id) {
+  const item = BY_ID[id];
+  const sameUnit = item.unit.items.filter(x => x !== item);
+  const others = shuffle(sameUnit.length >= 3 ? sameUnit : ALL.filter(x => x !== item)).slice(0, 3);
+  const kind = pick(item.unit.id === 'num' ? ['pt2pl', 'pl2pt', 'listen'] : ['pt2pl', 'pl2pt', 'listen', 'pt2pl']);
+  return { type: 'quiz', kind, item, options: shuffle([item, ...others]) };
+}
+
+function nextCard() {
+  cardNo++;
+  // 1) zaległa powtórka po błędzie
+  const dueIdx = reviewQueue.findIndex(r => r.due <= cardNo);
+  if (dueIdx >= 0) { const r = reviewQueue.splice(dueIdx, 1)[0]; sinceQuiz = 0; return makeQuiz(r.id); }
+  // 1b) losowe nagrody: skrzynka co 8–14 kart, rzadka karta z małą szansą
+  if (S.learned.length >= 3 && cardNo >= nextChestAt) { nextChestAt = cardNo + 8 + Math.floor(Math.random() * 7); return { type: 'chest', unit: CHEST_UNIT }; }
+  // 1c) filmik co 7–10 kart (z tego, co już umiesz zrozumieć)
+  const vids = VIDEOS.filter(v => S.learned.includes(v.req) && !shownVideos.has(v.id));
+  if (vids.length && cardNo >= nextVideoAt) {
+    nextVideoAt = cardNo + 7 + Math.floor(Math.random() * 4);
+    const unseen = vids.filter(v => !S.watched.includes(v.id));
+    const v = pick(unseen.length ? unseen : vids); shownVideos.add(v.id);   // każdy filmik max raz na sesję
+    return { type: 'video', video: v };
+  }
+  const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
+  if (S.learned.length >= 5 && rareLeft.length && Math.random() < 0.06) return { type: 'rare', unit: RARE_UNIT, item: pick(rareLeft) };
+  // 2) co ~3 karty quiz z tego, co już znasz
+  if (S.learned.length >= 3 && sinceQuiz >= 3) { sinceQuiz = 0; return makeQuiz(pick(weightedLearned())); }
+  // 3) nowa treść z planu
+  if (S.step < PLAN.length) {
+    const c = PLAN[S.step++];
+    if (c.type === 'learn') { if (!S.learned.includes(c.item.id)) S.learned.push(c.item.id); sinceQuiz++; }
+    save();
+    return c;
+  }
+  // 4) koniec materiału: nieskończone powtórki
+  sinceQuiz = 0;
+  return makeQuiz(pick(weightedLearned()));
+}
+
+/* =========================================================
+   AUDIO: synteza mowy przeglądarki, preferuje pt-PT
+   ========================================================= */
+let voice = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices();
+  voice = vs.find(v => v.lang === 'pt-PT') || vs.find(v => /pt[-_]PT/i.test(v.lang))
+       || vs.find(v => /^pt/i.test(v.lang)) || null;
+}
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+let ttsWarned = false;
+function speak(text, pitch, onend) {
+  if (!('speechSynthesis' in window)) { if (!ttsWarned) { ttsWarned = true; toast('Ta przeglądarka nie umie czytać na głos'); } return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace('…', ''));
+  u.lang = 'pt-PT'; if (voice) u.voice = voice; u.rate = .85; u.pitch = pitch || 1;
+  if (onend) u.onend = onend;
+  speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   RENDER KART
+   ========================================================= */
+const feed = document.getElementById('feed');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function bg(u) { return `linear-gradient(160deg, ${u.bg[0]}, ${u.bg[1]})`; }
+
+function render(c) { return decorate(renderInner(c), c); }
+
+/* ===== Opakowanie w "post": autor, podpis, polubienia ===== */
+function authorFor(c) {
+  if (c.type === 'video') return AUTHORS[c.video.author];
+  if (c.type === 'quiz') return AUTHORS.rui;
+  if (c.type === 'tip') return AUTHORS.tiago;
+  if (c.type === 'rare') return AUTHORS.marta;
+  if (c.type === 'learn') return c.item.unit.id === 'cafe' ? AUTHORS.cafe : c.item.unit.id === 'city' ? AUTHORS.tiago : AUTHORS.ines;
+  return AUTHORS.app;
+}
+function hash(s) { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); }
+const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' tys.' : String(n);
+const AGO = ['teraz', '2 min', '14 min', '1 godz.', '3 godz.', 'wczoraj'];
+function caption(c) {
+  switch (c.type) {
+    case 'learn': return pick([`Słówko na dziś: <b>${esc(c.item.pt)}</b> 🇵🇹`, `Zapamiętaj: <b>${esc(c.item.pt)}</b> 💡`,
+                               `Używam tego codziennie: <b>${esc(c.item.pt)}</b>`]) + ' <span class="hash">#portugalski #słówka</span>';
+    case 'quiz': return pick(['Sprawdźmy, czy pamiętasz 👇', 'Szybki test! Odpowiedz, zanim przewiniesz 😉', 'Wiesz to? 🤔'])
+                        + ' <span class="hash">#quiz</span>';
+    case 'tip': return 'Tego nie ma w podręcznikach 😄 <span class="hash">#ciekawostki</span>';
+    case 'rare': return 'Złota karta! Mało kto ją trafia ✨ <span class="hash">#kolekcja</span>';
+    case 'video': return esc(c.video.caption) + ' <span class="hash">#rozmowa #słuchanie</span>';
+    case 'chest': return 'Dla aktywnych mamy coś specjalnego 🎁';
+    case 'done': return `Brawo! Dział „${esc(c.unit.title)}” zaliczony 🏆`;
+    default: return `Nowy dział: ${esc(c.unit.title)} ${c.unit.emoji}`;
+  }
+}
+function decorate(el, c) {
+  const a = authorFor(c);
+  const key = (c.item && (c.item.id || c.item.pt)) || (c.video && c.video.id) || (c.unit && c.unit.title) || '';
+  const base = 120 + hash(key + c.type) % 9000;               // stała "liczba polubień" dla danego posta
+  const isLearn = c.type === 'learn';
+  let liked = isLearn && S.saved.includes(c.item.id);
+  const following = S.follows.includes(a.h);
+
+  const meta = document.createElement('div'); meta.className = 'post-meta';
+  meta.innerHTML = `<div class="author"><span class="av" style="background:${a.c}">${a.av}</span><b>${esc(a.h)}</b>
+      <span class="ago">· ${pick(AGO)}</span>
+      ${a === AUTHORS.app ? '' : `<button class="follow ${following ? 'on' : ''}">${following ? 'Obserwujesz' : 'Obserwuj'}</button>`}</div>
+    <div class="caption">${caption(c)}</div>`;
+  el.appendChild(meta);
+
+  const speakable = c.item && c.type !== 'quiz';             // w quizie głośnik zdradzałby odpowiedź
+  const actions = document.createElement('div'); actions.className = 'actions';
+  actions.innerHTML = `<button class="act ${liked ? 'on' : ''}" data-a="like" aria-label="Polub"><span>❤</span><small>${fmt(base + (liked ? 1 : 0))}</small></button>
+    ${speakable ? '<button class="act" data-a="speak" aria-label="Posłuchaj"><span>🔊</span><small>posłuchaj</small></button>' : ''}
+    <button class="act" data-a="share" aria-label="Udostępnij"><span>↗</span><small>wyślij</small></button>`;
+  el.appendChild(actions);
+
+  const likeBtn = actions.querySelector('[data-a=like]');
+  const setLike = on => {
+    liked = on; likeBtn.classList.toggle('on', on); likeBtn.querySelector('small').textContent = fmt(base + (on ? 1 : 0));
+    if (on) { sfx('pop'); buzz(10); }
+    if (isLearn) {
+      const i = S.saved.indexOf(c.item.id);
+      if (on && i < 0) { S.saved.push(c.item.id); toast('Polubione: słowo częściej wróci w powtórkach'); }
+      if (!on && i >= 0) S.saved.splice(i, 1);
+      save();
+    }
+  };
+  likeBtn.onclick = () => setLike(!liked);
+  addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); });
+  if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(c.item.pt);
+  actions.querySelector('[data-a=share]').onclick = () => {
+    const t = c.item ? `🇵🇹 ${c.item.pt} = ${c.item.pl}` : 'Uczę się portugalskiego 🇵🇹';
+    if (navigator.share) navigator.share({ text: t }).catch(() => {}); else toast('Udostępnianie działa na telefonie');
+  };
+  const fb = meta.querySelector('.follow');
+  if (fb) fb.onclick = () => {
+    const i = S.follows.indexOf(a.h);
+    if (i < 0) { S.follows.push(a.h); fb.textContent = 'Obserwujesz'; fb.classList.add('on'); toast(`Obserwujesz @${a.h}`); sfx('pop'); }
+    else { S.follows.splice(i, 1); fb.textContent = 'Obserwuj'; fb.classList.remove('on'); }
+    save();
+  };
+  return el;
+}
+
+/* ===== Filmik: scenka z dymkami + lektor ===== */
+function renderVideo(el, c) {
+  const v = c.video;
+  el.style.background = bg(v); el._card = c; el.dataset.unit = '🎬 Filmik';
+  if (v.src) {                                               // prawdziwe nagranie, gdy się pojawi
+    el.innerHTML = `<video src="${esc(v.src)}" playsinline loop style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none"></video>`;
+    const vid = el.querySelector('video');
+    c.play = () => vid.play().catch(() => {}); c.stop = () => vid.pause();
+    return el;
+  }
+  el.innerHTML = `<div class="vprog"><i></i></div>
+    <div><div class="tag">🎬 Filmik · ${esc(v.title)}</div><div class="scene">${v.scene}</div><div class="bubbles"></div></div>
+    <button class="vplay" aria-label="Odtwórz">▶</button>`;
+  const bubbles = el.querySelector('.bubbles'), prog = el.querySelector('.vprog i'), playBtn = el.querySelector('.vplay');
+  let i = 0, playing = false, timer = null, token = 0;
+  function step() {
+    if (!playing) return;
+    if (i >= v.lines.length) {
+      playing = false; playBtn.textContent = '↻'; playBtn.style.display = 'grid';
+      if (!c.rewarded) {
+        c.rewarded = true; if (!S.watched.includes(v.id)) S.watched.push(v.id);
+        addXP(15, innerWidth / 2, innerHeight * .4); burst(innerWidth / 2, innerHeight * .4, 50, true); sfx('ok');
+      }
+      return;
+    }
+    const L = v.lines[i++], b = document.createElement('div');
+    b.className = 'bubble ' + L.who;
+    b.innerHTML = `<div class="bpt">${esc(L.pt)}</div><div class="bpl">${esc(L.pl)}</div>`;
+    bubbles.appendChild(b);
+    while (bubbles.children.length > 4) bubbles.firstChild.remove();
+    prog.style.width = (i / v.lines.length * 100) + '%';
+    const my = ++token; let done = false;
+    const next = () => { if (done || my !== token) return; done = true; clearTimeout(timer); timer = setTimeout(step, 650); };
+    if (S.sound) speak(L.pt, L.who === 'B' ? 1.3 : .85, next);  // dwa "głosy" przez różną wysokość
+    timer = setTimeout(next, (S.sound ? 2200 : 1400) + L.pt.length * 90); // zapas, gdyby lektor nie zadziałał
+  }
+  c.play = () => {
+    if (playing) return;
+    if (i >= v.lines.length) { i = 0; bubbles.innerHTML = ''; prog.style.width = '0'; }
+    playing = true; playBtn.style.display = 'none'; step();
+  };
+  c.stop = () => {
+    if (!playing) return;
+    playing = false; token++; clearTimeout(timer);
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    playBtn.textContent = '▶'; playBtn.style.display = 'grid';
+  };
+  playBtn.onclick = e => { e.stopPropagation(); c.play(); };
+  return el;
+}
+
+function renderInner(c) {
+  const el = document.createElement('section');
+  el.className = 'card';
+  if (c.type === 'video') return renderVideo(el, c);
+  const unit = c.unit || c.item.unit;
+  if (c.type === 'chest') return renderChest(el, c);
+  if (c.type === 'rare') return renderRare(el, c);
+  if (c.type === 'done') {
+    el.style.background = bg(unit); el._card = c; el.dataset.unit = `${unit.emoji} ${unit.title}`;
+    const n = unit.items.length, errs = unit.items.reduce((a, it) => a + (S.mistakes[it.id] || 0), 0);
+    el.innerHTML = `<div><div class="big-emoji">🏆</div><div class="tag">Dział ukończony</div>
+      <h2 style="font-size:32px;margin:0 0 12px">${esc(unit.title)}</h2>
+      <p style="font-size:18px;color:var(--muted)">Znasz już ${n} nowych słów${errs === 0 ? ' i nie było ani jednej pomyłki 🎯' : ''}.</p>
+      <div class="reward">+50 XP</div></div>`;
+    return el;
+  }
+  el.style.background = bg(unit);
+  el.dataset.unit = `${unit.emoji} ${unit.title}`;
+  el._card = c;
+
+  if (c.type === 'intro') {
+    el.classList.add('intro');
+    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">Nowy dział</div>
+      <h2>${esc(unit.title)}</h2>${unit.intro.map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
+  }
+  else if (c.type === 'tip') {
+    el.classList.add('tip');
+    el.innerHTML = `<div><div class="big-emoji">${unit.emoji}</div><div class="tag">Ciekawostka</div>
+      <h3>${esc(unit.title)}</h3>${unit.text.map(p => `<p>${esc(p)}</p>`).join('')}</div>`;
+  }
+  else if (c.type === 'learn') {
+    const it = c.item;
+    el.innerHTML = `<div>
+        <div class="tag">Nowe słowo · ${esc(unit.title)}</div>
+        <h1 class="pt">${esc(it.pt)}</h1>
+        <div class="say">wymowa: <b>[${esc(it.say)}]</b></div>
+        <div class="pl">${esc(it.pl)}</div>
+        <div class="reveal-hint">dotknij, żeby zobaczyć tłumaczenie</div>
+        ${it.note ? `<div class="note">💡 ${esc(it.note)}</div>` : ''}
+      </div>`;
+    el.querySelector('.pl').onclick = e => { e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
+  }
+  else if (c.type === 'quiz') {
+    const it = c.item;
+    const prompt = c.kind === 'pt2pl' ? 'Co to znaczy?' : c.kind === 'pl2pt' ? 'Jak to powiesz po portugalsku?' : 'Co słyszysz?';
+    const head = c.kind === 'listen'
+      ? `<button class="listen-btn" aria-label="Odtwórz">🔊</button>`
+      : `<div class="q-word">${esc(c.kind === 'pt2pl' ? it.pt : it.pl)}</div>`;
+    const label = o => c.kind === 'pt2pl' ? o.pl : o.pt;
+    el.innerHTML = `<div>
+        <div class="tag">Sprawdź się · ${esc(unit.title)}</div>
+        <div class="q-prompt">${prompt}</div>
+        ${head}
+        <div class="opts">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
+        <div class="feedback"></div>
+      </div>`;
+    if (c.kind === 'listen') el.querySelector('.listen-btn').onclick = () => speak(it.pt);
+    el.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(el, c, +b.dataset.i));
+  }
+
+  if (cardNo === 1 && feed.children.length === 0) {
+    const h = document.createElement('div'); h.className = 'swipe-hint'; h.textContent = '↑ przewiń w górę';
+    el.appendChild(h);
+  }
+  return el;
+}
+
+function answer(el, c, i) {
+  const chosen = c.options[i], ok = chosen === c.item;
+  const btns = el.querySelectorAll('.opt');
+  btns.forEach((b, j) => { b.disabled = true; if (c.options[j] === c.item) b.classList.add('ok'); });
+  const fb = el.querySelector('.feedback');
+  const r = btns[i].getBoundingClientRect(), x = r.left + r.width / 2, y = r.top;
+  if (ok) {
+    S.combo++; S.bestCombo = Math.max(S.bestCombo, S.combo);
+    let gain = 10 + Math.min(S.combo - 1, 10) * 2;            // combo podbija nagrodę
+    const boosted = S.boost > 0; if (boosted) { gain *= 2; S.boost--; }
+    fb.innerHTML = esc(pick(['Muito bem! 🎉', 'Perfeito! ✨', 'Isso mesmo! 👏', 'Excelente! 💪', 'Boa! 🙌']))
+      + (boosted ? ` <span class="boost">⚡x2 (zostało ${S.boost})</span>` : '');
+    if (S.mistakes[c.item.id]) S.mistakes[c.item.id]--;
+    addXP(gain, x, y);
+    burst(x, y, 18 + Math.min(S.combo, 10) * 4);
+    if (S.combo >= 3 && (S.combo === 3 || S.combo === 5 || S.combo % 5 === 0)) comboBanner(S.combo);
+    else sfx('ok');
+    buzz(15);
+    setTimeout(() => speak(c.item.pt), 350);
+  } else {
+    btns[i].classList.add('bad');
+    if (S.combo >= 3) toast(`Seria przerwana na ${S.combo}. Rekord: ${S.bestCombo} 🔥`);
+    S.combo = 0;
+    fb.textContent = `To: ${c.item.pt} = ${c.item.pl}. Wróci za chwilę 🔁`;
+    S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
+    reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
+    ensureBuffer(true);
+    sfx('bad'); buzz([30, 40, 30]);
+    speak(c.item.pt);
+  }
+  save();
+}
+
+/* ===== Skrzynka z losową nagrodą ===== */
+function renderChest(el, c) {
+  el.style.background = bg(c.unit); el._card = c; el.dataset.unit = '🎁 Niespodzianka';
+  el.innerHTML = `<div><div class="tag">Tajemnicza skrzynka</div><div class="chest-box">🎁</div>
+    <div class="reveal-hint" style="font-size:16px">dotknij, żeby otworzyć</div><div class="slot"></div></div>`;
+  const box = el.querySelector('.chest-box');
+  box.onclick = () => {
+    if (c.opened) return; c.opened = true;
+    box.classList.add('opening'); sfx('chest'); buzz([20, 30, 20, 30, 20]);
+    setTimeout(() => {
+      box.textContent = '🎉'; box.classList.remove('opening'); box.style.animation = 'none';
+      el.querySelector('.reveal-hint').style.display = 'none';
+      const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
+      const roll = Math.random(); let html;
+      if (roll < 0.05) { html = 'JACKPOT! +100 XP<small>Trafia się raz na 20 skrzynek 🤯</small>'; addXP(100); }
+      else if (roll < 0.15 && rareLeft.length) {
+        const rr = pick(rareLeft); S.rares.push(rr.pt);
+        html = `Rzadka karta: ${esc(rr.pt)}<small>${esc(rr.pl)} · [${esc(rr.say)}]<br>Kolekcja: ${S.rares.length}/${RARES.length}</small>`;
+        addXP(30); speak(rr.pt);
+      }
+      else if (roll < 0.40) { S.boost += 5; html = '⚡ Podwójne XP<small>za 5 następnych dobrych odpowiedzi</small>'; }
+      else if (roll < 0.65) { html = '+40 XP<small>Ładnie!</small>'; addXP(40); }
+      else { html = '+15 XP<small>Następna skrzynka może być lepsza 👀</small>'; addXP(15); }
+      el.querySelector('.slot').innerHTML = `<div class="reward">${html}</div>`;
+      const r = box.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 80, true);
+      save();
+    }, 650);
+  };
+  return el;
+}
+
+/* ===== Rzadka karta (złota, do kolekcji) ===== */
+function renderRare(el, c) {
+  const it = c.item;
+  el.classList.add('rare'); el.style.background = bg(c.unit); el._card = c; el.dataset.unit = '✨ Rzadka karta';
+  el.innerHTML = `<div><div class="tag">✨ Rzadka karta · kolekcja ${S.rares.length + 1}/${RARES.length}</div>
+    <h1 class="pt">${esc(it.pt)}</h1><div class="say">wymowa: <b>[${esc(it.say)}]</b></div>
+    <div class="pl shown">${esc(it.pl)}</div><div class="note">💡 ${esc(it.note)}</div>
+    <div class="reward">+30 XP</div></div>`;
+  return el;
+}
+
+/* ===== XP, poziomy, streak, cel dnia ===== */
+const dayStr = d => d.toISOString().slice(0, 10);
+function addXP(n, x, y) {
+  const today = dayStr(new Date()), yest = dayStr(new Date(Date.now() - 864e5));
+  if (S.today !== today) {                                   // pierwszy XP dnia -> streak
+    S.streak = S.lastDay === yest ? S.streak + 1 : 1;
+    S.lastDay = S.today = today; S.todayXp = 0;
+    if (S.streak > 1) setTimeout(() => toast(`🔥 ${S.streak} dni z rzędu!`), 600);
+  }
+  const lvBefore = levelOf(S.xp), goalBefore = S.todayXp >= DAILY_GOAL;
+  S.xp += n; S.todayXp += n;
+  if (x !== undefined) floatXP('+' + n + ' XP', x, y);
+  paintStats(true);
+  if (!goalBefore && S.todayXp >= DAILY_GOAL) setTimeout(() => celebrate('🎯', 'Cel dnia zaliczony!', `${DAILY_GOAL} XP dzisiaj. Streak bezpieczny 🔥`), 900);
+  const lv = levelOf(S.xp);
+  if (lv > lvBefore) setTimeout(() => celebrate(lv, `Poziom ${lv}: ${levelName(lv)}`, `Do następnego: ${Math.pow(lv, 2) * 25 - S.xp} XP`), 700);
+  save();
+}
+function paintStats(bump) {
+  document.getElementById('xpN').textContent = S.xp;
+  document.getElementById('streakN').textContent = S.streak;
+  const alive = S.lastDay === dayStr(new Date()) || S.lastDay === dayStr(new Date(Date.now() - 864e5));
+  document.getElementById('streak').classList.toggle('cold', !alive || S.today !== dayStr(new Date()));
+  const p = Math.min(1, (S.today === dayStr(new Date()) ? S.todayXp : 0) / DAILY_GOAL);
+  document.getElementById('goalRing').style.strokeDashoffset = 56.5 * (1 - p);
+  if (bump) { const s = document.getElementById('xpStat'); s.classList.remove('bump'); void s.offsetWidth; s.classList.add('bump'); }
+}
+function floatXP(text, x, y) {
+  const f = document.createElement('div'); f.className = 'floatxp'; f.textContent = text;
+  f.style.left = x + 'px'; f.style.top = y + 'px'; document.body.appendChild(f); setTimeout(() => f.remove(), 1200);
+}
+function comboBanner(n) {
+  const b = document.getElementById('combo');
+  b.textContent = `🔥 x${n} COMBO!`; b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+  sfx('combo'); buzz([20, 30, 20, 30, 60]);
+  burst(innerWidth / 2, innerHeight * .22, 60 + n * 4, true);
+}
+function celebrate(big, title, sub) {
+  const o = document.getElementById('overlay');
+  o.innerHTML = `<div><div class="lv">${big}</div><h2>${esc(title)}</h2><p>${esc(sub)}</p>
+    <p style="margin-top:28px;font-size:14px">dotknij, żeby kontynuować</p></div>`;
+  o.classList.add('show'); sfx('level'); buzz([40, 50, 40, 50, 120]);
+  const boom = () => burst(innerWidth * (.2 + Math.random() * .6), innerHeight * (.25 + Math.random() * .3), 90, true);
+  boom(); setTimeout(boom, 300); setTimeout(boom, 650);
+  const close = () => o.classList.remove('show');
+  o.onclick = close; clearTimeout(celebrate._t); celebrate._t = setTimeout(close, 3500);
+}
+
+/* ===== Konfetti (canvas) ===== */
+const fx = document.getElementById('fx'), ctx = fx.getContext('2d');
+let parts = [], fxRunning = false;
+function sizeFx() { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }
+sizeFx(); addEventListener('resize', sizeFx);
+function burst(x, y, n, gold) {
+  const cols = gold ? ['#ffd23f', '#ffb000', '#fff3b0', '#ff8a00'] : ['#34c77b', '#ffd23f', '#5ac8fa', '#ff5a5f', '#af7cff', '#fff'];
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 8;
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5, r: 3 + Math.random() * 4, c: pick(cols),
+      rot: Math.random() * 6, vr: (Math.random() - .5) * .4, life: 60 + Math.random() * 40 });
+  }
+  if (!fxRunning) { fxRunning = true; requestAnimationFrame(tick); }
+}
+function tick() {
+  const d = devicePixelRatio; ctx.clearRect(0, 0, fx.width, fx.height);
+  parts = parts.filter(p => p.life > 0);
+  parts.forEach(p => {
+    p.vy += .32; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life--;
+    ctx.save(); ctx.globalAlpha = Math.min(1, p.life / 30); ctx.translate(p.x * d, p.y * d); ctx.rotate(p.rot);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.r * d, -p.r * d * .5, p.r * 2 * d, p.r * d); ctx.restore();
+  });
+  if (parts.length) requestAnimationFrame(tick); else { fxRunning = false; ctx.clearRect(0, 0, fx.width, fx.height); }
+}
+
+/* ===== Dźwięki (syntezowane, bez plików) i wibracje ===== */
+let AC = null;
+addEventListener('pointerdown', () => { if (!AC) try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }, { once: true });
+function tone(f, t0, dur, type = 'sine', vol = .18) {
+  const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + t0;
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .05);
+}
+function sfx(kind) {
+  if (!S.sound || !AC) return;
+  const seq = {
+    ok:    [[784, 0, .12], [1175, .08, .22]],
+    pop:   [[1200, 0, .07, 'sine', .12]],
+    bad:   [[220, 0, .18, 'triangle'], [185, .1, .25, 'triangle']],
+    combo: [[523, 0, .1], [659, .07, .1], [784, .14, .1], [1047, .21, .35]],
+    chest: [[392, 0, .08, 'square', .08], [523, .1, .08, 'square', .08], [659, .2, .08, 'square', .08], [1047, .55, .4], [1319, .62, .5]],
+    level: [[523, 0, .15], [659, .15, .15], [784, .3, .15], [1047, .45, .5], [784, .45, .5, 'triangle', .1]],
+  }[kind];
+  seq.forEach(s => tone(s[0], s[1], s[2], s[3], s[4]));
+}
+function buzz(p) { try { if (S.sound && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+
+function toggleSave(el, it) {
+  const i = S.saved.indexOf(it.id);
+  if (i >= 0) S.saved.splice(i, 1); else S.saved.push(it.id);
+  el.querySelector('[data-a=save]').classList.toggle('on', i < 0);
+  toast(i < 0 ? 'Zapisane: będzie częściej w powtórkach' : 'Usunięte z zapisanych');
+  save();
+}
+
+function addDoubleTap(el, fn) {
+  let last = 0;
+  el.addEventListener('pointerup', e => {
+    if (e.target.closest('button, .pl')) return;
+    const now = Date.now();
+    if (now - last < 300) { fn(); last = 0; } else last = now;
+  });
+}
+function heart(el) {
+  const h = document.createElement('div'); h.className = 'heart'; h.textContent = '❤️';
+  el.appendChild(h); setTimeout(() => h.remove(), 900);
+}
+
+/* =========================================================
+   NIESKOŃCZONY SCROLL + wykrywanie aktywnej karty
+   ========================================================= */
+const BUFFER = 4; // ile kart trzymamy "pod spodem"
+function activeIndex() { return Math.round(feed.scrollTop / feed.clientHeight); }
+
+function ensureBuffer(rebuildAhead) {
+  const idx = activeIndex();
+  // po błędzie w quizie przebuduj karty, których jeszcze nie widziałeś, żeby powtórka trafiła na swoje miejsce
+  if (rebuildAhead) {
+    while (feed.children.length - 1 > idx + 1) {
+      const last = feed.lastElementChild;
+      if (last._card.type === 'quiz') { feed.removeChild(last); cardNo--; }
+      else break;
+    }
+  }
+  while (feed.children.length - idx <= BUFFER) feed.appendChild(observe(render(nextCard())));
+  // stare karty daleko w tyle można usuwać, ale przy kilkuset kartach DOM spokojnie daje radę
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    const el = en.target, c = el._card;
+    if (!en.isIntersecting || en.intersectionRatio < .6) {   // karta zjechała z ekranu -> pauza filmiku
+      if (el._active) { el._active = false; if (c.stop) c.stop(); }
+      return;
+    }
+    el._active = true;
+    if (c.play) setTimeout(() => { if (el._active) c.play(); }, 450);   // filmik startuje sam
+    if (el._seen) return;
+    el._seen = true;
+    S.seen++; save();
+    if (c.type === 'learn') addXP(2);
+    if (c.type === 'done') { addXP(50, innerWidth / 2, innerHeight * .55); burst(innerWidth / 2, innerHeight * .4, 120, true); sfx('combo'); buzz([20, 30, 60]); }
+    if (c.type === 'rare' && !S.rares.includes(c.item.pt)) {
+      S.rares.push(c.item.pt); addXP(30, innerWidth / 2, innerHeight * .6);
+      burst(innerWidth / 2, innerHeight * .35, 100, true); sfx('chest');
+    }
+    document.getElementById('unitLabel').textContent = el.dataset.unit;
+    document.getElementById('progress').style.width = Math.min(100, S.step / PLAN.length * 100) + '%';
+    if (S.sound && c.type === 'learn') setTimeout(() => speak(c.item.pt), 250);
+    if (S.sound && c.type === 'quiz' && c.kind === 'listen') setTimeout(() => speak(c.item.pt), 250);
+    ensureBuffer();
+  });
+}, { root: feed, threshold: [.6] });
+function observe(el) { io.observe(el); return el; }
+
+/* Klawiatura na komputerze: strzałki / spacja */
+document.addEventListener('keydown', e => {
+  if (['ArrowDown', 'ArrowUp', ' ', 'PageDown', 'PageUp'].includes(e.key)) {
+    e.preventDefault();
+    const dir = ['ArrowUp', 'PageUp'].includes(e.key) ? -1 : 1;
+    feed.scrollTo({ top: (activeIndex() + dir) * feed.clientHeight, behavior: 'smooth' });
+  }
+});
+
+/* =========================================================
+   UI
+   ========================================================= */
+function toast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+const soundBtn = document.getElementById('soundBtn');
+const paintSound = () => soundBtn.textContent = S.sound ? '🔊' : '🔇';
+soundBtn.onclick = () => { S.sound = !S.sound; paintSound(); save(); toast(S.sound ? 'Automatyczne czytanie: wł.' : 'Automatyczne czytanie: wył.'); };
+document.getElementById('resetBtn').onclick = () => {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  S = fresh(); save(); feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
+  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear(); ensureBuffer(); paintSound(); paintStats();
+  feed.scrollTop = 0; toast('Zaczynamy od nowa');
+};
+
+/* Start: jeśli wracasz, zaczynasz od krótkiej powtórki */
+paintSound(); paintStats();
+if (S.learned.length >= 3) { for (let k = 0; k < 2; k++) reviewQueue.push({ id: pick(weightedLearned()), due: 0 }); }
+ensureBuffer();
+setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast('Brak głosu pt-PT, czyta głos ' + voice.lang); }, 1500);
+</script>
+</body>
+</html>
