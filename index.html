@@ -975,7 +975,7 @@ const save = () => { S.updatedAt = Date.now(); try { localStorage.setItem(storag
    Klucz "anon/publishable" jest publiczny z założenia; dostęp pilnują reguły RLS w bazie
    (supabase/schema.sql): każdy użytkownik czyta i zapisuje wyłącznie swój wiersz.
    ========================================================= */
-const CLOUD = window.SCROLL_PT_CLOUD || { url: '', key: '' };   // Supabase → Project Settings → API
+const CLOUD = window.SCROLL_PT_CLOUD || { url: 'https://agvopasasigldokpiejm.supabase.co', key: 'sb_publishable_Y2_Q94dy_DJzSBwgShJJAQ_WJS-qg4O' };   // Supabase → Project Settings → API
 const GUEST_KEY = 'scroll-pt-guest';
 let sb = null, cloudUser = null, cloudTimer = null, cloudState = 'off';
 const cloudOn = () => !!(CLOUD.url && CLOUD.key && window.supabase && window.supabase.createClient);

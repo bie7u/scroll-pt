@@ -7,6 +7,10 @@ create table if not exists public.progress (
   updated_at timestamptz not null default now()
 );
 
+-- Dostęp do tabeli dla zalogowanych (nowe projekty Supabase nie nadają go automatycznie).
+-- Niezalogowani (rola anon) nie dostają nic.
+grant select, insert, update on public.progress to authenticated;
+
 -- Row Level Security: każdy użytkownik widzi i zmienia wyłącznie swój wiersz.
 alter table public.progress enable row level security;
 
