@@ -7,6 +7,7 @@
 <!-- aplikacja do nauki: przeglądarka nie może sama tłumaczyć portugalskich tekstów -->
 <meta name="google" content="notranslate">
 <title>Scroll PT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
 <style>
   :root {
     --bg: #0e0f13;
@@ -214,6 +215,26 @@
   .sheet-form input { flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: var(--fg);
     border-radius: 999px; padding: 11px 16px; font-size: 16px; outline: none; }
   .sheet-form button { border: 0; background: none; color: #5ac8fa; font-weight: 700; font-size: 16px; cursor: pointer; padding: 0 8px; }
+  /* logowanie */
+  #auth { position: fixed; inset: 0; z-index: 45; display: none; place-items: center; padding: 24px 16px; overflow-y: auto;
+    background: radial-gradient(circle at 50% 20%, #1d3b8b, #0e0f13 70%); }
+  #auth.show { display: grid; }
+  .authbox { width: 100%; max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
+  .authbox h2 { margin: 0; font-size: 30px; } .authbox .big-emoji { margin: 0; }
+  .authsub { color: var(--muted); margin: 0 0 8px; line-height: 1.45; }
+  .authtabs { display: flex; background: rgba(255,255,255,.08); border-radius: 12px; padding: 4px; margin-bottom: 4px; }
+  .authtabs button { flex: 1; border: 0; background: none; color: var(--muted); padding: 10px; border-radius: 9px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .authtabs button.on { background: rgba(255,255,255,.16); color: var(--fg); }
+  .authbox input { border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.07); color: var(--fg); border-radius: 12px;
+    padding: 14px; font-size: 16px; outline: none; }
+  .authbox input:focus { border-color: #ffd23f; }
+  .autherr { min-height: 20px; color: #ff8a8f; font-size: 14px; }
+  .authgo { border: 0; border-radius: 12px; padding: 15px; font-size: 17px; font-weight: 800; background: #ffd23f; color: #111; cursor: pointer; }
+  .authgo:disabled { opacity: .6; }
+  .authguest { border: 0; background: none; color: var(--muted); font-size: 14px; padding: 10px; cursor: pointer; text-decoration: underline; }
+  .acct { margin: 6px 0 14px; font-size: 14px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .acct b { color: var(--fg); }
+  .acct button { border: 1px solid rgba(255,255,255,.25); background: none; color: var(--fg); border-radius: 8px; padding: 5px 10px; font-size: 13px; cursor: pointer; }
   /* panel dnia */
   .daypanel { max-width: 380px; width: 100%; }
   .daypanel h2 { margin: 0 0 8px; }
@@ -293,6 +314,7 @@
 <div id="combo"></div>
 <div id="overlay"></div>
 <div id="toast"></div>
+<div id="auth"></div>
 <div id="sheet"><div class="sheet-bg"></div><div class="sheet-panel">
   <div class="sheet-head"><b class="sheet-title">Komentarze</b><button class="sheet-x" aria-label="Zamknij">✕</button></div>
   <div class="sheet-list"></div>
@@ -834,6 +856,15 @@ const T = {
     noVoice: v => `Brak głosu pt-PT, czyta głos ${v}`, noTTS: 'Ta przeglądarka nie umie czytać na głos',
     langSet: 'Tłumaczenia: polski 🇵🇱', start: '🇵🇹 Portugalski od zera',
     unmute: '🔇 dotknij, żeby włączyć dźwięk', sample: 'przykład · głos syntetyczny',
+    authSub: 'Zaloguj się, żeby postęp zapisywał się na koncie i działał na każdym urządzeniu.',
+    login: 'Logowanie', signup: 'Nowe konto', nick: 'Twój nick (widoczny w komentarzach)', password: 'Hasło (min. 6 znaków)',
+    loginBtn: 'Zaloguj się', signupBtn: 'Załóż konto', guest: 'Kontynuuj bez konta (postęp tylko na tym telefonie)',
+    errLogin: 'Zły e-mail lub hasło.', errExists: 'Konto z tym e-mailem już istnieje. Zaloguj się.', errPass: 'Hasło musi mieć co najmniej 6 znaków.',
+    errEmail: 'Wpisz poprawny adres e-mail.', errConfirm: 'Najpierw potwierdź adres e-mail (link w skrzynce).', errRate: 'Za dużo prób. Spróbuj za chwilę.',
+    errGeneric: 'Coś poszło nie tak. Spróbuj ponownie.', checkMail: 'Konto założone! Potwierdź adres linkiem z maila, a potem się zaloguj.',
+    hello: n => `Olá, ${n}! 👋`, cloudMigrated: 'Postęp z tego telefonu przeniesiony na konto ☁️', cloudPulled: 'Wczytano nowszy postęp z innego urządzenia ☁️',
+    cloudErr: 'Brak połączenia z chmurą. Postęp zapisuje się na telefonie, wyślę go później.', cloudBack: 'Połączenie wróciło, postęp zapisany w chmurze ☁️',
+    cloudSaved: 'zapis na koncie', localOnly: 'Zapis tylko na tym telefonie', logout: 'Wyloguj',
     you: 'Ty', comments: 'Komentarze', addComment: 'Dodaj komentarz…', post: 'Wyślij', noComments: 'Jeszcze nikt nie skomentował. Bądź pierwszy!',
     askTag: 'Powtórka w komentarzu', askTranslate: 'Jak powiesz po portugalsku?', askCloze: 'Uzupełnij lukę:',
     askCta: '💬 Napisz odpowiedź w komentarzu', seeComments: '💬 Zobacz komentarze', askPlaceholder: 'Napisz po portugalsku…',
@@ -881,6 +912,15 @@ const T = {
     noVoice: v => `No pt-PT voice found, using ${v}`, noTTS: 'This browser can’t read aloud',
     langSet: 'Translations: English 🇬🇧', start: '🇵🇹 Portuguese from zero',
     unmute: '🔇 tap for sound', sample: 'sample · synthetic voice',
+    authSub: 'Log in to save your progress to your account and use it on any device.',
+    login: 'Log in', signup: 'New account', nick: 'Your nickname (shown in comments)', password: 'Password (min. 6 characters)',
+    loginBtn: 'Log in', signupBtn: 'Create account', guest: 'Continue without an account (progress stays on this phone)',
+    errLogin: 'Wrong e-mail or password.', errExists: 'An account with this e-mail already exists. Log in.', errPass: 'The password needs at least 6 characters.',
+    errEmail: 'Enter a valid e-mail address.', errConfirm: 'Confirm your e-mail first (link in your inbox).', errRate: 'Too many attempts. Try again in a moment.',
+    errGeneric: 'Something went wrong. Try again.', checkMail: 'Account created! Confirm your e-mail with the link we sent, then log in.',
+    hello: n => `Olá, ${n}! 👋`, cloudMigrated: 'Progress from this phone moved to your account ☁️', cloudPulled: 'Loaded newer progress from another device ☁️',
+    cloudErr: 'No connection to the cloud. Progress is saved on this phone and will be sent later.', cloudBack: 'Back online, progress saved to the cloud ☁️',
+    cloudSaved: 'saved to your account', localOnly: 'Saved on this phone only', logout: 'Log out',
     you: 'You', comments: 'Comments', addComment: 'Add a comment…', post: 'Post', noComments: 'No comments yet. Be the first!',
     askTag: 'Review in the comments', askTranslate: 'How do you say it in Portuguese?', askCloze: 'Fill in the gap:',
     askCta: '💬 Write your answer in the comments', seeComments: '💬 See comments', askPlaceholder: 'Write in Portuguese…',
@@ -927,7 +967,144 @@ const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: tru
   follows: [], watched: [], lang: defaultLang(), srs: {}, newLimit: 10, day: {} });
 let S = fresh();
 try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+let storageKey = KEY;                           // bez konta: KEY; po zalogowaniu: KEY + ':' + id użytkownika
+const save = () => { S.updatedAt = Date.now(); try { localStorage.setItem(storageKey, JSON.stringify(S)); } catch (e) {} if (cloudUser) cloudSaveSoon(); };
+/* =========================================================
+   KONTA UŻYTKOWNIKÓW I ZAPIS W CHMURZE (Supabase)
+   Bez wpisanych danych projektu aplikacja działa jak dotąd: zapis tylko w tej przeglądarce.
+   Klucz "anon/publishable" jest publiczny z założenia; dostęp pilnują reguły RLS w bazie
+   (supabase/schema.sql): każdy użytkownik czyta i zapisuje wyłącznie swój wiersz.
+   ========================================================= */
+const CLOUD = window.SCROLL_PT_CLOUD || { url: '', key: '' };   // Supabase → Project Settings → API
+const GUEST_KEY = 'scroll-pt-guest';
+let sb = null, cloudUser = null, cloudTimer = null, cloudState = 'off';
+const cloudOn = () => !!(CLOUD.url && CLOUD.key && window.supabase && window.supabase.createClient);
+const loadLocal = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+
+function cloudSaveSoon() { clearTimeout(cloudTimer); cloudTimer = setTimeout(cloudSaveNow, 1500); }
+async function cloudSaveNow() {
+  clearTimeout(cloudTimer);
+  if (!cloudUser || !sb) return;
+  try {
+    const { error } = await sb.from('progress').upsert({ user_id: cloudUser.id, state: S, updated_at: new Date(S.updatedAt || Date.now()).toISOString() });
+    if (error) throw error;
+    if (cloudState === 'err') toast(t('cloudBack'));
+    cloudState = 'ok';
+  } catch (e) {
+    if (cloudState !== 'err') toast(t('cloudErr'));
+    cloudState = 'err';                         // postęp i tak jest w przeglądarce; kolejny zapis spróbuje znowu
+  }
+}
+async function cloudLoad(user) {
+  const { data, error } = await sb.from('progress').select('state, updated_at').eq('user_id', user.id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+/* Po zalogowaniu: bierzemy nowszy z dwóch zapisów (chmura vs ten telefon).
+   Przy pierwszym logowaniu konto przejmuje postęp zrobiony wcześniej bez konta. */
+async function useAccount(user) {
+  cloudUser = user; storageKey = KEY + ':' + user.id;
+  const local = loadLocal(storageKey);
+  let remote = null;
+  try { remote = await cloudLoad(user); cloudState = 'ok'; } catch (e) { cloudState = 'err'; toast(t('cloudErr')); }
+  let state = remote && remote.state && remote.state.updatedAt ? remote.state : null;
+  if (local && (!state || (local.updatedAt || 0) > (state.updatedAt || 0))) state = local;
+  let migrated = false;
+  if (!state) { const anon = loadLocal(KEY); if (anon && anon.learned && anon.learned.length) { state = anon; migrated = true; } }
+  const lang = S.lang;
+  S = Object.assign(fresh(), state || {}, state ? {} : { lang });
+  S.nick = (user.user_metadata && user.user_metadata.nick) || (user.email || '').split('@')[0];
+  save(); await cloudSaveNow();
+  hideAuth(); startFeed();
+  toast(migrated ? t('cloudMigrated') : t('hello')(S.nick));
+}
+async function logout() {
+  await cloudSaveNow();
+  try { await sb.auth.signOut(); } catch (e) {}
+  cloudUser = null; storageKey = KEY;
+  try { localStorage.removeItem(GUEST_KEY); } catch (e) {}
+  S = Object.assign(fresh(), loadLocal(KEY) || {});
+  feed.innerHTML = ''; showAuth('login');
+}
+function continueAsGuest() {
+  try { localStorage.setItem(GUEST_KEY, '1'); } catch (e) {}
+  hideAuth(); startFeed();
+}
+/* Inne urządzenie mogło zapisać nowszy postęp: sprawdzamy przy powrocie do aplikacji */
+document.addEventListener('visibilitychange', async () => {
+  if (!cloudUser) return;
+  if (document.visibilityState === 'hidden') { cloudSaveNow(); return; }
+  try {
+    const remote = await cloudLoad(cloudUser);
+    if (remote && remote.state && (remote.state.updatedAt || 0) > (S.updatedAt || 0) + 1000) {
+      S = Object.assign(fresh(), remote.state); try { localStorage.setItem(storageKey, JSON.stringify(S)); } catch (e) {}
+      startFeed(); toast(t('cloudPulled'));
+    }
+  } catch (e) {}
+});
+
+/* ===== Ekran logowania ===== */
+const authErr = e => {
+  const m = String((e && e.message) || e || '');
+  if (/invalid login/i.test(m)) return t('errLogin');
+  if (/already registered|already exists/i.test(m)) return t('errExists');
+  if (/password/i.test(m) && /6|short|least/i.test(m)) return t('errPass');
+  if (/email/i.test(m) && /invalid|valid/i.test(m)) return t('errEmail');
+  if (/not confirmed/i.test(m)) return t('errConfirm');
+  if (/rate|too many/i.test(m)) return t('errRate');
+  return m || t('errGeneric');
+};
+function showAuth(mode) {
+  mode = mode || 'login';
+  const a = document.getElementById('auth');
+  a.innerHTML = `<form class="authbox" novalidate>
+      <div class="big-emoji">🇵🇹</div><h2>Scroll PT</h2><p class="authsub">${t('authSub')}</p>
+      <div class="authtabs"><button type="button" data-m="login" class="${mode === 'login' ? 'on' : ''}">${t('login')}</button>
+        <button type="button" data-m="signup" class="${mode === 'signup' ? 'on' : ''}">${t('signup')}</button></div>
+      ${mode === 'signup' ? `<input name="nick" placeholder="${t('nick')}" maxlength="24" autocomplete="nickname">` : ''}
+      <input name="email" type="email" placeholder="E-mail" autocomplete="email" autocapitalize="off" required>
+      <input name="password" type="password" placeholder="${t('password')}" autocomplete="${mode === 'signup' ? 'new-password' : 'current-password'}" required>
+      <div class="autherr"></div>
+      <button type="submit" class="authgo">${mode === 'signup' ? t('signupBtn') : t('loginBtn')}</button>
+      <button type="button" class="authguest">${t('guest')}</button>
+    </form>`;
+  a.classList.add('show');
+  const f = a.querySelector('form'), err = a.querySelector('.autherr'), go = a.querySelector('.authgo');
+  a.querySelectorAll('.authtabs button').forEach(b => b.onclick = () => showAuth(b.dataset.m));
+  a.querySelector('.authguest').onclick = continueAsGuest;
+  f.onsubmit = async e => {
+    e.preventDefault(); err.textContent = '';
+    const email = f.email.value.trim(), password = f.password.value, nick = f.nick ? f.nick.value.trim() : '';
+    if (!/^\S+@\S+\.\S+$/.test(email)) { err.textContent = t('errEmail'); return; }
+    if (password.length < 6) { err.textContent = t('errPass'); return; }
+    go.disabled = true; go.textContent = '…';
+    try {
+      if (mode === 'signup') {
+        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { nick: nick || email.split('@')[0] } } });
+        if (error) throw error;
+        if (!data.session) { showAuth('login'); document.querySelector('#auth .autherr').textContent = t('checkMail'); return; }
+        await useAccount(data.session.user);
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await useAccount(data.session.user);
+      }
+    } catch (ex) { err.textContent = authErr(ex); go.disabled = false; go.textContent = mode === 'signup' ? t('signupBtn') : t('loginBtn'); }
+  };
+}
+function hideAuth() { document.getElementById('auth').classList.remove('show'); }
+
+/* Start aplikacji: najpierw sprawdzamy, czy ktoś jest zalogowany */
+async function bootstrap() {
+  if (!cloudOn()) { startFeed(); return; }
+  try {
+    sb = window.supabase.createClient(CLOUD.url, CLOUD.key, { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'scroll-pt-auth' } });
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) { await useAccount(data.session.user); return; }
+  } catch (e) { toast(t('cloudErr')); startFeed(); return; }
+  if (localStorage.getItem(GUEST_KEY)) startFeed(); else showAuth('login');
+}
+
 
 /* Plan "nowych" kart: intro działu -> słówka -> puchar, między działami ciekawostki */
 const PLAN = [];
@@ -1078,7 +1255,7 @@ let sheetCard = null, sheetEl = null;
 function renderComments() {
   const c = sheetCard, list = document.querySelector('#sheet .sheet-list');
   const rows = [...(c.mine || []), ...seedComments(c)].map(m => {
-    const who = m.me ? t('you') : '@' + m.u, sub = m.pt && !m.me ? `<div class="ctr">${esc(isEn() ? m.en : m.pl)}</div>` : '';
+    const who = m.me ? (S.nick || t('you')) : '@' + m.u, sub = m.pt && !m.me ? `<div class="ctr">${esc(isEn() ? m.en : m.pl)}</div>` : '';
     const text = m.me || !m.pt ? (m.me ? m.text : (isEn() ? m.en : m.pl)) : m.pt;
     const reply = m.reply ? `<div class="creply"><b>@professor.rui</b> ${esc(m.reply)}</div>` : '';
     return `<div class="cm ${m.me ? 'me' : ''}"><div class="cbody"><b>${esc(who)}</b> ${esc(text)}${sub}${reply}</div>
@@ -1148,6 +1325,8 @@ function openDayPanel() {
       <div class="boxes">${boxes.map((n, i) => `<div class="box"><i style="height:${Math.round(n / maxB * 60) + 4}px"></i><b>${n}</b><small>${t('boxNames')[i]}</small></div>`).join('')}</div>
       <p class="lim">${t('limitLabel')}</p>
       <div class="limits">${[5, 10, 20, 0].map(n => `<button data-n="${n}" class="${S.newLimit === n ? 'on' : ''}">${n || '∞'}</button>`).join('')}</div>
+      <div class="acct">${cloudUser ? `👤 <b>${esc(S.nick || '')}</b> · ☁️ ${t('cloudSaved')} <button class="logoutbtn">${t('logout')}</button>`
+        : cloudOn() ? `📱 ${t('localOnly')} <button class="loginbtn">${t('login')}</button>` : `📱 ${t('localOnly')}`}</div>
       <button class="resetbtn">↺ ${t('restartBtn')}</button>
       <p style="margin-top:18px;font-size:13px">${t('tapContinue')}</p></div>`;
   o.classList.add('show'); clearTimeout(celebrate._t);
@@ -1155,6 +1334,8 @@ function openDayPanel() {
     const lb = e.target.closest('.limits button');
     if (lb) { S.newLimit = +lb.dataset.n; save(); paintDay(); toast(t('limitSet')(S.newLimit)); o.classList.remove('show'); feed.lastElementChild && ensureBuffer(); return; }
     if (e.target.closest('.resetbtn')) { o.classList.remove('show'); doReset(); return; }
+    if (e.target.closest('.logoutbtn')) { o.classList.remove('show'); logout(); return; }
+    if (e.target.closest('.loginbtn')) { o.classList.remove('show'); showAuth('login'); return; }
     if (!e.target.closest('.daypanel') || e.target.closest('p')) o.classList.remove('show');
   };
 }
@@ -1911,11 +2092,8 @@ langBtn.onclick = () => {
 
 function doReset() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
-  S = Object.assign(fresh(), { lang: S.lang, sound: S.sound }); save();
-  feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
-  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear();
-  startDay(); ensureBuffer(); paintSound(); paintStats(); paintDay();
-  feed.scrollTop = 0; toast(t('restart'));
+  S = Object.assign(fresh(), { lang: S.lang, sound: S.sound, nick: S.nick }); save();
+  startFeed(); toast(t('restart'));
 }
 document.getElementById('dayBtn').onclick = openDayPanel;
 /* Panel komentarzy */
@@ -1927,10 +2105,15 @@ document.querySelector('#sheet .sheet-form').onsubmit = e => {
 };
 
 /* Start: jeśli wracasz, zaczynasz od krótkiej powtórki */
-paintSound(); paintLang(); paintStats();
-document.getElementById('unitLabel').textContent = t('start');
-startDay(); paintDay();
-ensureBuffer();
+function startFeed() {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
+  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear();
+  paintSound(); paintLang(); paintStats();
+  document.getElementById('unitLabel').textContent = t('start');
+  startDay(); paintDay(); ensureBuffer(); feed.scrollTop = 0;
+}
+bootstrap();
 setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast(t('noVoice')(voice.lang)); }, 1500);
 </script>
 </body>

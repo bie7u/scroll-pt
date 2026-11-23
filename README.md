@@ -47,3 +47,25 @@ Każde słowo ma kartotekę w `S.srs`:
   quiz PL → PT, odsłuch albo komentarz.
 - Rano: słowa z `due <= dziś` (max 40, najpierw najsłabsze) lecą jako powtórki, zanim pojawi się nowy materiał.
 - Synchronizacja między urządzeniami wymaga logowania i bazy (np. Supabase/Firebase). Kartotekę da się przenieść 1:1.
+
+## Konta użytkowników (Supabase)
+
+Bez konfiguracji aplikacja zapisuje postęp tylko w przeglądarce. Z Supabase każdy użytkownik loguje się e-mailem
+i hasłem, a postęp (cały stan aplikacji, w tym kartoteka powtórek) zapisuje się w tabeli `progress`.
+
+1. Załóż projekt na https://supabase.com (darmowy plan).
+2. SQL Editor → wklej `supabase/schema.sql` → Run. Tworzy tabelę i reguły RLS (każdy widzi tylko swój wiersz).
+3. Authentication → Sign In / Providers → Email: włączony. Na czas testów wyłącz „Confirm email”
+   (darmowy Supabase wysyła tylko kilka maili na godzinę).
+4. Authentication → URL Configuration → Site URL: `https://bie7u.github.io/scroll-pt/`.
+5. Project Settings → API: skopiuj **Project URL** i klucz **anon / publishable** i wpisz w `index.html`:
+   `const CLOUD = window.SCROLL_PT_CLOUD || { url: '…', key: '…' };`
+
+Klucz anon jest publiczny z założenia (trafia do przeglądarki). Bezpieczeństwo zapewniają reguły RLS.
+**Nigdy** nie wpisuj tu klucza `service_role`.
+
+Zachowanie:
+- Pierwsze logowanie przejmuje postęp zrobiony wcześniej bez konta na tym telefonie.
+- Zapis do chmury 1,5 s po każdej zmianie i przy zamknięciu/zminimalizowaniu aplikacji.
+- Po powrocie do aplikacji sprawdza, czy inne urządzenie nie zapisało nowszego postępu (wygrywa nowszy).
+- Bez internetu postęp zapisuje się na telefonie i trafia do chmury przy następnym udanym zapisie.
