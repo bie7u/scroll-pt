@@ -183,6 +183,17 @@
   .card.rare > div { position: relative; }
   @keyframes spin { to { transform: rotate(360deg) } }
   .rare .pt { color: #ffe08a; }
+  .sent { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.25; margin: 0 0 22px; font-weight: 700; }
+  .sent mark { background: none; color: #ffd23f; }
+  .bparts { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .brow, .bjoin, .bsum { opacity: 0; }
+  .card.active .brow, .card.active .bjoin, .card.active .bsum { animation: fadeUp .4s ease-out forwards; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+  .brow { display: flex; gap: 12px; align-items: baseline; background: rgba(0,0,0,.35); border-radius: 12px; padding: 8px 14px; font-size: 20px; }
+  .brow b { color: #ffd23f; min-width: 48px; text-align: right; }
+  .bjoin { color: var(--muted); font-size: 15px; }
+  .bsum { margin-top: 18px; font-size: 22px; font-weight: 800; }
+  .card.photo .sent { text-shadow: 0 2px 18px rgba(0,0,0,.6); }
 
   /* ===== Post ze zdjęciem ===== */
   .card.photo { justify-content: flex-end; background-size: cover !important; background-position: center !important; }
@@ -319,13 +330,33 @@ const UNITS = [
     items: [
       { pt: 'Queria…', pl: 'Poproszę… / Chciałbym…', en: 'I’d like…', say: 'kerija',
         note: 'Grzeczniej niż „quero” (chcę).', noteEn: 'More polite than “quero” (I want).' },
-      { pt: 'Um café', pl: 'Espresso', en: 'An espresso', say: 'ũ kafe' },
+      { pt: 'Um café', pl: 'Kawa (małe espresso)', en: 'A coffee (espresso)', say: 'ũ kafe',
+        ex: ['Bebo um café todas as manhãs.', 'Codziennie rano piję kawę.', 'I have a coffee every morning.', 'café'] },
       { pt: 'Um galão', pl: 'Kawa z mlekiem w szklance', en: 'Milky coffee in a glass', say: 'ũ galãu' },
       { pt: 'Um pastel de nata', pl: 'Babeczka z kremem', en: 'Custard tart', say: 'ũ pasztel dy nata' },
-      { pt: 'Água', pl: 'Woda', en: 'Water', say: 'agua' },
-      { pt: 'Pão', pl: 'Chleb', en: 'Bread', say: 'pãu' },
+      { pt: 'Água', pl: 'Woda', en: 'Water', say: 'agua',
+        ex: ['Uma garrafa de água, por favor.', 'Poproszę butelkę wody.', 'A bottle of water, please.', 'água'] },
+      { pt: 'Pão', pl: 'Chleb', en: 'Bread', say: 'pãu',
+        ex: ['Compro pão na padaria.', 'Kupuję chleb w piekarni.', 'I buy bread at the bakery.', 'pão'] },
       { pt: 'Quanto custa?', pl: 'Ile kosztuje?', en: 'How much is it?', say: 'kuantu kuszta' },
-      { pt: 'A conta, por favor', pl: 'Rachunek, proszę', en: 'The bill, please', say: 'a kõta pur fawor' },
+      { pt: 'A conta, por favor', pl: 'Rachunek, proszę', en: 'The bill, please', say: 'a kõta pur fawor',
+        ex: ['Pode trazer a conta, por favor?', 'Może Pan przynieść rachunek?', 'Could you bring the bill, please?', 'conta'] },
+    ] },
+  { id: 'food', title: 'Jedzenie i picie', titleEn: 'Food and drink', emoji: '🍷', bg: ['#7a1f2b', '#3a0c14'],
+    intro: ['Ryba, mięso, piwo i wino: podstawy każdego obiadu w Portugalii.'],
+    introEn: ['Fish, meat, beer and wine: the basics of every meal in Portugal.'],
+    items: [
+      { pt: 'A cerveja', pl: 'Piwo', en: 'Beer', say: 'a serweża',
+        note: 'Małe piwo z beczki: w Lizbonie „um imperial”, w Porto „um fino”.', noteEn: 'A small draught beer: “um imperial” in Lisbon, “um fino” in Porto.',
+        ex: ['Esta cerveja está muito fresca.', 'To piwo jest bardzo zimne.', 'This beer is nice and cold.', 'cerveja'] },
+      { pt: 'O vinho', pl: 'Wino', en: 'Wine', say: 'u wińu',
+        note: 'Tinto = czerwone, branco = białe, vinho verde = młode, lekkie wino z północy.', noteEn: 'Tinto = red, branco = white, vinho verde = young, light wine from the north.',
+        ex: ['Queria um copo de vinho tinto.', 'Poproszę kieliszek czerwonego wina.', 'I’d like a glass of red wine.', 'vinho'] },
+      { pt: 'O peixe', pl: 'Ryba', en: 'Fish', say: 'u pejsz',
+        note: 'Narodowa ryba to bacalhau (solony dorsz).', noteEn: 'The national fish is bacalhau (salt cod).',
+        ex: ['Os portugueses comem muito peixe.', 'Portugalczycy jedzą dużo ryb.', 'Portuguese people eat a lot of fish.', 'peixe'] },
+      { pt: 'A carne', pl: 'Mięso', en: 'Meat', say: 'a karn',
+        ex: ['Não como carne.', 'Nie jem mięsa.', 'I don’t eat meat.', 'carne'] },
     ] },
   { id: 'city', title: 'W mieście', titleEn: 'In the city', emoji: '🏙️', bg: ['#125a7a', '#082d3d'],
     intro: ['Zapytasz o drogę i zrozumiesz odpowiedź.'],
@@ -336,10 +367,200 @@ const UNITS = [
       { pt: 'O comboio', pl: 'Pociąg', en: 'Train', say: 'u kõboju',
         note: 'W Brazylii: trem. W Portugalii zawsze comboio.', noteEn: 'In Brazil: trem. In Portugal it’s always comboio.' },
       { pt: 'O autocarro', pl: 'Autobus', en: 'Bus', say: 'u ałtukaru' },
-      { pt: 'A praia', pl: 'Plaża', en: 'Beach', say: 'a praja' },
-      { pt: 'À esquerda', pl: 'W lewo', en: 'Left / on the left', say: 'a iszkerda' },
-      { pt: 'À direita', pl: 'W prawo', en: 'Right / on the right', say: 'a direjta' },
+      { pt: 'A praia', pl: 'Plaża', en: 'Beach', say: 'a praja',
+        ex: ['Vamos à praia amanhã?', 'Idziemy jutro na plażę?', 'Shall we go to the beach tomorrow?', 'praia'] },
+      { pt: 'À esquerda', pl: 'W lewo', en: 'Left / on the left', say: 'a iszkerda',
+        ex: ['A estação é à esquerda.', 'Dworzec jest po lewej.', 'The station is on the left.', 'à esquerda'] },
+      { pt: 'À direita', pl: 'W prawo', en: 'Right / on the right', say: 'a direjta',
+        ex: ['Vire à direita, por favor.', 'Proszę skręcić w prawo.', 'Turn right, please.', 'à direita'] },
       { pt: 'Em frente', pl: 'Prosto', en: 'Straight ahead', say: 'ãj frẽt' },
+    ] },
+  { id: 'travel', title: 'W podróży', titleEn: 'Travelling', emoji: '🧳', bg: ['#2a5a3a', '#0f2a18'],
+    intro: ['Dworzec, bilet, walizka, klucz: przetrwasz każdą podróż.'],
+    introEn: ['Station, ticket, suitcase, key: you’ll survive any trip.'],
+    items: [
+      { pt: 'A estação', pl: 'Dworzec / stacja', en: 'Station', say: 'a isztasãu',
+        ex: ['Onde fica a estação de comboios?', 'Gdzie jest dworzec kolejowy?', 'Where is the train station?', 'estação'] },
+      { pt: 'A rua', pl: 'Ulica', en: 'Street', say: 'a hrua',
+        note: '„R” na początku słowa wymawia się gardłowo, jak francuskie „r”.', noteEn: 'An “r” at the start of a word is guttural, like a French “r”.',
+        ex: ['Moro nesta rua.', 'Mieszkam na tej ulicy.', 'I live on this street.', 'rua'] },
+      { pt: 'A loja', pl: 'Sklep', en: 'Shop', say: 'a loża',
+        ex: ['A loja abre às nove.', 'Sklep otwierają o dziewiątej.', 'The shop opens at nine.', 'loja'] },
+      { pt: 'O supermercado', pl: 'Supermarket', en: 'Supermarket', say: 'u supermerkadu',
+        ex: ['Vou ao supermercado.', 'Idę do supermarketu.', 'I’m going to the supermarket.', 'supermercado'] },
+      { pt: 'A paragem', pl: 'Przystanek', en: 'Bus stop', say: 'a parażãj',
+        note: 'W Brazylii: ponto. W Portugalii: paragem.', noteEn: 'In Brazil: ponto. In Portugal: paragem.',
+        ex: ['A paragem do autocarro é ali.', 'Przystanek autobusowy jest tam.', 'The bus stop is over there.', 'paragem'] },
+      { pt: 'O bilhete', pl: 'Bilet', en: 'Ticket', say: 'u biljet',
+        ex: ['Queria um bilhete para o Porto.', 'Poproszę bilet do Porto.', 'I’d like a ticket to Porto.', 'bilhete'] },
+      { pt: 'A mala', pl: 'Walizka', en: 'Suitcase', say: 'a mala',
+        ex: ['A minha mala é azul.', 'Moja walizka jest niebieska.', 'My suitcase is blue.', 'mala'] },
+      { pt: 'A chave', pl: 'Klucz', en: 'Key', say: 'a szaw',
+        ex: ['Onde está a chave do quarto?', 'Gdzie jest klucz do pokoju?', 'Where is the room key?', 'chave'] },
+      { pt: 'O cartão', pl: 'Karta (płatnicza)', en: 'Card', say: 'u kartãu',
+        ex: ['Posso pagar com cartão?', 'Mogę zapłacić kartą?', 'Can I pay by card?', 'cartão'] },
+      { pt: 'O dinheiro', pl: 'Pieniądze / gotówka', en: 'Money / cash', say: 'u dińejru',
+        note: '„Em dinheiro” = gotówką.', noteEn: '“Em dinheiro” = in cash.',
+        ex: ['Só aceitamos dinheiro.', 'Przyjmujemy tylko gotówkę.', 'We only accept cash.', 'dinheiro'] },
+    ] },
+  { id: 'adj', title: 'Jaki? Jaka?', titleEn: 'Describing things', emoji: '🎨', bg: ['#5a2a7a', '#25103a'],
+    intro: ['Dobry, duży, drogi, zamknięty… Opiszesz jedzenie, hotel i sklep.',
+            'Przymiotnik zmienia końcówkę: -o dla rodzaju męskiego, -a dla żeńskiego (caro / cara).'],
+    introEn: ['Good, big, expensive, closed… Describe food, hotels and shops.',
+              'Adjectives change their ending: -o for masculine, -a for feminine (caro / cara).'],
+    items: [
+      { pt: 'Bom / boa', pl: 'Dobry / dobra', en: 'Good', say: 'bõ / boa',
+        ex: ['Este café é muito bom!', 'Ta kawa jest bardzo dobra!', 'This coffee is really good!', 'bom'] },
+      { pt: 'Grande', pl: 'Duży', en: 'Big', say: 'grãd',
+        ex: ['Lisboa é uma cidade grande.', 'Lizbona to duże miasto.', 'Lisbon is a big city.', 'grande'] },
+      { pt: 'Pequeno / pequena', pl: 'Mały / mała', en: 'Small', say: 'pykenu',
+        ex: ['O quarto é pequeno.', 'Pokój jest mały.', 'The room is small.', 'pequeno'] },
+      { pt: 'Quente', pl: 'Gorący / ciepły', en: 'Hot / warm', say: 'kẽt',
+        ex: ['A sopa está muito quente.', 'Zupa jest bardzo gorąca.', 'The soup is very hot.', 'quente'] },
+      { pt: 'Frio / fria', pl: 'Zimny / zimna', en: 'Cold', say: 'friu',
+        ex: ['A água está fria.', 'Woda jest zimna.', 'The water is cold.', 'fria'] },
+      { pt: 'Caro / cara', pl: 'Drogi / droga', en: 'Expensive', say: 'karu',
+        ex: ['Este hotel é caro.', 'Ten hotel jest drogi.', 'This hotel is expensive.', 'caro'] },
+      { pt: 'Barato / barata', pl: 'Tani / tania', en: 'Cheap', say: 'baratu',
+        ex: ['O metro é barato.', 'Metro jest tanie.', 'The metro is cheap.', 'barato'] },
+      { pt: 'Aberto / aberta', pl: 'Otwarty / otwarta', en: 'Open', say: 'abertu',
+        ex: ['O museu está aberto hoje?', 'Czy muzeum jest dziś otwarte?', 'Is the museum open today?', 'aberto'] },
+      { pt: 'Fechado / fechada', pl: 'Zamknięty / zamknięta', en: 'Closed', say: 'fyszadu',
+        ex: ['A farmácia está fechada.', 'Apteka jest zamknięta.', 'The pharmacy is closed.', 'fechada'] },
+      { pt: 'Longe', pl: 'Daleko', en: 'Far', say: 'lõż',
+        ex: ['A praia fica longe?', 'Czy plaża jest daleko?', 'Is the beach far?', 'longe'] },
+      { pt: 'Perto', pl: 'Blisko', en: 'Near', say: 'pertu',
+        ex: ['O hotel fica perto da estação.', 'Hotel jest blisko dworca.', 'The hotel is near the station.', 'perto'] },
+    ] },
+  { tip: true, emoji: '⚖️', title: 'É czy está?', titleEn: 'É or está?', bg: ['#3a2a7a', '#170f38'],
+    text: ['Oba znaczą „jest”, ale nie są wymienne.',
+           '„É” (ser) = cecha stała: O hotel é caro. Lisboa é grande.',
+           '„Está” (estar) = stan teraz: A sopa está quente. A loja está fechada.'],
+    textEn: ['Both mean “is”, but they’re not interchangeable.',
+             '“É” (ser) = a permanent trait: O hotel é caro. Lisboa é grande.',
+             '“Está” (estar) = a current state: A sopa está quente. A loja está fechada.'] },
+  { id: 'verb', title: 'Czasowniki', titleEn: 'Verbs', emoji: '🏃', bg: ['#1f5a7a', '#0a2738'],
+    intro: ['Najważniejsze czasowniki. Na karcie widzisz bezokolicznik i formę „ja”.',
+            'Słowo „eu” (ja) zwykle się pomija: „Quero” = „Chcę”.'],
+    introEn: ['The most important verbs. Each card shows the infinitive and the “I” form.',
+              'People usually drop “eu” (I): “Quero” = “I want”.'],
+    items: [
+      { pt: 'Querer', pl: 'Chcieć', en: 'To want', say: 'kyrer',
+        note: 'eu quero = chcę · queria = chciałbym (grzeczniej)', noteEn: 'eu quero = I want · queria = I’d like (more polite)',
+        ex: ['Quero aprender português.', 'Chcę nauczyć się portugalskiego.', 'I want to learn Portuguese.', 'Quero'] },
+      { pt: 'Poder', pl: 'Móc', en: 'Can / to be able to', say: 'puder',
+        note: 'eu posso = mogę', noteEn: 'eu posso = I can',
+        ex: ['Posso entrar?', 'Mogę wejść?', 'May I come in?', 'Posso'] },
+      { pt: 'Ter', pl: 'Mieć', en: 'To have', say: 'ter',
+        note: 'eu tenho = mam', noteEn: 'eu tenho = I have',
+        ex: ['Tenho uma reserva.', 'Mam rezerwację.', 'I have a reservation.', 'Tenho'] },
+      { pt: 'Falar', pl: 'Mówić', en: 'To speak', say: 'falar',
+        note: 'eu falo = mówię', noteEn: 'eu falo = I speak',
+        ex: ['Falo um pouco de português.', 'Mówię trochę po portugalsku.', 'I speak a little Portuguese.', 'Falo'] },
+      { pt: 'Ir', pl: 'Iść / jechać', en: 'To go', say: 'ir',
+        note: 'eu vou = idę / jadę. Jedno słowo na oba!', noteEn: 'eu vou = I go. One verb for walking and driving!',
+        ex: ['Vou a pé para o hotel.', 'Idę pieszo do hotelu.', 'I’m walking to the hotel.', 'Vou'] },
+      { pt: 'Apanhar', pl: 'Jechać (czymś)', en: 'To take (a bus, train)', say: 'apańar',
+        note: 'Dosłownie „łapać”: apanho o autocarro = jadę autobusem. W Brazylii: pegar.', noteEn: 'Literally “to catch”: apanho o autocarro = I take the bus. In Brazil: pegar.',
+        ex: ['Apanho o comboio às oito.', 'Jadę pociągiem o ósmej.', 'I take the train at eight.', 'Apanho'] },
+      { pt: 'Comprar', pl: 'Kupić / kupować', en: 'To buy', say: 'kõprar',
+        note: 'eu compro = kupuję', noteEn: 'eu compro = I buy',
+        ex: ['Quero comprar um bilhete.', 'Chcę kupić bilet.', 'I want to buy a ticket.', 'comprar'] },
+      { pt: 'Pagar', pl: 'Płacić', en: 'To pay', say: 'pagar',
+        note: 'eu pago = płacę', noteEn: 'eu pago = I pay',
+        ex: ['Pago em dinheiro.', 'Płacę gotówką.', 'I’ll pay in cash.', 'Pago'] },
+      { pt: 'Precisar de', pl: 'Potrzebować', en: 'To need', say: 'presizar dy',
+        note: 'eu preciso de = potrzebuję. Pamiętaj o „de”!', noteEn: 'eu preciso de = I need. Don’t forget the “de”!',
+        ex: ['Preciso de ajuda.', 'Potrzebuję pomocy.', 'I need help.', 'Preciso de'] },
+      { pt: 'Comer', pl: 'Jeść', en: 'To eat', say: 'kumer',
+        note: 'eu como = jem', noteEn: 'eu como = I eat',
+        ex: ['Ao jantar como peixe.', 'Na kolację jem rybę.', 'I eat fish for dinner.', 'como'] },
+      { pt: 'Beber', pl: 'Pić', en: 'To drink', say: 'byber',
+        note: 'eu bebo = piję', noteEn: 'eu bebo = I drink',
+        ex: ['Bebo muita água.', 'Piję dużo wody.', 'I drink a lot of water.', 'Bebo'] },
+    ] },
+  { id: 'prep', title: 'Gdzie to jest?', titleEn: 'Where is it?', emoji: '📍', bg: ['#7a5a1f', '#382808'],
+    intro: ['Na, pod, przed, za, obok: powiesz, gdzie co jest.',
+            '„de” łączy się z rodzajnikiem: de + o = do, de + a = da.'],
+    introEn: ['On, under, in front of, behind, next to: say where things are.',
+              '“de” merges with the article: de + o = do, de + a = da.'],
+    items: [
+      { pt: 'Em / no / na', pl: 'Na, w', en: 'On, in', say: 'ãj / nu / na',
+        note: 'em + o = no, em + a = na', noteEn: 'em + o = no, em + a = na',
+        ex: ['A chave está na mesa.', 'Klucz jest na stole.', 'The key is on the table.', 'na'] },
+      { pt: 'Debaixo de', pl: 'Pod', en: 'Under', say: 'dybajszu dy',
+        ex: ['A mala está debaixo da cama.', 'Walizka jest pod łóżkiem.', 'The suitcase is under the bed.', 'debaixo da'] },
+      { pt: 'Em frente de', pl: 'Przed / naprzeciwko', en: 'In front of / opposite', say: 'ãj frẽt dy',
+        note: '„Przed” w czasie to „antes de”.', noteEn: '“Before” in time is “antes de”.',
+        ex: ['Espero em frente do hotel.', 'Czekam przed hotelem.', 'I’ll wait in front of the hotel.', 'em frente do'] },
+      { pt: 'Atrás de', pl: 'Za', en: 'Behind', say: 'atrász dy',
+        ex: ['A paragem é atrás da igreja.', 'Przystanek jest za kościołem.', 'The stop is behind the church.', 'atrás da'] },
+      { pt: 'Ao lado de', pl: 'Obok', en: 'Next to', say: 'au ladu dy',
+        ex: ['A farmácia fica ao lado do banco.', 'Apteka jest obok banku.', 'The pharmacy is next to the bank.', 'ao lado do'] },
+    ] },
+  { id: 'days', title: 'Dni tygodnia', titleEn: 'Days of the week', emoji: '📅', bg: ['#1f3a7a', '#0b1838'],
+    intro: ['Poniedziałek to po portugalsku „druga” (segunda), wtorek „trzecia” (terça)… i tak do piątku.',
+            'Na co dzień mówi się krótko: segunda, terça, quarta…'],
+    introEn: ['In Portuguese Monday is the “second” (segunda), Tuesday the “third” (terça)… up to Friday.',
+              'In everyday speech people shorten them: segunda, terça, quarta…'],
+    items: [
+      { pt: 'Segunda-feira', pl: 'Poniedziałek', en: 'Monday', say: 'sygũda fajra',
+        ex: ['Na segunda-feira trabalho.', 'W poniedziałek pracuję.', 'On Monday I work.', 'segunda-feira'] },
+      { pt: 'Terça-feira', pl: 'Wtorek', en: 'Tuesday', say: 'tersa fajra',
+        ex: ['O museu fecha à terça-feira.', 'Muzeum jest nieczynne we wtorki.', 'The museum is closed on Tuesdays.', 'terça-feira'] },
+      { pt: 'Quarta-feira', pl: 'Środa', en: 'Wednesday', say: 'kuarta fajra',
+        ex: ['Na quarta-feira vou a Sintra.', 'W środę jadę do Sintry.', 'On Wednesday I’m going to Sintra.', 'quarta-feira'] },
+      { pt: 'Quinta-feira', pl: 'Czwartek', en: 'Thursday', say: 'kĩta fajra',
+        ex: ['Quinta-feira é dia de mercado.', 'Czwartek to dzień targowy.', 'Thursday is market day.', 'Quinta-feira'] },
+      { pt: 'Sexta-feira', pl: 'Piątek', en: 'Friday', say: 'sajszta fajra',
+        ex: ['Na sexta-feira à noite vamos ao fado.', 'W piątek wieczorem idziemy na fado.', 'On Friday night we’re going to a fado show.', 'sexta-feira'] },
+      { pt: 'Sábado', pl: 'Sobota', en: 'Saturday', say: 'sabadu',
+        ex: ['Ao sábado vamos à praia.', 'W soboty chodzimy na plażę.', 'On Saturdays we go to the beach.', 'sábado'] },
+      { pt: 'Domingo', pl: 'Niedziela', en: 'Sunday', say: 'dumĩgu',
+        ex: ['No domingo muitas lojas estão fechadas.', 'W niedzielę wiele sklepów jest zamkniętych.', 'On Sunday many shops are closed.', 'domingo'] },
+    ] },
+  { id: 'num2', title: 'Liczby do 1000', titleEn: 'Numbers up to 1000', emoji: '💯', bg: ['#6b1d5c', '#300a28'],
+    intro: ['Znasz już 1–10. Teraz kilka prostych zasad i policzysz do tysiąca.',
+            'Na końcu działu czeka quiz z losowymi liczbami.'],
+    introEn: ['You already know 1–10. A few simple rules and you’ll count to a thousand.',
+              'A quiz with random numbers is waiting at the end of the unit.'],
+    items: [
+      { tip: true, emoji: '🔢', title: 'Od 11 do 19', titleEn: 'From 11 to 19',
+        text: ['11–15 mają własne nazwy: onze, doze, treze, catorze, quinze.',
+               '16–19 to „dez + a + jedności”: dezasseis (10+6), dezassete, dezoito, dezanove.',
+               'Uwaga: w Portugalii „dezasseis”, w Brazylii „dezesseis”.'],
+        textEn: ['11–15 have their own names: onze, doze, treze, catorze, quinze.',
+                 '16–19 are “dez + a + unit”: dezasseis (10+6), dezassete, dezoito, dezanove.',
+                 'Note: “dezasseis” in Portugal, “dezesseis” in Brazil.'] },
+      { pt: 'dezasseis', pl: '16', say: 'dyzasejsz',
+        note: 'Wiek podajesz z „ter”: tenho … anos = mam … lat.', noteEn: 'Age uses “ter” (to have): tenho … anos = I’m … years old.',
+        ex: ['A minha irmã tem dezasseis anos.', 'Moja siostra ma szesnaście lat.', 'My sister is sixteen.', 'dezasseis'] },
+      { tip: true, emoji: '➕', title: '21, 35, 99…', titleEn: '21, 35, 99…',
+        text: ['Dziesiątki: vinte (20), trinta (30), quarenta (40), cinquenta (50), sessenta (60), setenta (70), oitenta (80), noventa (90).',
+               'Resztę dodajesz przez „e” (czyli „i”): vinte e um (21), trinta e cinco (35), noventa e nove (99).'],
+        textEn: ['Tens: vinte (20), trinta (30), quarenta (40), cinquenta (50), sessenta (60), setenta (70), oitenta (80), noventa (90).',
+                 'Add the rest with “e” (and): vinte e um (21), trinta e cinco (35), noventa e nove (99).'] },
+      { build: 35 },
+      { pt: 'vinte', pl: '20', say: 'wĩt',
+        ex: ['Tenho vinte e cinco anos.', 'Mam dwadzieścia pięć lat.', 'I’m twenty-five.', 'vinte e cinco'] },
+      { tip: true, emoji: '💯', title: 'Setki i tysiąc', titleEn: 'Hundreds and a thousand',
+        text: ['100 to „cem”, ale 101–199 to „cento e…”: cento e vinte (120).',
+               'Setki: duzentos, trezentos, quatrocentos, quinhentos (500!), seiscentos, setecentos, oitocentos, novecentos.',
+               '1000 = mil. Przykład: 347 = trezentos e quarenta e sete.'],
+        textEn: ['100 is “cem”, but 101–199 is “cento e…”: cento e vinte (120).',
+                 'Hundreds: duzentos, trezentos, quatrocentos, quinhentos (500!), seiscentos, setecentos, oitocentos, novecentos.',
+                 '1000 = mil. Example: 347 = trezentos e quarenta e sete.'] },
+      { build: 347 },
+      { pt: 'cem', pl: '100', say: 'sãj',
+        ex: ['Cem gramas de queijo, por favor.', 'Poproszę sto gramów sera.', 'A hundred grams of cheese, please.', 'Cem'] },
+      { pt: 'cento e vinte', pl: '120', say: 'sẽtu y wĩt',
+        ex: ['O quarto custa cento e vinte euros.', 'Pokój kosztuje sto dwadzieścia euro.', 'The room costs a hundred and twenty euros.', 'cento e vinte'] },
+      { pt: 'quinhentos', pl: '500', say: 'kińẽtusz',
+        note: 'Nie „cincocentos”! To wyjątek.', noteEn: 'Not “cincocentos”! It’s an exception.',
+        ex: ['Este telemóvel custa quinhentos euros.', 'Ten telefon kosztuje pięćset euro.', 'This phone costs five hundred euros.', 'quinhentos'] },
+      { build: 584 },
+      { pt: 'mil', pl: '1000', say: 'mil',
+        ex: ['O voo custa mil euros?!', 'Lot kosztuje tysiąc euro?!', 'The flight costs a thousand euros?!', 'mil'] },
     ] },
 ];
 
@@ -372,7 +593,7 @@ const DAILY_GOAL = 60;
 /* Filmiki: mini-scenki z dialogiem (lektor = głos przeglądarki).
    Pole `src` (mp4) pozwoli później podpiąć prawdziwe nagrania. `req` = słowo, które trzeba już znać. */
 const VIDEOS = [
-  { id: 'v-ola', req: 'ola:6', author: 'ines', scene: '🚶‍♀️☀️🚶', bg: ['#1d4f8b', '#0b1d3d'],
+  { id: 'v-ola', req: 'ola:6', author: 'ines', photo: 'U:ola', scene: '🚶‍♀️☀️🚶', bg: ['#1d4f8b', '#0b1d3d'],
     title: 'Spotkanie na ulicy', titleEn: 'Meeting on the street',
     caption: 'Tak wygląda najkrótsza rozmowa w Lizbonie 😄', captionEn: 'The shortest conversation in Lisbon 😄',
     lines: [
@@ -382,7 +603,7 @@ const VIDEOS = [
       { who: 'B', pt: 'Tudo bem! Até logo!', pl: 'Dobrze! Na razie!', en: 'Good! See you later!' },
       { who: 'A', pt: 'Adeus!', pl: 'Do widzenia!', en: 'Goodbye!' },
     ] },
-  { id: 'v-eu', req: 'eu:6', author: 'tiago', scene: '🙋‍♂️🤝🙋‍♀️', bg: ['#8a3b12', '#3a1505'],
+  { id: 'v-eu', req: 'eu:6', author: 'tiago', photo: 'U:eu', scene: '🙋‍♂️🤝🙋‍♀️', bg: ['#8a3b12', '#3a1505'],
     title: 'Pierwsza rozmowa', titleEn: 'First conversation',
     caption: 'Poznałem dziś kogoś z Polski 🇵🇱🤝🇵🇹', captionEn: 'Met someone from Poland today 🇵🇱🤝🇵🇹',
     lines: [
@@ -408,7 +629,7 @@ const VIDEOS = [
       { who: 'A', pt: 'São dois euros e vinte.', pl: 'Dwa euro dwadzieścia.', en: 'That’s two euros twenty.' },
       { who: 'B', pt: 'Obrigado! Bom dia!', pl: 'Dziękuję! Miłego dnia!', en: 'Thank you! Have a nice day!' },
     ] },
-  { id: 'v-city', req: 'city:7', author: 'tiago', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
+  { id: 'v-city', req: 'city:7', author: 'tiago', photo: 'city:4', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
     title: 'Gdzie jest plaża?', titleEn: 'Where is the beach?',
     caption: 'Turyści pytają mnie o to codziennie 😅', captionEn: 'Tourists ask me this every day 😅',
     lines: [
@@ -429,10 +650,73 @@ const AUTHORS = {
   tiago: { h: 'tiago.no.porto', av: '🧔🏻', c: '#e08a1e' },
   cafe:  { h: 'pastelaria.esquina', av: '☕', c: '#8a5a2b' },
   marta: { h: 'marta.fado', av: '🎤', c: '#8e44ad' },
+  frases: { h: 'frases.do.dia', av: '💬', c: '#16a085' },
 };
 
 /* Zdjęcia: Wikimedia Commons, wolne licencje (autor + licencja pokazywane na karcie). Klucz = id słowa, U:dział, rare:słowo */
 const PHOTOS = {
+  "ola:0": { src: "img/ola_0.jpg", by: "Oregon Department of Transportation", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Waving_hello_(9468829996).jpg" },
+  "obrigado:0": { src: "img/obrigado_0.jpg", by: "Fernando Moital", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Alg%C3%A9s_mercearia_(38144081256).jpg" },
+  "obrigado:1": { src: "img/obrigado_1.jpg", by: "Kevin Hutchinson", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Ordering_wine.jpg" },
+  "obrigado:2": { src: "img/obrigado_2.jpg", by: "Heinz Bunse", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Barista_nicosia_(15053515942).jpg" },
+  "obrigado:3": { src: "img/obrigado_3.jpg", by: "Eleazar", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Lisboa_(37780856866).jpg" },
+  "obrigado:4": { src: "img/obrigado_4.jpg", by: "Susanne Nilsson", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Tram_28_(34172565163).jpg" },
+  "obrigado:5": { src: "img/obrigado_5.jpg", by: "Pogrebnoj-Alexandroff", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Thumb_up.JPG" },
+  "obrigado:6": { src: "img/obrigado_6.jpg", by: "Filipe Fortes", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Obidos_(4279738905).jpg" },
+  "eu:1": { src: "img/eu_1.jpg", by: "PattayaPatrol", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:DFC_3805_Two_people_converse_animatedly_on_a_bustling_street_at_night_-_she_gestures_while_holding_a_small_object_and_a_fan_he_listens_attentively_with_a_backpack.jpg" },
+  "eu:3": { src: "img/eu_3.jpg", by: "Igor123121", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Old_Town_Market_Square,_..2026,_Warsaw,_Poland.jpg" },
+  "cafe:0": { src: "img/cafe_0.jpg", by: "Annemarie Schwarzenbach", lic: "Public domain", url: "https://commons.wikimedia.org/wiki/File:CH-NB_-_Portugal,_Lissabon_(Lisboa)-_Hafen_-_Annemarie_Schwarzenbach_-_SLA-Schwarzenbach-A-5-24-093.jpg" },
+  "cafe:2": { src: "img/cafe_2.jpg", by: "Wedesoft at English Wikipedia", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Latte_macchiato_biscuits.jpg" },
+  "cafe:7": { src: "img/cafe_7.jpg", by: "Jppico", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Outdoor_restaurant_terrace_at_night_-_2022-02-08_-_Jppico_3.jpg" },
+  "city:5": { src: "img/city_5.jpg", by: "Philip Mallis", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Modern_apartment_building_and_bar_on_street_corner_in_Lisbon,_Portugal_(55118449188).jpg" },
+  "city:6": { src: "img/city_6.jpg", by: "Simon Burchell", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Tsunami_warning_sign_in_Bel%C3%A9m,_Lisbon,_Portugal.jpg" },
+  "rare:Giro": { src: "img/rare_giro.jpg", by: "Alexandre Hertzog", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Peniche_-_Colorful_houses_(53199619711).jpg" },
+  "rare:Desenrascar": { src: "img/rare_desenrascar.jpg", by: "Philip Mallis", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Traffic_jam_of_cars_attempting_to_navigate_narrow_streets_on_Rua_das_Escolas_Gerais_in_Lisbon,_Portugal_(55068162285).jpg" },
+  "rare:Está bem": { src: "img/rare_estabem.jpg", by: "faceofwiki", lic: "CC0", url: "https://commons.wikimedia.org/wiki/File:OK_Hand_Gesture.jpg" },
+  "num:0": { src: "img/num_0.jpg", by: "Lessormore", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Azulejos,_Braga,_Portugal_25.jpg" },
+  "num:1": { src: "img/num_1.jpg", by: "Lessormore", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Azulejos,_Braga,_Portugal_38.jpg" },
+  "num:2": { src: "img/num_2.jpg", by: "Lessormore", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Azulejos,_Braga,_Portugal_33.jpg" },
+  "num:3": { src: "img/num_3.jpg", by: "Alvesgaspar", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Azulejo_December_2012-8a.jpg" },
+  "num:4": { src: "img/num_4.jpg", by: "Krzysztof Golik", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Azulejo_facade_of_the_Capela_das_Almas_in_Porto_(4).jpg" },
+  "num:5": { src: "img/num_5.jpg", by: "H. Zell", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Azulejo_-_Igreja_de_S%C3%A3o_Bento_-_Ribeira_Brava.jpg" },
+  "num:6": { src: "img/num_6.jpg", by: "Ciriice", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_Jo%C3%A3o_Lisboa_37_-_Centro_SLZ_(2).jpg" },
+  "num:7": { src: "img/num_7.jpg", by: "Jules Verne Times Two", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Window_with_blue_wooden_shutters_on_building_fa%C3%A7ade_with_blue_azulejos,_Travessa_da_Portuguesa_1,_Lisbon,_Portugal_julesvernex2.jpg" },
+  "num:8": { src: "img/num_8.jpg", by: "António Amen", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Vit%C3%B3ria-Casa_da_Rua_de_S%C3%A3o_Miguel_n%C2%BA_4_-_Azulejos_(1).jpg" },
+  "num:9": { src: "img/num_9.jpg", by: "Ciriice", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_Jo%C3%A3o_Lisboa_37_-_Centro_SLZ_(6).jpg" },
+  "num2:0": { src: "img/num2_0.jpg", by: "NorbertNagel", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Azulejo_facade_in_Rua_de_S%C3%A3o_Bento_-_Lisbon_-_Portugal.jpg" },
+  "num2:1": { src: "img/num2_1.jpg", by: "Ciriice", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_Jo%C3%A3o_Lisboa_37_-_Centro_SLZ_(1).jpg" },
+  "num2:2": { src: "img/num2_2.jpg", by: "Ciriice", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_Jo%C3%A3o_Lisboa_37_-_Centro_SLZ_(5).jpg" },
+  "num2:3": { src: "img/num2_3.jpg", by: "Vitor Oliveira", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Casa_da_Rua_de_S%C3%A3o_Miguel_-_Porto_-_Portugal_%F0%9F%87%B5%F0%9F%87%B9_(54046626613).jpg" },
+  "num2:4": { src: "img/num2_4.jpg", by: "António Amen", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Vit%C3%B3ria-Casa_da_Rua_de_S%C3%A3o_Miguel_n%C2%BA_4_-_Azulejos_(2).jpg" },
+  "num2:5": { src: "img/num2_5.jpg", by: "Ciriice", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Pra%C3%A7a_Jo%C3%A3o_Lisboa_37_-_Centro_SLZ_(4).jpg" },
+  "U:num2": { src: "img/u_num2.jpg", by: "Béria Lima de Rodríguez", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Casa_na_Rua_de_S%C3%A3o_Miguel,_4.JPG" },
+  "gen1": { src: "img/gen1.jpg", by: "Norbert Nagel", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Torre_de_Bel%C3%A9m_and_wooden_bridge_-_landscape_view_-_Lisbon_-_2026-05-14.jpg" },
+  "gen2": { src: "img/gen2.jpg", by: "Norbert Nagel", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Entrance_courtyard_and_yellow_facades_of_Pena_Palace_-_Sintra_-_2026-05-15.jpg" },
+  "gen3": { src: "img/gen3.jpg", by: "Jorge Franganillo", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Porto_Cais_da_Ribeira_(52625723772).jpg" },
+  "gen4": { src: "img/gen4.jpg", by: "Casperbakker", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Lisbon_Portugal_Ascensor_da_Bica.jpg" },
+  "gen5": { src: "img/gen5.jpg", by: "muffinn", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Portugal_-_Algarve_-_arch_in_the_cliffs_(25778269795).jpg" },
+  "gen6": { src: "img/gen6.jpg", by: "mat's eye", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:The_Douro_Valley_vineyards.jpg" },
+  "gen7": { src: "img/gen7.jpg", by: "Paulo Juntas", lic: "CC BY-SA 2.5", url: "https://commons.wikimedia.org/wiki/File:Street_in_%C3%93bidos_3.JPG" },
+  "gen8": { src: "img/gen8.jpg", by: "Alvesgaspar", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nazar%C3%A9_February_2013-5.jpg" },
+  "gen9": { src: "img/gen9.jpg", by: "Jorge Franganillo", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Cascais_Praia_da_Rainha_(53890743661).jpg" },
+  "gen10": { src: "img/gen10.jpg", by: "Filipe Rocha,user:sacavem", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Miradouro_Nossa_Senhora_do_Monte_II.jpg" },
+  "gen11": { src: "img/gen11.jpg", by: "Norbert Nagel", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Roman_Temple_Evora_Portugal_01.jpg" },
+  "gen12": { src: "img/gen12.jpg", by: "Alvesgaspar", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Coimbra_December_2011-19a.jpg" },
+  "food:0": { src: "img/food_0.jpg", by: "Like_the_Grand_Canyon", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Super_Bock_Limao_bottle.jpg" },
+  "food:1": { src: "img/food_1.jpg", by: "Auctor quaerendae", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:020260524_140002_Red_wine_in_glass.jpg" },
+  "food:2": { src: "img/food_2.jpg", by: "gildemax", lic: "CC BY-SA 2.5", url: "https://commons.wikimedia.org/wiki/File:Sardines_04_beach_Torre_del_Mar.JPG" },
+  "food:3": { src: "img/food_3.jpg", by: "Pauloleong2002", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Portuguese_beef_with_egg,_in_Macau.jpg" },
+  "U:food": { src: "img/u_food.jpg", by: "Wusel007", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Gegrille_Sardinen.jpg" },
+  "travel:0": { src: "img/travel_0.jpg", by: "David Broad", lic: "CC BY 3.0", url: "https://commons.wikimedia.org/wiki/File:Rossio_railway_station,_Lisbon,_Portugal_-_panoramio.jpg" },
+  "travel:1": { src: "img/travel_1.jpg", by: "Philip Mallis", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Steep_cobblestone_street_in_Lisbon,_Portugal_(55138843546).jpg" },
+  "travel:2": { src: "img/travel_2.jpg", by: "Jules Verne Times Two", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Old_woman_waiting_in_front_of_a_pharmacy_during_the_COVID-19_lockdown,_Avenida_Guerra_Junqueiro,_Lisbon,_Portugal_julesvernex2.jpg" },
+  "travel:3": { src: "img/travel_3.jpg", by: "Wilfredor", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Aisle_in_L_Intermarche_supermarket_in_Quebec_City.jpg" },
+  "travel:4": { src: "img/travel_4.jpg", by: "Philip Mallis", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Bus_stop_at_intersection_under_jacaranda_tree_in_Lisbon,_Portugal_(55118650675).jpg" },
+  "travel:5": { src: "img/travel_5.jpg", by: "Andy Li", lic: "CC0", url: "https://commons.wikimedia.org/wiki/File:Train_ticket_-_from_Brighton_to_Portsmouth_%26_S_or_Harbour.jpg" },
+  "travel:6": { src: "img/travel_6.jpg", by: "T T", lic: "CC0", url: "https://commons.wikimedia.org/wiki/File:Travel_Suitcase_Display,_Bic_Camera,_Akihabara_(40507976702).jpg" },
+  "travel:7": { src: "img/travel_7.jpg", by: "self scanned", lic: "Public domain", url: "https://commons.wikimedia.org/wiki/File:1965_-_Room_Key_-_Hotel_Traylor_-_Allentown_PA.jpg" },
+  "travel:8": { src: "img/travel_8.jpg", by: "Basile Morin", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Credit_card_terminal_in_Laos.jpg" },
+  "U:travel": { src: "img/u_travel.jpg", by: "Iantomferry", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Rossio_railway_station_Lisbon.jpg" },
   "U:ola": { src: "img/u_ola.jpg", by: "Matti Blume", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Alfama,_Lisbon_(DSC03371).jpg" },
   "U:obrigado": { src: "img/u_obrigado.jpg", by: "Jakub Hałun", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Tram_28_at_Largo_de_Santa_Luzia_in_Lisbon,_20250606_1958_0419.jpg" },
   "U:eu": { src: "img/u_eu.jpg", by: "Berthold Werner", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Lisbon_Pra%C3%A7a_do_Com%C3%A9rcio_BW_2018-10-08_17-42-58.jpg" },
@@ -495,6 +779,8 @@ const T = {
     noVoice: v => `Brak głosu pt-PT, czyta głos ${v}`, noTTS: 'Ta przeglądarka nie umie czytać na głos',
     langSet: 'Tłumaczenia: polski 🇵🇱', start: '🇵🇹 Portugalski od zera',
     unmute: '🔇 dotknij, żeby włączyć dźwięk', sample: 'przykład · głos syntetyczny',
+    build: 'Złóż liczbę z klocków', capBuild: 'Tak się buduje każdą liczbę do 1000 🧱 <span class="hash">#liczby</span>',
+    sentence: 'Zdanie z użyciem', capSentence: w => `Zdanie dnia ze słowem „${w}” ✍️ <span class="hash">#A1 #zdania</span>`,
   },
   en: {
     newWord: 'New word', say: 'say it', tapReveal: 'tap to see the translation', newUnit: 'New unit',
@@ -525,6 +811,8 @@ const T = {
     noVoice: v => `No pt-PT voice found, using ${v}`, noTTS: 'This browser can’t read aloud',
     langSet: 'Translations: English 🇬🇧', start: '🇵🇹 Portuguese from zero',
     unmute: '🔇 tap for sound', sample: 'sample · synthetic voice',
+    build: 'Build the number', capBuild: 'This is how every number up to 1000 is built 🧱 <span class="hash">#numbers</span>',
+    sentence: 'Example sentence', capSentence: w => `Sentence of the day with “${w}” ✍️ <span class="hash">#A1 #sentences</span>`,
   },
 };
 const t = k => T[S.lang][k];
@@ -540,13 +828,14 @@ const sayOf = it => !isEn() ? it.say : it.say
 
 /* Płaska lista słówek z id */
 const ALL = [];
-UNITS.forEach(u => (u.items || []).forEach((it, i) => { it.id = u.id + ':' + i; it.unit = u; ALL.push(it); }));
+UNITS.forEach(u => { let i = 0; (u.items || []).forEach(it => { if (it.tip || it.build) return; it.id = u.id + ':' + i++; it.unit = u; ALL.push(it); }); });
+const wordsOf = u => u.items.filter(it => !it.tip && !it.build);
 const BY_ID = {}; ALL.forEach(it => { BY_ID[it.id] = it; });
 
 /* =========================================================
    STAN (z bezpiecznym localStorage)
    ========================================================= */
-const KEY = 'scroll-pt-v1';
+const KEY = 'scroll-pt-v2';   // v2: nowe działy i posty ze zdaniami (stary postęp nie pasuje do planu)
 const defaultLang = () => /^pl/i.test(navigator.language || '') ? 'pl' : 'en';
 const fresh = () => ({ step: 0, learned: [], mistakes: {}, saved: [], sound: true, seen: 0,
   xp: 0, combo: 0, bestCombo: 0, streak: 0, lastDay: null, today: null, todayXp: 0, rares: [], boost: 0,
@@ -560,7 +849,12 @@ const PLAN = [];
 UNITS.forEach(u => {
   if (u.tip) { PLAN.push({ type: 'tip', unit: u }); return; }
   PLAN.push({ type: 'intro', unit: u });
-  u.items.forEach(it => PLAN.push({ type: 'learn', item: it }));
+  u.items.forEach(it => {
+    if (it.tip) { PLAN.push({ type: 'tip', unit: Object.assign({ bg: u.bg }, it) }); return; }
+    if (it.build) { PLAN.push({ type: 'build', n: it.build, unit: u }); return; }
+    PLAN.push({ type: 'learn', item: it });
+    if (it.ex) PLAN.push({ type: 'sentence', item: it });     // osobny post ze zdaniem
+  });
   PLAN.push({ type: 'done', unit: u });
 });
 
@@ -589,11 +883,47 @@ function weightedLearned() {
 
 function makeQuiz(id) {
   const item = BY_ID[id];
-  const sameUnit = item.unit.items.filter(x => x !== item);
+  const sameUnit = wordsOf(item.unit).filter(x => x !== item);
   const others = shuffle(sameUnit.length >= 3 ? sameUnit : ALL.filter(x => x !== item)).slice(0, 3);
-  const kind = pick(item.unit.id === 'num' ? ['pt2pl', 'pl2pt', 'listen'] : ['pt2pl', 'pl2pt', 'listen', 'pt2pl']);
+  const kind = pick(/^num/.test(item.unit.id) ? ['pt2pl', 'pl2pt', 'listen'] : ['pt2pl', 'pl2pt', 'listen', 'pt2pl']);
   return { type: 'quiz', kind, item, options: shuffle([item, ...others]) };
 }
+
+/* Liczby słownie po portugalsku (pt-PT) */
+const U20 = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze',
+             'catorze', 'quinze', 'dezasseis', 'dezassete', 'dezoito', 'dezanove'];
+const TENS = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+const HUND = ['', 'cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
+function numPt(n) {
+  if (n < 20) return U20[n];
+  if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? ' e ' + U20[n % 10] : '');
+  if (n === 100) return 'cem';
+  if (n < 1000) return HUND[Math.floor(n / 100)] + (n % 100 ? ' e ' + numPt(n % 100) : '');
+  return 'mil';
+}
+function makeNumQuiz() {
+  const r = Math.random(), n = r < .3 ? 11 + Math.floor(Math.random() * 89) : r < .9 ? 101 + Math.floor(Math.random() * 899) : pick([100, 500, 1000]);
+  const near = new Set([n]);
+  const cands = [n + 10, n - 10, n + 100, n - 100, n + 1, n - 1, Math.floor(n / 10) * 10 + (n % 10 + 5) % 10];
+  for (const m of shuffle(cands)) { if (near.size >= 4) break; if (m > 0 && m <= 1000) near.add(m); }
+  while (near.size < 4) near.add(1 + Math.floor(Math.random() * 999));
+  const unit = UNITS.find(u => u.id === 'num2');
+  const mk = m => ({ id: 'numgen', pt: numPt(m), pl: String(m), en: String(m), unit });
+  const item = mk(n);
+  return { type: 'quiz', kind: pick(['pl2pt', 'listen']), gen: true, item, options: shuffle([item, ...[...near].filter(m => m !== n).map(mk)]) };
+}
+const numbersDone = () => S.learned.includes('num2:5');
+/* Rozkład liczby na klocki: [[wartość, słowo], ...] łączone przez "e" */
+function numParts(n) {
+  if (n === 1000) return [[1000, 'mil']];
+  const parts = [], h = Math.floor(n / 100), r = n % 100;
+  if (h) parts.push([h * 100, h === 1 && !r ? 'cem' : HUND[h]]);
+  if (r >= 20) { parts.push([r - r % 10, TENS[Math.floor(r / 10)]]); if (r % 10) parts.push([r % 10, U20[r % 10]]); }
+  else if (r) parts.push([r, U20[r]]);
+  return parts;
+}
+const randomBuildNumber = () => pick([21 + Math.floor(Math.random() * 79), 101 + Math.floor(Math.random() * 899), 101 + Math.floor(Math.random() * 899)]);
+const numCard = () => Math.random() < .5 ? makeNumQuiz() : { type: 'build', n: randomBuildNumber(), unit: UNITS.find(u => u.id === 'num2') };
 
 function nextCard() {
   cardNo++;
@@ -615,7 +945,7 @@ function nextCard() {
   const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
   if (S.learned.length >= 5 && rareLeft.length && Math.random() < 0.06) return { type: 'rare', unit: RARE_UNIT, item: pick(rareLeft) };
   // 2) co ~3 karty quiz z tego, co już znasz
-  if (S.learned.length >= 3 && sinceQuiz >= 3) { sinceQuiz = 0; return makeQuiz(pick(weightedLearned())); }
+  if (S.learned.length >= 3 && sinceQuiz >= 3) { sinceQuiz = 0; return numbersDone() && Math.random() < .3 ? numCard() : makeQuiz(pick(weightedLearned())); }
   // 3) nowa treść z planu
   if (S.step < PLAN.length) {
     const c = PLAN[S.step++];
@@ -625,7 +955,7 @@ function nextCard() {
   }
   // 4) koniec materiału: nieskończone powtórki
   sinceQuiz = 0;
-  return makeQuiz(pick(weightedLearned()));
+  return numbersDone() && Math.random() < .3 ? numCard() : makeQuiz(pick(weightedLearned()));
 }
 
 /* =========================================================
@@ -663,6 +993,8 @@ function authorFor(c) {
   if (c.type === 'quiz') return AUTHORS.rui;
   if (c.type === 'tip') return AUTHORS.tiago;
   if (c.type === 'rare') return AUTHORS.marta;
+  if (c.type === 'sentence') return AUTHORS.frases;
+  if (c.type === 'build') return AUTHORS.rui;
   if (c.type === 'learn') return c.item.unit.id === 'cafe' ? AUTHORS.cafe : c.item.unit.id === 'city' ? AUTHORS.tiago : AUTHORS.ines;
   return AUTHORS.app;
 }
@@ -675,6 +1007,8 @@ function caption(c) {
     case 'learn': return t('capLearn')(esc(c.item.pt))[c.capSeed] + ` <span class="hash">${t('tagLearn')}</span>`;
     case 'quiz': return t('capQuiz')[c.capSeed] + ' <span class="hash">#quiz</span>';
     case 'tip': return t('capTip');
+    case 'sentence': return t('capSentence')(esc(c.item.pt));
+    case 'build': return t('capBuild');
     case 'rare': return t('capRare');
     case 'video': return esc(listOf(c.video, 'caption')) + ` <span class="hash">${t('tagVideo')}</span>`;
     case 'chest': return t('capChest');
@@ -687,7 +1021,7 @@ function decorate(el, c) {
   const key = (c.item && (c.item.id || c.item.pt)) || (c.video && c.video.id) || (c.unit && c.unit.title) || '';
   const base = 120 + hash(key + c.type) % 9000;               // stała "liczba polubień" dla danego posta
   if (c.ago === undefined) c.ago = Math.floor(Math.random() * 6);
-  const isLearn = c.type === 'learn';
+  const isLearn = c.type === 'learn' || c.type === 'sentence';
   let liked = isLearn ? S.saved.includes(c.item.id) : !!c.liked;
   const following = S.follows.includes(a.h);
 
@@ -698,7 +1032,8 @@ function decorate(el, c) {
     <div class="caption">${caption(c)}</div>`;
   el.appendChild(meta);
 
-  const speakable = c.item && c.type !== 'quiz';             // w quizie głośnik zdradzałby odpowiedź
+  const speakable = (c.item && c.type !== 'quiz') || c.type === 'build';   // w quizie głośnik zdradzałby odpowiedź
+  const speakText = c.speakText || (c.type === 'sentence' ? c.item.ex[0] : c.item && c.item.pt);
   const actions = document.createElement('div'); actions.className = 'actions';
   actions.innerHTML = `<button class="act ${liked ? 'on' : ''}" data-a="like" aria-label="Like"><span>❤</span><small>${fmt(base + (liked ? 1 : 0))}</small></button>
     ${speakable ? `<button class="act" data-a="speak" aria-label="${t('listen')}"><span>🔊</span><small>${t('listen')}</small></button>` : ''}
@@ -723,9 +1058,9 @@ function decorate(el, c) {
   }, 650);
   likeBtn.onclick = () => { setLike(!liked); if (liked) { heart(el); nextPost(); } };
   addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); nextPost(); });
-  if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(c.item.pt);
+  if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(speakText);
   actions.querySelector('[data-a=share]').onclick = () => {
-    const txt = c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
+    const txt = c.type === 'sentence' ? `🇵🇹 ${c.item.ex[0]} = ${isEn() ? c.item.ex[2] : c.item.ex[1]}` : c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
     if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else toast(t('shareMobile'));
   };
   const fb = meta.querySelector('.follow');
@@ -746,6 +1081,7 @@ function renderVideo(el, c) {
   el.innerHTML = `<div class="vprog"><i></i></div>
     <div><div class="tag">🎬 ${t('video')} · ${esc(titleOf(v))}</div><div class="scene">${v.scene}</div><div class="bubbles"></div></div>
     <button class="vplay" aria-label="Play">▶</button>`;
+  applyPhoto(el, v.photo || genericPhoto(c), true);
   const bubbles = el.querySelector('.bubbles'), prog = el.querySelector('.vprog i'), playBtn = el.querySelector('.vplay');
   let i = 0, playing = false, timer = null, token = 0;
   function step() {
@@ -837,6 +1173,13 @@ function creditHtml(cr, extra) {
   if (!cr) return extra ? `<span class="credit">${esc(extra)}</span>` : '';
   return `<a class="credit" href="${esc(cr.url)}" target="_blank" rel="noopener">📷 ${esc(cr.by)} · ${esc(cr.lic)}${extra ? ' · ' + esc(extra) : ''}</a>`;
 }
+/* Ogólne zdjęcia z Portugalii dla postów bez własnego (quizy, ciekawostki, skrzynki…): stałe dla danego posta */
+function genericPhoto(c) {
+  const pool = Object.keys(PHOTOS).filter(k => k.startsWith('gen'));
+  if (!pool.length) return null;
+  if (c.genPhoto === undefined) c.genPhoto = Math.floor(Math.random() * pool.length);
+  return pool[c.genPhoto % pool.length];
+}
 function applyPhoto(el, key, heavy) {
   const ph = PHOTOS[key]; if (!ph) return false;
   el.classList.add('photo');
@@ -847,6 +1190,14 @@ function applyPhoto(el, key, heavy) {
   return true;
 }
 
+/* Podświetla ćwiczone słowo w zdaniu (całe słowa, bez rozróżniania wielkości liter) */
+function highlight(sentence, hl) {
+  const safe = esc(sentence);
+  if (!hl) return safe;
+  const re = new RegExp('(^|[^\\p{L}])(' + esc(hl).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?=[^\\p{L}]|$)', 'iu');
+  return safe.replace(re, '$1<mark>$2</mark>');
+}
+
 function renderInner(c) {
   const el = document.createElement('section');
   el.className = 'card';
@@ -855,11 +1206,11 @@ function renderInner(c) {
   el.style.background = bg(unit);
   el.dataset.unit = `${unit.emoji} ${titleOf(unit)}`;
   el._card = c;
-  if (c.type === 'chest') return renderChest(el, c);
+  if (c.type === 'chest') { renderChest(el, c); applyPhoto(el, genericPhoto(c), true); return el; }
   if (c.type === 'rare') return renderRare(el, c);
 
   if (c.type === 'done') {
-    const n = unit.items.length, errs = unit.items.reduce((a, it) => a + (S.mistakes[it.id] || 0), 0);
+    const n = wordsOf(unit).length, errs = wordsOf(unit).reduce((a, it) => a + (S.mistakes[it.id] || 0), 0);
     el.innerHTML = `<div><div class="big-emoji">🏆</div><div class="tag">${t('unitDone')}</div>
       <h2 style="font-size:32px;margin:0 0 12px">${esc(titleOf(unit))}</h2>
       <p style="font-size:18px;color:var(--muted)">${esc(t('doneText')(n, errs === 0))}</p>
@@ -887,6 +1238,28 @@ function renderInner(c) {
       </div>`;
     el.querySelector('.pl').onclick = e => { c.revealed = true; e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
   }
+  else if (c.type === 'build') {
+    const parts = numParts(c.n);
+    const rows = parts.map((p, i) => (i ? `<div class="bjoin" style="animation-delay:${i * .5 - .25}s">+ e</div>` : '')
+      + `<div class="brow" style="animation-delay:${i * .5}s"><b>${p[0]}</b><span>${p[1]}</span></div>`).join('');
+    el.innerHTML = `<div>
+        <div class="tag">${t('build')}</div>
+        <div class="q-word">${c.n}</div>
+        <div class="bparts">${rows}</div>
+        <div class="bsum" style="animation-delay:${parts.length * .5}s">= ${esc(numPt(c.n))}</div>
+      </div>`;
+    c.speakText = numPt(c.n);
+  }
+  else if (c.type === 'sentence') {
+    const it = c.item, [ptS, plS, enS, hl] = it.ex;
+    el.innerHTML = `<div>
+        <div class="tag">${t('sentence')} · ${esc(it.pt)}</div>
+        <h2 class="sent">${highlight(ptS, hl)}</h2>
+        <div class="pl ${c.revealed ? 'shown' : ''}">${esc(isEn() ? enS : plS)}</div>
+        <div class="reveal-hint" style="${c.revealed ? 'visibility:hidden' : ''}">${t('tapReveal')}</div>
+      </div>`;
+    el.querySelector('.pl').onclick = e => { c.revealed = true; e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
+  }
   else if (c.type === 'quiz') {
     const it = c.item;
     const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : t('qListen');
@@ -906,9 +1279,9 @@ function renderInner(c) {
   }
 
   // zdjęcia: intro działu, słówko, quiz "jak to powiesz" (zdjęcie nie zdradza tam odpowiedzi)
-  if (c.type === 'intro') applyPhoto(el, 'U:' + unit.id);
-  if (c.type === 'learn') applyPhoto(el, c.item.id);
-  if (c.type === 'quiz' && c.kind === 'pl2pt') applyPhoto(el, c.item.id, true);
+  const own = c.type === 'intro' ? 'U:' + unit.id
+            : (c.type === 'learn' || c.type === 'sentence' || (c.type === 'quiz' && c.kind === 'pl2pt' && !c.gen)) ? c.item.id : null;
+  applyPhoto(el, own && PHOTOS[own] ? own : genericPhoto(c), c.type !== 'learn' && c.type !== 'intro');
 
   if (cardNo === 1 && feed.children.length === 0) {
     const h = document.createElement('div'); h.className = 'swipe-hint'; h.textContent = t('swipe');
@@ -929,7 +1302,7 @@ function answer(el, c, i) {
     let gain = 10 + Math.min(S.combo - 1, 10) * 2;            // combo podbija nagrodę
     const boosted = S.boost > 0; if (boosted) { gain *= 2; S.boost--; }
     fb.innerHTML = esc(pick(t('praise'))) + (boosted ? ` <span class="boost">${t('boost')(S.boost)}</span>` : '');
-    if (S.mistakes[c.item.id]) S.mistakes[c.item.id]--;
+    if (!c.gen && S.mistakes[c.item.id]) S.mistakes[c.item.id]--;
     addXP(gain, x, y);
     burst(x, y, 18 + Math.min(S.combo, 10) * 4);
     if (S.combo >= 3 && (S.combo === 3 || S.combo === 5 || S.combo % 5 === 0)) comboBanner(S.combo);
@@ -941,9 +1314,11 @@ function answer(el, c, i) {
     if (S.combo >= 3) toast(t('comboBroken')(S.combo, S.bestCombo));
     S.combo = 0;
     fb.textContent = t('wrong')(c.item.pt, tr(c.item));
-    S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
-    reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
-    ensureBuffer(true);
+    if (!c.gen) {
+      S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
+      reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
+      ensureBuffer(true);
+    }
     sfx('bad'); buzz([30, 40, 30]);
     speak(c.item.pt);
   }
@@ -991,7 +1366,7 @@ function renderRare(el, c) {
     <h1 class="pt">${esc(it.pt)}</h1><div class="say">${t('say')}: <b>[${esc(sayOf(it))}]</b></div>
     <div class="pl shown">${esc(tr(it))}</div><div class="note">💡 ${esc(noteOf(it))}</div>
     <div class="reward">+30 XP</div></div>`;
-  applyPhoto(el, 'rare:' + it.pt);
+  applyPhoto(el, PHOTOS['rare:' + it.pt] ? 'rare:' + it.pt : genericPhoto(c), true);
   return el;
 }
 
@@ -1130,7 +1505,7 @@ const io = new IntersectionObserver(entries => {
       if (el._active) { el._active = false; if (c.stop) c.stop(); }
       return;
     }
-    el._active = true;
+    el._active = true; el.classList.add('active');
     document.getElementById('unitLabel').textContent = el.dataset.unit;
     if (c.play) setTimeout(() => { if (el._active) c.play(); }, 450);   // filmik startuje sam
     if (c.seen) return;
@@ -1144,6 +1519,9 @@ const io = new IntersectionObserver(entries => {
       burst(innerWidth / 2, innerHeight * .35, 100, true); sfx('chest');
     }
     if (S.sound && c.type === 'learn') setTimeout(() => speak(c.item.pt), 250);
+    if (S.sound && c.type === 'sentence') setTimeout(() => speak(c.item.ex[0]), 250);
+    if (S.sound && c.type === 'build') setTimeout(() => speak(numPt(c.n)), 400 + numParts(c.n).length * 500);
+    if (c.type === 'sentence') addXP(2);
     if (S.sound && c.type === 'quiz' && c.kind === 'listen') setTimeout(() => speak(c.item.pt), 250);
     ensureBuffer();
   });
