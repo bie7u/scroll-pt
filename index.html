@@ -45,12 +45,12 @@
     position: fixed; inset: 0 0 auto 0; z-index: 10;
     padding: calc(10px + env(safe-area-inset-top)) 12px 10px 16px;
     display: flex; align-items: center; gap: 8px;
-    background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent);
+    background: linear-gradient(to bottom, rgba(0,0,0,.55), transparent);
     pointer-events: none;
   }
   #top > * { pointer-events: auto; }
   #unitLabel { font-weight: 600; font-size: 15px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pill { background: rgba(255,255,255,.14); border: 0; color: var(--fg); border-radius: 999px;
+  .pill { background: rgba(0,0,0,.32); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 0; color: var(--fg); border-radius: 999px;
     padding: 7px 10px; font-size: 14px; font-weight: 600; cursor: pointer; flex: none; }
   #progress { position: fixed; top: 0; left: 0; height: 3px; background: #fff; z-index: 11; transition: width .3s; }
 
@@ -140,7 +140,7 @@
   #toast.show { opacity: 1; }
 
   /* ===== Dopamina: XP, streak, combo, efekty ===== */
-  .stat { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.14); border-radius: 999px;
+  .stat { display: inline-flex; align-items: center; gap: 5px; background: rgba(0,0,0,.32); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 999px;
     padding: 5px 9px 5px 6px; font-size: 14px; font-weight: 700; white-space: nowrap; flex: none; }
   .stat.bump { animation: bump .45s; }
   @keyframes bump { 40% { transform: scale(1.25) } }
@@ -183,6 +183,35 @@
   .card.rare > div { position: relative; }
   @keyframes spin { to { transform: rotate(360deg) } }
   .rare .pt { color: #ffe08a; }
+
+  /* ===== Post ze zdjęciem ===== */
+  .card.photo { justify-content: flex-end; background-size: cover !important; background-position: center !important; }
+  .card.photo .pt, .card.photo h2, .card.photo .q-word { text-shadow: 0 2px 18px rgba(0,0,0,.6); }
+  .card.photo .say, .card.photo .note, .card.photo .tag, .card.photo .q-prompt, .card.photo .reveal-hint,
+  .card.photo.intro p { color: rgba(255,255,255,.88); text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+  .card.photo .pl, .card.photo .opt { background: rgba(0,0,0,.38); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .card.photo .pl:not(.shown) { filter: blur(9px); }
+  .credit { position: absolute; top: calc(52px + env(safe-area-inset-top)); right: 12px; left: auto; width: auto; max-width: 70%;
+    font-size: 10.5px; color: rgba(255,255,255,.75); text-decoration: none; text-align: right; text-shadow: 0 1px 4px #000;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 2; }
+
+  /* ===== Prawdziwe wideo ===== */
+  .card.real { padding: 0; background: #000; }
+  .card.real video, .card.real .shade { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+  .card.real video { object-fit: cover; }
+  .card.real .shade { pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,.45), transparent 22%, transparent 55%, rgba(0,0,0,.75)); }
+  .card.real .vprog { z-index: 2; }
+  .card.real .credit { top: calc(66px + env(safe-area-inset-top)); }
+  .card.real .unmute { top: calc(90px + env(safe-area-inset-top)); }
+  .subs { position: absolute; left: 16px; right: 80px; bottom: calc(150px + env(safe-area-inset-bottom)); width: auto;
+    max-width: none; text-align: center; z-index: 2; pointer-events: none; transition: opacity .2s; }
+  .subs span { display: inline-block; background: rgba(0,0,0,.62); border-radius: 12px; padding: 8px 12px; }
+  .subs .bpt { font-size: 19px; }
+  .subs:empty { opacity: 0; }
+  .unmute { position: absolute; top: calc(72px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+    width: auto; max-width: none; z-index: 3; border: 0; border-radius: 999px; padding: 8px 14px; font-size: 14px;
+    font-weight: 600; color: #fff; background: rgba(0,0,0,.6); cursor: pointer; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -364,7 +393,11 @@ const VIDEOS = [
       { who: 'A', pt: 'Falas português?', pl: 'Mówisz po portugalsku?', en: 'Do you speak Portuguese?' },
       { who: 'B', pt: 'Um pouco. Estou a aprender!', pl: 'Trochę. Uczę się!', en: 'A little. I’m learning!' },
     ] },
-  { id: 'v-cafe', req: 'cafe:7', author: 'cafe', scene: '☕🥐👨‍🍳', bg: ['#6a4a12', '#2a1c05'],
+  { id: 'v-cafe', req: 'ola:6', author: 'cafe', scene: '☕🥐👨‍🍳', bg: ['#6a4a12', '#2a1c05'],
+    // przykładowe prawdziwe wideo: zdjęcia z Commons + syntetyczny głos pt-PT (do podmiany na nagranie z lektorem)
+    src: 'video/pastelaria.mp4', poster: 'video/pastelaria.jpg', sample: true,
+    credit: { by: 'Pedro S Bello, Kritzolina, Dietmar Rabich', lic: 'CC BY-SA 4.0',
+              url: 'https://commons.wikimedia.org/wiki/File:Cup_of_espresso_02.jpg' },
     title: 'W pastelarii', titleEn: 'At the pastelaria',
     caption: 'Zamawianie jak lokals. Zapisz sobie! ☕', captionEn: 'Order like a local. Save this! ☕',
     lines: [
@@ -398,6 +431,37 @@ const AUTHORS = {
   marta: { h: 'marta.fado', av: '🎤', c: '#8e44ad' },
 };
 
+/* Zdjęcia: Wikimedia Commons, wolne licencje (autor + licencja pokazywane na karcie). Klucz = id słowa, U:dział, rare:słowo */
+const PHOTOS = {
+  "U:ola": { src: "img/u_ola.jpg", by: "Matti Blume", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Alfama,_Lisbon_(DSC03371).jpg" },
+  "U:obrigado": { src: "img/u_obrigado.jpg", by: "Jakub Hałun", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Tram_28_at_Largo_de_Santa_Luzia_in_Lisbon,_20250606_1958_0419.jpg" },
+  "U:eu": { src: "img/u_eu.jpg", by: "Berthold Werner", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Lisbon_Pra%C3%A7a_do_Com%C3%A9rcio_BW_2018-10-08_17-42-58.jpg" },
+  "U:num": { src: "img/u_num.jpg", by: "Anthony Brass", lic: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Lisbon_(52910462845).jpg" },
+  "U:cafe": { src: "img/u_cafe.jpg", by: "Pedro S Bello", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Mexicana_-_Pastelaria_Restaurante_01.jpg" },
+  "U:city": { src: "img/u_city.jpg", by: "Diego Delso", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Tuna_en_la_Rua_Augusta,_Lisboa,_Portugal,_2012-05-12,_DD_01.JPG" },
+  "ola:1": { src: "img/ola_1.jpg", by: "Susanne Nilsson", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Sunrise_in_Lisbon_(34297203293).jpg" },
+  "ola:2": { src: "img/ola_2.jpg", by: "Vitor Oliveira", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Miradouro_de_Santa_Catarina_-_Lisboa_-_Portugal_(51791811772).jpg" },
+  "ola:3": { src: "img/ola_3.jpg", by: "Fredericknoronha", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Lisbon_by_night,_Portugal._The_Rossio_area.jpg" },
+  "ola:6": { src: "img/ola_6.jpg", by: "Nuno Morão", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:IC_528,_Esta%C3%A7%C3%A3o_de_Santa_Apol%C3%B3nia,_2011.10.13_01.jpg" },
+  "cafe:1": { src: "img/cafe_1.jpg", by: "Kritzolina", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Cup_of_espresso_02.jpg" },
+  "cafe:3": { src: "img/cafe_3.jpg", by: "Dietmar Rabich", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Funchal_(Madeira,_Portugal),_Rua_Dr._Fern%C3%A3o_de_Ornelas,_Nata_7_-_Fern%C3%A3o_Ornelas_--_2025_--_1205.jpg" },
+  "cafe:4": { src: "img/cafe_4.jpg", by: "Dr Jean Fortunet", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Fasting_4-Fasting-a-glass-of-water-on-an-empty-plate.jpg" },
+  "cafe:5": { src: "img/cafe_5.jpg", by: "Eduardo P", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Padaria_P%C3%A3o_D%27Emilio.jpg" },
+  "cafe:6": { src: "img/cafe_6.jpg", by: "Vitor Oliveira", lic: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Mercado_da_Ribeira_(Time_Out_Market)_-_Lisboa_-_Portugal_(25853697817).jpg" },
+  "city:0": { src: "img/city_0.jpg", by: "Pedro Ribeiro Simões", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Tourist_reading_a_Lisbon_map_(8131461931).jpg" },
+  "city:1": { src: "img/city_1.jpg", by: "Donald Trung Quoc Don", lic: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Toilet_(WC)_sign_at_the_train_station,_Winschoten_(2020)_04.jpg" },
+  "city:2": { src: "img/city_2.jpg", by: "António M. L. Cabral", lic: "CC BY 2.5", url: "https://commons.wikimedia.org/wiki/File:Alfa_Pendular.jpg" },
+  "city:3": { src: "img/city_3.jpg", by: "Alain GAVILLET", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Bus_de_Lisbonne_(Portugal)_(5911024187)_(2).jpg" },
+  "city:4": { src: "img/city_4.jpg", by: "Tobi 87", lic: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Praia_da_Marinha-Algarve-Portugal.jpg" },
+  "city:7": { src: "img/city_7.jpg", by: "Bernard Gagnon", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Rua_Augusta_Arch_(Lisbon)_01.jpg" },
+  "rare:Saudade": { src: "img/rare_saudade.jpg", by: "Sonse", lic: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Maria_Severa,_Fado_%E2%80%A2_Rua_da_Madalena,_Escadinhas_de_S%C3%A3o_Cristov%C3%A3o,_Lisbon,_Portugal_(49659810657).jpg" },
+  "rare:Alfacinha": { src: "img/rare_alfacinha.jpg", by: "acediscovery", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Panorama-Lisbon-Graca.jpg" },
+  "rare:Tripeiro": { src: "img/rare_tripeiro.jpg", by: "Jakub Hałun", lic: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Rabelo_boats_and_Ribeira_seen_from_Cais_de_Gaia,_20250605_1623_9879.jpg" },
+};
+/* Znaczniki czasu kwestii w przykładowym filmiku video/pastelaria.mp4 (sekundy) */
+const PASTELARIA_CUES = [[0.8, 2.91], [3.46, 7.12], [7.67, 9.25], [9.8, 12.53], [13.08, 15.14], [15.69, 17.65]];
+VIDEOS.find(v => v.id === 'v-cafe').lines.forEach((L, i) => { L.start = PASTELARIA_CUES[i][0]; L.end = PASTELARIA_CUES[i][1]; });
+
 /* =========================================================
    JĘZYK INTERFEJSU I TŁUMACZEŃ: pl / en
    ========================================================= */
@@ -430,6 +494,7 @@ const T = {
     soundOn: 'Dźwięk: wł.', soundOff: 'Dźwięk: wył.', restart: 'Zaczynamy od nowa',
     noVoice: v => `Brak głosu pt-PT, czyta głos ${v}`, noTTS: 'Ta przeglądarka nie umie czytać na głos',
     langSet: 'Tłumaczenia: polski 🇵🇱', start: '🇵🇹 Portugalski od zera',
+    unmute: '🔇 dotknij, żeby włączyć dźwięk', sample: 'przykład · głos syntetyczny',
   },
   en: {
     newWord: 'New word', say: 'say it', tapReveal: 'tap to see the translation', newUnit: 'New unit',
@@ -459,6 +524,7 @@ const T = {
     soundOn: 'Sound: on', soundOff: 'Sound: off', restart: 'Starting over',
     noVoice: v => `No pt-PT voice found, using ${v}`, noTTS: 'This browser can’t read aloud',
     langSet: 'Translations: English 🇬🇧', start: '🇵🇹 Portuguese from zero',
+    unmute: '🔇 tap for sound', sample: 'sample · synthetic voice',
   },
 };
 const t = k => T[S.lang][k];
@@ -540,7 +606,8 @@ function nextCard() {
   const vids = VIDEOS.filter(v => S.learned.includes(v.req) && !shownVideos.has(v.id));
   if (vids.length && cardNo >= nextVideoAt) {
     nextVideoAt = cardNo + 7 + Math.floor(Math.random() * 4);
-    const unseen = vids.filter(v => !S.watched.includes(v.id));
+    let unseen = vids.filter(v => !S.watched.includes(v.id));
+    if (unseen.some(v => v.src)) unseen = unseen.filter(v => v.src);    // prawdziwe nagrania mają pierwszeństwo
     const v = pick(unseen.length ? unseen : vids); shownVideos.add(v.id);   // każdy filmik max raz na sesję
     return { type: 'video', video: v };
   }
@@ -649,8 +716,13 @@ function decorate(el, c) {
       save();
     }
   };
-  likeBtn.onclick = () => setLike(!liked);
-  addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); });
+  // po polubieniu (serduszko lub dwuklik) feed sam przechodzi do następnego posta
+  const nextPost = () => setTimeout(() => {
+    const i = [...feed.children].indexOf(el);
+    if (i >= 0 && activeIndex() === i) feed.scrollTo({ top: (i + 1) * feed.clientHeight, behavior: 'smooth' });
+  }, 650);
+  likeBtn.onclick = () => { setLike(!liked); if (liked) { heart(el); nextPost(); } };
+  addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); nextPost(); });
   if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(c.item.pt);
   actions.querySelector('[data-a=share]').onclick = () => {
     const txt = c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
@@ -670,12 +742,7 @@ function decorate(el, c) {
 function renderVideo(el, c) {
   const v = c.video;
   el.style.background = bg(v); el._card = c; el.dataset.unit = '🎬 ' + t('video');
-  if (v.src) {                                               // prawdziwe nagranie, gdy się pojawi
-    el.innerHTML = `<video src="${esc(v.src)}" playsinline loop style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none"></video>`;
-    const vid = el.querySelector('video');
-    c.play = () => vid.play().catch(() => {}); c.stop = () => vid.pause();
-    return el;
-  }
+  if (v.src) return renderRealVideo(el, c);
   el.innerHTML = `<div class="vprog"><i></i></div>
     <div><div class="tag">🎬 ${t('video')} · ${esc(titleOf(v))}</div><div class="scene">${v.scene}</div><div class="bubbles"></div></div>
     <button class="vplay" aria-label="Play">▶</button>`;
@@ -715,6 +782,69 @@ function renderVideo(el, c) {
   };
   playBtn.onclick = e => { e.stopPropagation(); c.play(); };
   return el;
+}
+
+/* ===== Prawdziwe wideo: plik mp4 + napisy nakładane z danych (działa przełącznik języka) ===== */
+let soundUnlocked = false;   // przeglądarki pozwalają na autoodtwarzanie z dźwiękiem dopiero po dotknięciu
+function renderRealVideo(el, c) {
+  const v = c.video;
+  el.classList.add('real');
+  el.innerHTML = `<video src="${esc(v.src)}" ${v.poster ? `poster="${esc(v.poster)}"` : ''} playsinline muted preload="metadata"></video>
+    <div class="shade"></div><div class="vprog"><i></i></div>
+    ${creditHtml(v.credit, v.sample ? t('sample') : '')}
+    <div class="subs"></div>
+    <button class="unmute">${t('unmute')}</button>
+    <button class="vplay" aria-label="Play" style="display:none">↻</button>`;
+  const vid = el.querySelector('video'), subs = el.querySelector('.subs'), prog = el.querySelector('.vprog i');
+  const unmute = el.querySelector('.unmute'), replay = el.querySelector('.vplay');
+  const paintMute = () => { vid.muted = !(soundUnlocked && S.sound); unmute.style.display = vid.muted ? '' : 'none'; };
+  c.applySound = paintMute;
+  let shown = -1;
+  vid.addEventListener('timeupdate', () => {
+    const tt = vid.currentTime;
+    if (vid.duration) prog.style.width = (tt / vid.duration * 100) + '%';
+    const i = v.lines.findIndex(L => tt >= L.start - .1 && tt <= L.end + .5);
+    if (i !== shown || c.subsLang !== S.lang) {
+      shown = i; c.subsLang = S.lang;
+      subs.innerHTML = i < 0 ? '' : `<span><div class="bpt">${esc(v.lines[i].pt)}</div><div class="bpl">${esc(tr(v.lines[i]))}</div></span>`;
+    }
+  });
+  vid.addEventListener('ended', () => {
+    replay.style.display = 'grid'; subs.innerHTML = '';
+    if (!c.rewarded) {
+      c.rewarded = true; if (!S.watched.includes(v.id)) S.watched.push(v.id);
+      addXP(15, innerWidth / 2, innerHeight * .4); burst(innerWidth / 2, innerHeight * .4, 50, true); sfx('ok');
+    }
+  });
+  c.play = () => {
+    paintMute(); replay.style.display = 'none';
+    vid.play().catch(() => { vid.muted = true; unmute.style.display = ''; vid.play().catch(() => {}); });
+  };
+  c.stop = () => vid.pause();
+  // dotknięcie filmiku = włącz/wyłącz dźwięk, jak na Instagramie
+  el.addEventListener('click', e => {
+    if (e.target.closest('button:not(.unmute), a, .post-meta')) return;
+    if (vid.muted) { soundUnlocked = true; if (!S.sound) { S.sound = true; paintSound(); save(); } }
+    else soundUnlocked = false;
+    paintMute(); if (vid.paused && !vid.ended) vid.play().catch(() => {});
+  });
+  replay.onclick = e => { e.stopPropagation(); vid.currentTime = 0; c.play(); };
+  return el;
+}
+
+/* ===== Zdjęcie jako tło posta + podpis autora/licencji ===== */
+function creditHtml(cr, extra) {
+  if (!cr) return extra ? `<span class="credit">${esc(extra)}</span>` : '';
+  return `<a class="credit" href="${esc(cr.url)}" target="_blank" rel="noopener">📷 ${esc(cr.by)} · ${esc(cr.lic)}${extra ? ' · ' + esc(extra) : ''}</a>`;
+}
+function applyPhoto(el, key, heavy) {
+  const ph = PHOTOS[key]; if (!ph) return false;
+  el.classList.add('photo');
+  const g = heavy ? 'rgba(0,0,0,.55), rgba(0,0,0,.45) 40%, rgba(0,0,0,.8)'
+                  : 'rgba(0,0,0,.4), rgba(0,0,0,.08) 25%, rgba(0,0,0,.45) 50%, rgba(0,0,0,.88)';
+  el.style.background = `linear-gradient(to bottom, ${g}), url("${ph.src}") center / cover`;
+  el.insertAdjacentHTML('beforeend', creditHtml(ph));
+  return true;
 }
 
 function renderInner(c) {
@@ -774,6 +904,11 @@ function renderInner(c) {
     if (c.kind === 'listen') el.querySelector('.listen-btn').onclick = () => speak(it.pt);
     el.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(el, c, +b.dataset.i));
   }
+
+  // zdjęcia: intro działu, słówko, quiz "jak to powiesz" (zdjęcie nie zdradza tam odpowiedzi)
+  if (c.type === 'intro') applyPhoto(el, 'U:' + unit.id);
+  if (c.type === 'learn') applyPhoto(el, c.item.id);
+  if (c.type === 'quiz' && c.kind === 'pl2pt') applyPhoto(el, c.item.id, true);
 
   if (cardNo === 1 && feed.children.length === 0) {
     const h = document.createElement('div'); h.className = 'swipe-hint'; h.textContent = t('swipe');
@@ -856,6 +991,7 @@ function renderRare(el, c) {
     <h1 class="pt">${esc(it.pt)}</h1><div class="say">${t('say')}: <b>[${esc(sayOf(it))}]</b></div>
     <div class="pl shown">${esc(tr(it))}</div><div class="note">💡 ${esc(noteOf(it))}</div>
     <div class="reward">+30 XP</div></div>`;
+  applyPhoto(el, 'rare:' + it.pt);
   return el;
 }
 
@@ -1033,7 +1169,10 @@ function toast(msg) {
 const soundBtn = document.getElementById('soundBtn'), langBtn = document.getElementById('langBtn');
 const paintSound = () => soundBtn.textContent = S.sound ? '🔊' : '🔇';
 const paintLang = () => { langBtn.textContent = isEn() ? '🇬🇧' : '🇵🇱'; document.documentElement.lang = S.lang; };
-soundBtn.onclick = () => { S.sound = !S.sound; paintSound(); save(); toast(S.sound ? t('soundOn') : t('soundOff')); };
+soundBtn.onclick = () => {
+  S.sound = !S.sound; if (S.sound) soundUnlocked = true; paintSound(); save(); toast(S.sound ? t('soundOn') : t('soundOff'));
+  [...feed.children].forEach(el => el._card.applySound && el._card.applySound());
+};
 
 /* Przełącznik języka: przerysowuje karty w miejscu, zachowując ich stan (odpowiedzi, skrzynki, polubienia) */
 langBtn.onclick = () => {
