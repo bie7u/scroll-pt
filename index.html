@@ -180,7 +180,7 @@
   .card.rare::before { content: ""; position: absolute; inset: -50%; width: auto; max-width: none;
     background: conic-gradient(from 0deg, transparent, rgba(255,230,140,.25), transparent 30%);
     animation: spin 6s linear infinite; }
-  .card.rare > div { position: relative; }
+  .card.rare > div:first-child { position: relative; }   /* tylko treść karty, nie autor i kolumna akcji */
   @keyframes spin { to { transform: rotate(360deg) } }
   .rare .pt { color: #ffe08a; }
   .sent { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.25; margin: 0 0 22px; font-weight: 700; }
@@ -224,6 +224,15 @@
     border-radius: 10px; padding: 9px 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .limits button.on { background: #ffd23f; color: #111; border-color: #ffd23f; }
   .daypanel p.lim { margin-top: 14px; }
+  /* zwarty quiz: 4 długie odpowiedzi muszą się zmieścić na małym telefonie */
+  .card .opts { gap: 8px; }
+  .card .opt { padding: 12px 14px; font-size: 16px; line-height: 1.25; }
+  .card .opts.long .opt { padding: 10px 12px; font-size: 15px; }
+  .card .q-word { margin-bottom: 18px; }
+  .card .q-word.long { font-size: clamp(24px, 7vw, 34px); }
+  .card .listen-btn { width: 88px; height: 88px; font-size: 42px; margin-bottom: 18px; }
+  @media (max-height: 760px) { .card { padding-top: calc(56px + env(safe-area-inset-top)); padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
+    .card .tag { margin-bottom: 10px; } .card .q-prompt { margin-bottom: 6px; } }
   .bparts { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .brow, .bjoin, .bsum { opacity: 0; }
   .card.active .brow, .card.active .bjoin, .card.active .bsum { animation: fadeUp .4s ease-out forwards; }
@@ -1586,13 +1595,14 @@ function renderInner(c) {
     const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : t('qListen');
     const head = c.kind === 'listen'
       ? `<button class="listen-btn" aria-label="Play">🔊</button>`
-      : `<div class="q-word">${esc(c.kind === 'pt2pl' ? it.pt : tr(it))}</div>`;
+      : `<div class="q-word ${(c.kind === 'pt2pl' ? it.pt : tr(it)).length > 16 ? 'long' : ''}">${esc(c.kind === 'pt2pl' ? it.pt : tr(it))}</div>`;
     const label = o => c.kind === 'pt2pl' ? tr(o) : o.pt;
+    const longOpts = c.options.some(o => label(o).length > 22);
     el.innerHTML = `<div>
         <div class="tag">${t('check')} · ${esc(titleOf(unit))}</div>
         <div class="q-prompt">${prompt}</div>
         ${head}
-        <div class="opts">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
+        <div class="opts ${longOpts ? 'long' : ''}">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
         <div class="feedback"></div>
       </div>`;
     if (c.kind === 'listen') el.querySelector('.listen-btn').onclick = () => speak(it.pt);
