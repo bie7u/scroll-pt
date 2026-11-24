@@ -1,2 +1,4 @@
+# zrzuty ekranu z testów; ikony i zdjęcia aplikacji są dozwolone
 *.png
 !img/*.png
+!icons/*.png
