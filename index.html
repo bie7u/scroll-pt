@@ -253,6 +253,8 @@
   .acct button { border: 1px solid rgba(255,255,255,.25); background: none; color: var(--fg); border-radius: 8px; padding: 5px 10px; font-size: 13px; cursor: pointer; }
   .steps { text-align: left; line-height: 1.5; padding-left: 22px; margin: 16px 0; color: var(--fg); }
   .steps li { margin-bottom: 10px; }
+  .voicebtn { display: block; width: 100%; margin: 0 0 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; padding: 11px 14px;
+    font-size: 15px; font-weight: 700; background: rgba(255,255,255,.06); color: var(--fg); cursor: pointer; }
   .installbtn { display: block; width: 100%; margin: 0 0 10px; border: 0; border-radius: 10px; padding: 11px 14px; font-size: 15px;
     font-weight: 700; background: #5ac8fa; color: #0b163a; cursor: pointer; }
   /* panel dnia */
@@ -1051,6 +1053,10 @@ const T = {
     cloudErr: 'Brak połączenia z chmurą. Postęp zapisuje się na telefonie, wyślę go później.', cloudBack: 'Połączenie wróciło, postęp zapisany w chmurze ☁️',
     cloudSaved: 'zapis na koncie', localOnly: 'Zapis tylko na tym telefonie', logout: 'Wyloguj',
     ytEn: '· wyjaśnienia po angielsku',
+    ttsTap: 'Dotknij ekranu raz, żeby włączyć lektora 🔊',
+    voiceTest: 'Test głosu', voiceInfo: v => `Głos lektora: ${v}`, noVoicesAtAll: 'Telefon nie zgłasza żadnych głosów.',
+    ttsFail: 'Telefon nie odtworzył głosu. Sprawdź głośność i czy nie jest włączony tryb cichy.',
+    ttsNoPt: 'Brak portugalskiego głosu w telefonie. iPhone: Ustawienia → Dostępność → Treść mówiona → Głosy → Portugalski (Portugalia). Android: Ustawienia → Zamiana tekstu na mowę → zainstaluj portugalski.',
     installTag: 'Aplikacja', installTitle: 'Scroll PT na ekranie telefonu', installBtn: '📲 Zainstaluj', installHow: '📲 Jak dodać?',
     installWhy: ['Otwiera się jednym dotknięciem, na pełnym ekranie, bez paska przeglądarki.', 'Działa też bez internetu: w metrze, w samolocie.'],
     installPanel: 'Zainstaluj aplikację', installed: 'Zainstalowane! Szukaj ikony Scroll PT na ekranie 📲',
@@ -1114,6 +1120,10 @@ const T = {
     cloudErr: 'No connection to the cloud. Progress is saved on this phone and will be sent later.', cloudBack: 'Back online, progress saved to the cloud ☁️',
     cloudSaved: 'saved to your account', localOnly: 'Saved on this phone only', logout: 'Log out',
     ytEn: '',
+    ttsTap: 'Tap the screen once to turn on the narrator 🔊',
+    voiceTest: 'Voice test', voiceInfo: v => `Narrator voice: ${v}`, noVoicesAtAll: 'The phone reports no voices at all.',
+    ttsFail: 'The phone didn’t play the voice. Check the volume and that silent mode is off.',
+    ttsNoPt: 'No Portuguese voice on this phone. iPhone: Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal). Android: Settings → Text-to-speech → install Portuguese.',
     installTag: 'App', installTitle: 'Scroll PT on your home screen', installBtn: '📲 Install', installHow: '📲 How to add it?',
     installWhy: ['Opens with one tap, full screen, without the browser bar.', 'Works offline too: on the metro, on a plane.'],
     installPanel: 'Install the app', installed: 'Installed! Look for the Scroll PT icon on your screen 📲',
@@ -1567,6 +1577,7 @@ function openDayPanel() {
       <div class="limits">${[5, 10, 20, 0].map(n => `<button data-n="${n}" class="${S.newLimit === n ? 'on' : ''}">${n || '∞'}</button>`).join('')}</div>
       <div class="acct">${cloudUser ? `👤 <b>${esc(S.nick || '')}</b> · ☁️ ${t('cloudSaved')} <button class="logoutbtn">${t('logout')}</button>`
         : cloudOn() ? `📱 ${t('localOnly')} <button class="loginbtn">${t('login')}</button>` : `📱 ${t('localOnly')}`}</div>
+      <button class="voicebtn">🔊 ${t('voiceTest')}</button>
       ${isStandalone() ? '' : `<button class="installbtn">📲 ${t('installPanel')}</button>`}
       <button class="resetbtn">↺ ${t('restartBtn')}</button>
       <p style="margin-top:18px;font-size:13px">${t('tapContinue')}</p></div>`;
@@ -1575,6 +1586,7 @@ function openDayPanel() {
     const lb = e.target.closest('.limits button');
     if (lb) { S.newLimit = +lb.dataset.n; save(); paintDay(); toast(t('limitSet')(S.newLimit)); o.classList.remove('show'); feed.lastElementChild && ensureBuffer(); return; }
     if (e.target.closest('.resetbtn')) { o.classList.remove('show'); doReset(); return; }
+    if (e.target.closest('.voicebtn')) { testVoice(); return; }
     if (e.target.closest('.installbtn')) { o.classList.remove('show'); doInstall(); return; }
     if (e.target.closest('.logoutbtn')) { o.classList.remove('show'); logout(); return; }
     if (e.target.closest('.loginbtn')) { o.classList.remove('show'); showAuth('login'); return; }
@@ -1793,13 +1805,44 @@ function pickVoice() {
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 let ttsWarned = false;
+let currentUtt = null, ttsUnlocked = false, ttsFailures = 0, speakGen = 0, speakTimer = null, ttsTapAsked = false;
+const IS_ANDROID = /android/i.test(navigator.userAgent);
 function speak(text, pitch, onend) {
   if (!('speechSynthesis' in window)) { if (!ttsWarned) { ttsWarned = true; toast(t('noTTS')); } return; }
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace('…', ''));
-  u.lang = 'pt-PT'; if (voice) u.voice = voice; u.rate = .85; u.pitch = pitch || 1;
-  if (onend) u.onend = onend;
-  speechSynthesis.speak(u);
+  const ss = speechSynthesis;
+  if (!voice) pickVoice();                                   // głosy w niektórych telefonach ładują się z opóźnieniem
+  const u = new SpeechSynthesisUtterance(text.replace(/…/g, ''));
+  u.lang = voice ? voice.lang.replace('_', '-') : 'pt-PT';
+  if (voice && !IS_ANDROID) u.voice = voice;                 // Android: tylko język, wybór głosu zostaje telefonowi (wskazany głos bywa niemy)
+  u.rate = .85; u.pitch = pitch || 1;
+  let done = false; const finish = () => { if (done) return; done = true; if (currentUtt === u) currentUtt = null; if (onend) onend(); };
+  u.onend = finish;
+  u.onerror = e => {
+    if (e.error === 'not-allowed') { if (!ttsTapAsked) { ttsTapAsked = true; toast(t('ttsTap')); } }   // Chrome: mowa dopiero po dotknięciu
+    else if (e.error !== 'interrupted' && e.error !== 'canceled' && ++ttsFailures === 1) toast(voice ? t('ttsFail') : t('ttsNoPt'));
+    finish();
+  };
+  currentUtt = u;                                            // Safari potrafi skasować wypowiedź bez odwołania do niej
+  const gen = ++speakGen, waiting = speakTimer !== null;     // nowsze zdanie zawsze wygrywa z czekającym w kolejce
+  clearTimeout(speakTimer); speakTimer = null;
+  const busy = waiting || ss.speaking || ss.pending;
+  if (busy) ss.cancel();
+  if (ss.paused) ss.resume();                                // Chrome na Androidzie czasem "zawiesza" mowę
+  if (busy) speakTimer = setTimeout(() => { speakTimer = null; if (gen === speakGen) ss.speak(u); }, 90);   // Safari gubi zdanie tuż po cancel()
+  else ss.speak(u);
+}
+/* iPhone pozwala mówić dopiero po pierwszym dotknięciu: cicha wypowiedź przy pierwszym dotyku odblokowuje mowę */
+function unlockTTS() {
+  if (ttsUnlocked || !('speechSynthesis' in window)) return;
+  ttsUnlocked = true; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u);
+}
+addEventListener('touchend', unlockTTS, { once: true, passive: true });
+addEventListener('click', unlockTTS, { once: true });
+function testVoice() {
+  pickVoice();
+  const all = 'speechSynthesis' in window ? speechSynthesis.getVoices() : [];
+  toast(!('speechSynthesis' in window) ? t('noTTS') : voice ? t('voiceInfo')(`${voice.name} (${voice.lang})`) : t('ttsNoPt') + (all.length ? '' : ' ' + t('noVoicesAtAll')));
+  speak('Olá! Bom dia. Tudo bem?');
 }
 
 /* =========================================================
@@ -2410,7 +2453,7 @@ document.addEventListener('keydown', e => {
    ========================================================= */
 function toast(msg) {
   const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 1800);
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), Math.max(1800, msg.length * 55));   // dłuższe komunikaty dłużej
 }
 const soundBtn = document.getElementById('soundBtn'), langBtn = document.getElementById('langBtn');
 const paintSound = () => soundBtn.textContent = S.sound ? '🔊' : '🔇';
