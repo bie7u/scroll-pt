@@ -195,6 +195,7 @@
   .rare .pt { color: #ffe08a; }
   .sent { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.25; margin: 0 0 22px; font-weight: 700; }
   .sent mark { background: none; color: #ffd23f; }
+  .sent-say { margin: -10px 0 22px; font-size: 16px; line-height: 1.4; }
   /* komentarze */
   .ask-cta { margin-top: 22px; border: 0; border-radius: 14px; padding: 15px 18px; font-size: 17px; font-weight: 700;
     color: #111; background: #ffd23f; cursor: pointer; width: 100%; }
@@ -623,7 +624,7 @@ const UNITS = [
         ex: ['A próxima paragem é a minha.', 'Następny przystanek jest mój.', 'The next stop is mine.', 'próxima paragem'] },
       { pt: 'A que horas parte…?', pl: 'O której odjeżdża…?', en: 'What time does … leave?', say: 'a ky orasz part',
         ex: ['A que horas parte o comboio para Sintra?', 'O której odjeżdża pociąg do Sintry?', 'What time does the train to Sintra leave?', 'A que horas parte'] },
-      { pt: 'Ida e volta', pl: 'W obie strony', en: 'Return (ticket)', say: 'ida y wolta',
+      { pt: 'Ida e volta', pl: 'W obie strony', en: 'Return (ticket)', say: 'ida i wolta',
         note: 'W jedną stronę: só ida.', noteEn: 'One way: só ida.',
         ex: ['Um bilhete de ida e volta para Cascais, por favor.', 'Poproszę bilet w obie strony do Cascais.', 'A return ticket to Cascais, please.', 'ida e volta'] },
     ] },
@@ -831,7 +832,7 @@ const UNITS = [
       { build: 347 },
       { pt: 'cem', pl: '100', say: 'sãj',
         ex: ['Cem gramas de queijo, por favor.', 'Poproszę sto gramów sera.', 'A hundred grams of cheese, please.', 'Cem'] },
-      { pt: 'cento e vinte', pl: '120', say: 'sẽtu y wĩt',
+      { pt: 'cento e vinte', pl: '120', say: 'sẽtu i wĩt',
         ex: ['O quarto custa cento e vinte euros.', 'Pokój kosztuje sto dwadzieścia euro.', 'The room costs a hundred and twenty euros.', 'cento e vinte'] },
       { pt: 'quinhentos', pl: '500', say: 'kińẽtusz',
         note: 'Nie „cincocentos”! To wyjątek.', noteEn: 'Not “cincocentos”! It’s an exception.',
@@ -1326,14 +1327,68 @@ const noteOf = o => isEn() ? o.noteEn : o.note;
 const titleOf = u => (isEn() && u.titleEn) || u.title;
 const listOf = (o, k) => (isEn() && o[k + 'En']) || o[k];
 /* Wymowa: zapis "po polsku" -> przybliżenie dla anglojęzycznych */
-const sayOf = it => !isEn() ? it.say : it.say
+const sayConv = str => !isEn() ? str : str
   .replace(/y/g, 'ə').replace(/j/g, 'y').replace(/w/g, 'v').replace(/ł/g, 'w')
   .replace(/sz/g, 'sh').replace(/ż/g, 'zh').replace(/ń/g, 'ny');
+const sayOf = it => sayConv(it.say);
 
 /* Płaska lista słówek z id */
 const ALL = [];
 UNITS.forEach(u => { let i = 0; (u.items || []).forEach(it => { if (it.tip || it.build) return; it.id = u.id + ':' + i++; it.unit = u; ALL.push(it); }); });
 const wordsOf = u => u.items.filter(it => !it.tip && !it.build);
+/* Wymowa zdań zapisana "po polsku" (portugalski z Portugalii): y = krótkie, prawie nieme „e”; sz/ż = „s” przed spółgłoską; ãu, ãj, ĩ, õ, ũ = nosowe */
+const SENT_SAY = {
+  'ser:0': 'eł so isztudãt', 'ser:1': 'tu esz mũjtu sĩpatiku', 'ser:2': 'ela e purtugeza', 'ser:3': 'u syńor e dy liżboa',
+  'ser:4': 'nosz somuz amigusz', 'ser:5': 'wosesz sãu dy õd', 'ser:6': 'elysz sãu mũjtu sĩpatikusz', 'ser:7': 'isztoł kãsadu',
+  'ser:8': 'isztasz bãj', 'ser:9': 'ela isztá nu otel', 'ser:10': 'isztamuz ãj liżboa', 'ser:11': 'wosesz isztãu prõtusz',
+  'ser:12': 'elysz isztãu atrazadusz',
+  'help:0': 'deszkulp, nãu pyrsybi. pod ryptir, pur fawor', 'help:1': 'pod falar majż dywagar, pur fawor',
+  'help:2': 'komu sy disz isztu ãj purtugesz', 'help:3': 'u ky signifika fisz', 'help:4': 'pod iszkrywer a murada, pur fawor',
+  'help:5': 'nãu saj õd fika', 'help:6': 'falu so ũ bukadińu dy purtugesz', 'help:7': 'deszkulp, pod ażudar-my? isztoł pyrdidu',
+  'cafe:1': 'bebu ũ kafe todaz asz mańãsz', 'cafe:4': 'uma garafa dy agua, pur fawor', 'cafe:5': 'kõpru pãu na padaria',
+  'cafe:7': 'pod trazer a kõta, pur fawor',
+  'food:0': 'eszta syrważa isztá mũjtu freszka', 'food:1': 'kyrija ũ kopu dy wińu tĩtu', 'food:2': 'usz purtugezysz komãj mũjtu pajsz',
+  'food:3': 'nãu komu karn',
+  'restaurant:0': 'boa nojt, uma meza pra dojsz, pur fawor', 'restaurant:1': 'pod trazer a imẽta, pur fawor',
+  'restaurant:2': 'kual e u pratu du dia', 'restaurant:3': 'nãu kyremuz u kuwer, obrigadu', 'restaurant:4': 'pra mĩ, u bakaljał a brasz',
+  'restaurant:5': 'uma salada sãj sybola, pur fawor', 'restaurant:6': 'e pra lywar, pur fawor', 'restaurant:7': 'obrigadu, isztawa tudu otimu',
+  'restaurant:8': 'a gurżeta nãu isztá ĩkluida',
+  'city:4': 'wamuz a praja amańã', 'city:5': 'a isztasãu e a iszkerda', 'city:6': 'wir a dirajta, pur fawor',
+  'transport:0': 'kyrija ũ kartãu nawygãt, pur fawor', 'transport:1': 'õd posu karygar u kartãu', 'transport:2': 'kyrija karygar duasz wiażãjsz',
+  'transport:3': 'wamusz dy metru ate ał hrusiu', 'transport:4': 'u iletriku wĩt i ojtu pasa pur alfama', 'transport:5': 'a prosima parażãj e a mińa',
+  'transport:6': 'a ky orasz part u kõboju pra sĩtra', 'transport:7': 'ũ biljet dy ida i wolta pra kaszkajsz, pur fawor',
+  'travel:0': 'õd fika a isztasãu dy kõbojusz', 'travel:1': 'moru neszta hrua', 'travel:2': 'a loża abry asz now', 'travel:3': 'woł ał supyrmyrkadu',
+  'travel:4': 'a parażãj du ałtukaru e ali', 'travel:5': 'kyrija ũ biljet pra u portu', 'travel:6': 'a mińa mala e azul',
+  'travel:7': 'õd isztá a szaw du kuartu', 'travel:8': 'posu pagar kõ kartãu', 'travel:9': 'so asajtamuż dińajru',
+  'pharmacy:0': 'a uma farmasia aki pertu', 'pharmacy:1': 'doj-my a kabesa', 'pharmacy:2': 'tańu dor dy garganta', 'pharmacy:3': 'u meł filju tãj febr',
+  'pharmacy:4': 'so alerżiku a pynisilina', 'pharmacy:5': 'pur fawor, presizu dy ũ mediku', 'pharmacy:6': 'õd fika u oszpital majsz prosimu',
+  'pharmacy:7': 'sukoru! ligãj pra u sẽtu i doz', 'pharmacy:8': 'hrobarãu-my a kartajra. õd isztá a pulisia',
+  'adj:0': 'eszt kafe e mũjtu bõ', 'adj:1': 'liżboa e uma sidad grãd', 'adj:2': 'u kuartu e pykenu', 'adj:3': 'a sopa isztá mũjtu kẽt',
+  'adj:4': 'a agua isztá fria', 'adj:5': 'eszt otel e karu', 'adj:6': 'u metru e baratu', 'adj:7': 'u muzeł isztá abertu oż',
+  'adj:8': 'a farmasia isztá fyszada', 'adj:9': 'a praja fika lõż', 'adj:10': 'u otel fika pertu da isztasãu',
+  'verb:0': 'keru aprẽder purtugesz', 'verb:1': 'posu ẽtrar', 'verb:2': 'tańu uma ryzerwa', 'verb:3': 'falu ũ poku dy purtugesz',
+  'verb:4': 'woł a pe pra u otel', 'verb:5': 'apańu u kõboju asz ojtu', 'verb:6': 'keru kõprar ũ biljet', 'verb:7': 'pagu ãj dińajru',
+  'verb:8': 'presizu dy ażuda', 'verb:9': 'ał żãtar komu pajsz', 'verb:10': 'bebu mũjta agua',
+  'prep:0': 'a szaw isztá na meza', 'prep:1': 'a mala isztá dybajszu da kama', 'prep:2': 'iszperu ãj frẽt du otel',
+  'prep:3': 'a parażãj e atráż da igrajża', 'prep:4': 'a farmasia fika ał ladu du bãku',
+  'days:0': 'na sygũda fajra trabalju', 'days:1': 'u muzeł fajsza a tersa fajra', 'days:2': 'na kuarta fajra woł a sĩtra',
+  'days:3': 'kĩta fajra e dia dy myrkadu', 'days:4': 'na sajszta fajra a nojt wamuz ał fadu', 'days:5': 'ał sabadu wamuz a praja',
+  'days:6': 'nu dumĩgu mũjtaż lożasz isztãu fyszadasz',
+  'num2:0': 'a mińa irmã tãj dyzasajz anusz', 'num2:1': 'tańu wĩt i sĩku anusz', 'num2:2': 'sãj gramaż dy kajżu, pur fawor',
+  'num2:3': 'u kuartu kuszta sẽtu i wĩt ełrusz', 'num2:4': 'eszt tylymowel kuszta kińẽtuz ełrusz', 'num2:5': 'u wou kuszta mil ełrusz',
+  'when:0': 'oż u muzeł isztá fyszadu', 'when:1': 'õtãj fuj ał portu', 'when:2': 'amańã woł a sĩtra', 'when:3': 'szygaj a dojż diasz',
+  'when:4': 'u kõboju part daki a desz minutusz', 'when:5': 'pra smana woltu pra a pulonja', 'when:6': 'ża kumi, obrigadu',
+  'when:7': 'aĩda nãu pagaj',
+  'past:0': 'kõpraj ũ biljet pra sĩtra', 'past:1': 'ża pagaj a kõta', 'past:2': 'kumi bakaljał ał almosu', 'past:3': 'õtãj bybi wińu werd',
+  'past:4': 'szygaj a liżboa õtãj a nojt', 'past:5': 'gusztaj mũjtu du żãtar', 'past:6': 'fuj a praja nu sabadu', 'past:7': 'foj otimu',
+  'past:8': 'isztiw nu portu nu anu pasadu', 'past:9': 'tiw ũ prublema kõ u kuartu', 'past:10': 'pyrdi a mińa kartajra',
+  'past:11': 'iszkysi-my da szaw nu kuartu',
+  'future:0': 'woł apańar u kõboju daż now', 'future:1': 'wamuż żãtar fora', 'future:2': 'amańã waj szuwer', 'future:3': 'woł fikar tresz nojtsz',
+  'future:4': 'woł lywar eszt, obrigadu', 'future:5': 'iszper ũ mumẽtu, woltu ża', 'future:6': 'kyrija ryzyrwar uma meza pra dojsz',
+  'future:7': 'woł presizar dy ũ taksi asz sajsz',
+};
+ALL.forEach(it => { if (it.ex && SENT_SAY[it.id]) it.exSay = SENT_SAY[it.id]; });
+
 const BY_ID = {}; ALL.forEach(it => { BY_ID[it.id] = it; });
 
 /* =========================================================
@@ -2392,6 +2447,7 @@ function renderInner(c) {
     el.innerHTML = `<div>
         <div class="tag">${t('sentence')} · ${esc(it.pt)}</div>
         <h2 class="sent">${highlight(ptS, hl)}</h2>
+        ${it.exSay ? `<div class="say sent-say">${t('say')}: <b>[${esc(sayConv(it.exSay))}]</b></div>` : ''}
         <div class="pl ${c.revealed ? 'shown' : ''}">${esc(isEn() ? enS : plS)}</div>
         <div class="reveal-hint" style="${c.revealed ? 'visibility:hidden' : ''}">${t('tapReveal')}</div>
       </div>`;
@@ -2456,7 +2512,7 @@ function answer(el, c, i) {
     if (S.combo >= 3 && (S.combo === 3 || S.combo === 5 || S.combo % 5 === 0)) comboBanner(S.combo);
     else sfx('ok');
     buzz(15);
-    if (c.kind === 'hear') fb.innerHTML += `<div class="note">🇵🇹 ${highlight(c.item.ex[0], c.item.ex[3])}</div>`;
+    if (c.kind === 'hear') fb.innerHTML += `<div class="note">🇵🇹 ${highlight(c.item.ex[0], c.item.ex[3])}${c.item.exSay ? `<br><small>[${esc(sayConv(c.item.exSay))}]</small>` : ''}</div>`;
     setTimeout(() => c.kind === 'hear' ? speak(c.item.ex[0]) : speak(c.item.pt), 350);
   } else {
     btns[i].classList.add('bad');
