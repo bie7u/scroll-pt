@@ -5,11 +5,12 @@ Nauka portugalskiego (europejskiego, pt-PT) od zera w formie przewijanego feedu,
 - jeden ekran = jedna karta (CSS scroll-snap), nieskończony feed
 - przełącznik tłumaczeń 🇵🇱 polski / 🇬🇧 angielski (cały interfejs)
 - posty fikcyjnych autorów: słówka, quizy, ciekawostki, scenki-filmiki z lektorem
-- działy: powitania, grzeczności, przedstawianie się, być (osoby + odmiana ser i estar), liczby (1–10 i system do 1000), kawiarnia, jedzenie i picie, miasto,
-  podróż, przymiotniki, czasowniki, przyimki miejsca, dni tygodnia, słowa czasu, czas przeszły (pretérito perfeito),
+- działy: powitania, grzeczności, przedstawianie się, być (osoby + odmiana ser i estar), ratunkowe zwroty, liczby (1–10 i system do 1000), kawiarnia, jedzenie i picie, miasto,
+  restauracja, transport (Navegante, metro, elétrico), podróż, apteka i nagłe sytuacje, przymiotniki, czasowniki, przyimki miejsca, dni tygodnia, słowa czasu, czas przeszły (pretérito perfeito),
   przyszłość (ir + bezokolicznik, tak jak mówi się w Portugalii)
 - przy każdym słówku osobny post ze zdaniem A1/A2 (słowo podświetlone, lektor, tłumaczenie do odsłonięcia)
 - liczby jako system: ściągi z zasadami + karty „złóż liczbę z klocków” + quiz z losowymi liczbami 1–1000
+- słuchanie: karty „Ze słuchu” (całe zdanie bez tekstu, tempo ×1,12, 🐢 ×0,75), scenki w tempie ulicy (`fast: true`)
 - system powtórek (przegródki): powtórki na dziś przed nowym materiałem, limit nowych słówek dziennie (domyślnie 10)
 - powtórki w komentarzach: wpisujesz odpowiedź po portugalsku, sprawdzanie toleruje brak akcentów i literówki
 - XP, combo, streak, cel dnia, skrzynki z nagrodami, rzadkie karty

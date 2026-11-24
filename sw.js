@@ -1,6 +1,6 @@
 /* Scroll PT – service worker: działanie bez internetu.
    Zmień VERSION przy zmianie listy plików w SHELL, żeby telefony pobrały nową wersję. */
-const VERSION = 'scroll-pt-2026-11-24c';
+const VERSION = 'scroll-pt-2026-11-24d';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
                './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 

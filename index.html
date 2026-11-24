@@ -269,6 +269,22 @@
     border-radius: 10px; padding: 9px 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .limits button.on { background: #ffd23f; color: #111; border-color: #ffd23f; }
   .daypanel p.lim { margin-top: 14px; }
+  @media (max-height: 760px) {
+    .tip p, .intro p { font-size: 16px; line-height: 1.4; margin-bottom: 8px; }
+    .card .big-emoji { font-size: 54px; margin-bottom: 4px; }
+    .hear-btns .listen-btn { width: 66px; height: 66px; font-size: 30px; }
+    .slow-btn { width: 46px !important; height: 46px !important; font-size: 21px !important; }
+    .hear-btns { margin-bottom: 10px !important; }
+  }
+  @media (max-height: 700px) {
+    .card .opts.long .opt { padding: 8px 10px; font-size: 14px; }
+    .card .opts { gap: 6px; }
+    .card .q-prompt { font-size: 15px; }
+    .tip h3, .intro h2 { font-size: 24px; margin-bottom: 8px; }
+  }
+  .hear-btns { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .hear-btns .listen-btn { margin: 0; }
+  .slow-btn { width: 56px; height: 56px; border-radius: 50%; border: 0; background: rgba(255,255,255,.16); font-size: 26px; cursor: pointer; }
   /* zwarty quiz: 4 długie odpowiedzi muszą się zmieścić na małym telefonie */
   .card .opts { gap: 8px; }
   .card .opt { padding: 12px 14px; font-size: 16px; line-height: 1.25; }
@@ -457,6 +473,38 @@ const UNITS = [
       { pt: 'Eles estão / elas estão', pl: 'Oni są / one są (teraz)', en: 'They are (now)', say: 'elysz isztãu',
         ex: ['Eles estão atrasados.', 'Oni się spóźniają.', 'They’re late.', 'estão'] },
     ] },
+  { id: 'help', title: 'Ratunkowe zwroty', titleEn: 'Lifesaver phrases', emoji: '🛟', bg: ['#7a3a1f', '#33150a'],
+    intro: ['Portugalczycy mówią szybko i „połykają” samogłoski. Te zwroty ratują każdą rozmowę.',
+            'Naucz się ich na pamięć. Przydadzą się już pierwszego dnia.'],
+    introEn: ['Portuguese people speak fast and “swallow” vowels. These phrases rescue any conversation.',
+              'Learn them by heart. You’ll need them on day one.'],
+    items: [
+      { tip: true, emoji: '👂', title: 'Dlaczego nic nie rozumiem?!', titleEn: 'Why can’t I understand anything?!',
+        text: ['W Portugalii nieakcentowane „e” i „o” prawie znikają: „telefone” brzmi jak „tlfon”, „pequeno” jak „pkenu”.',
+               'Słowa się zlewają: „vou-me embora” brzmi jak jedno słowo.',
+               'To normalne. Słuchaj najpierw wolniej 🐢, potem w normalnym tempie. Karty „Ze słuchu” w feedzie są właśnie do tego.'],
+        textEn: ['In Portugal unstressed “e” and “o” almost disappear: “telefone” sounds like “tlfon”, “pequeno” like “pkenu”.',
+                 'Words run together: “vou-me embora” sounds like a single word.',
+                 'That’s normal. Listen slowly first 🐢, then at normal speed. The “By ear” cards in the feed are for exactly that.'] },
+      { pt: 'Pode repetir, por favor?', pl: 'Może Pan(i) powtórzyć?', en: 'Could you repeat, please?', say: 'pod ryptir pur fawor',
+        ex: ['Desculpe, não percebi. Pode repetir, por favor?', 'Przepraszam, nie zrozumiałem(-am). Może Pan(i) powtórzyć?', 'Sorry, I didn’t get that. Could you repeat, please?', 'Pode repetir'] },
+      { pt: 'Mais devagar, por favor', pl: 'Wolniej, proszę', en: 'More slowly, please', say: 'majsz dywagar pur fawor',
+        ex: ['Pode falar mais devagar, por favor?', 'Może Pan(i) mówić wolniej?', 'Could you speak more slowly, please?', 'mais devagar'] },
+      { pt: 'Como se diz…?', pl: 'Jak się mówi…?', en: 'How do you say…?', say: 'komu sy disz',
+        ex: ['Como se diz isto em português?', 'Jak to się mówi po portugalsku?', 'How do you say this in Portuguese?', 'Como se diz'] },
+      { pt: 'O que significa…?', pl: 'Co znaczy…?', en: 'What does … mean?', say: 'u ky signifika',
+        ex: ['O que significa “fixe”?', 'Co znaczy „fixe”?', 'What does “fixe” mean?', 'O que significa'] },
+      { pt: 'Pode escrever?', pl: 'Może Pan(i) zapisać?', en: 'Could you write it down?', say: 'pod iszkrywer',
+        ex: ['Pode escrever a morada, por favor?', 'Może Pan(i) zapisać adres?', 'Could you write down the address, please?', 'Pode escrever'] },
+      { pt: 'Não sei', pl: 'Nie wiem', en: 'I don’t know', say: 'nãu saj',
+        ex: ['Não sei onde fica.', 'Nie wiem, gdzie to jest.', 'I don’t know where it is.', 'Não sei'] },
+      { pt: 'Um bocadinho', pl: 'Troszkę', en: 'A little bit', say: 'ũ bukadińu',
+        note: 'Typowo portugalskie „troszeczkę”. W Brazylii raczej „um pouquinho”.', noteEn: 'A typically European “a little bit”. In Brazil rather “um pouquinho”.',
+        ex: ['Falo só um bocadinho de português.', 'Mówię tylko troszkę po portugalsku.', 'I only speak a little bit of Portuguese.', 'um bocadinho'] },
+      { pt: 'Pode ajudar-me?', pl: 'Może mi Pan(i) pomóc?', en: 'Can you help me?', say: 'pod ażudar-my',
+        note: 'W Portugalii „me” po czasowniku: ajudar-me. W Brazylii: me ajuda?', noteEn: 'In Portugal “me” goes after the verb: ajudar-me. In Brazil: me ajuda?',
+        ex: ['Desculpe, pode ajudar-me? Estou perdido.', 'Przepraszam, może mi Pan(i) pomóc? Zgubiłem się.', 'Excuse me, can you help me? I’m lost.', 'pode ajudar-me'] },
+    ] },
   { id: 'num', title: 'Liczby 1–10', titleEn: 'Numbers 1–10', emoji: '🔢', bg: ['#6b1d5c', '#350d2d'],
     intro: ['Liczby przydadzą się od razu: ceny, godziny, numer pokoju.'],
     introEn: ['Numbers are useful right away: prices, times, room numbers.'],
@@ -508,6 +556,33 @@ const UNITS = [
       { pt: 'A carne', pl: 'Mięso', en: 'Meat', say: 'a karn',
         ex: ['Não como carne.', 'Nie jem mięsa.', 'I don’t eat meat.', 'carne'] },
     ] },
+  { id: 'restaurant', title: 'W restauracji', titleEn: 'At the restaurant', emoji: '🍽️', bg: ['#6a2a1a', '#2a0e08'],
+    intro: ['Zamawianie po portugalsku: stolik, danie dnia, „bez cebuli” i pułapka z couvert.'],
+    introEn: ['Ordering in Portuguese: a table, the dish of the day, “no onion” and the couvert trap.'],
+    items: [
+      { pt: 'Uma mesa para dois', pl: 'Stolik dla dwóch osób', en: 'A table for two', say: 'uma meza pra dojsz',
+        ex: ['Boa noite, uma mesa para dois, por favor.', 'Dobry wieczór, stolik dla dwóch osób, proszę.', 'Good evening, a table for two, please.', 'mesa para dois'] },
+      { pt: 'A ementa', pl: 'Karta dań', en: 'The menu', say: 'a imenta', note: 'W Brazylii: cardápio.', noteEn: 'In Brazil: cardápio.',
+        ex: ['Pode trazer a ementa, por favor?', 'Może Pan(i) przynieść kartę?', 'Could you bring the menu, please?', 'ementa'] },
+      { pt: 'O prato do dia', pl: 'Danie dnia', en: 'Dish of the day', say: 'u pratu du dia',
+        note: 'W porze obiadu zwykle najtańszy i najlepszy wybór.', noteEn: 'At lunchtime usually the cheapest and best choice.',
+        ex: ['Qual é o prato do dia?', 'Jakie jest danie dnia?', 'What’s the dish of the day?', 'prato do dia'] },
+      { pt: 'O couvert', pl: 'Przystawki na stole (płatne)', en: 'Table starters (charged)', say: 'u kuwer',
+        note: 'Chleb, oliwki, masło, które kelner stawia bez pytania. Płacisz tylko, jeśli zjesz. Możesz grzecznie odmówić.',
+        noteEn: 'Bread, olives and butter the waiter brings unasked. You only pay if you eat them. You can politely decline.',
+        ex: ['Não queremos o couvert, obrigado.', 'Nie chcemy przystawek, dziękujemy.', 'We don’t want the couvert, thank you.', 'couvert'] },
+      { pt: 'Para mim…', pl: 'Dla mnie…', en: 'For me…', say: 'pra mĩ',
+        ex: ['Para mim, o bacalhau à Brás.', 'Dla mnie bacalhau à Brás.', 'For me, the bacalhau à Brás.', 'Para mim'] },
+      { pt: 'Sem…', pl: 'Bez…', en: 'Without…', say: 'sãj',
+        ex: ['Uma salada sem cebola, por favor.', 'Sałatkę bez cebuli, proszę.', 'A salad without onion, please.', 'sem'] },
+      { pt: 'Para levar', pl: 'Na wynos', en: 'To take away', say: 'pra lywar',
+        ex: ['É para levar, por favor.', 'Na wynos, proszę.', 'It’s to take away, please.', 'para levar'] },
+      { pt: 'Estava ótimo!', pl: 'Było pyszne!', en: 'It was great!', say: 'isztawa otimu',
+        ex: ['Obrigado, estava tudo ótimo!', 'Dziękuję, wszystko było pyszne!', 'Thank you, everything was great!', 'ótimo'] },
+      { pt: 'A gorjeta', pl: 'Napiwek', en: 'Tip', say: 'a gurżeta',
+        note: 'Nie jest obowiązkowy. Zwykle zaokrągla się rachunek albo zostawia 5–10%.', noteEn: 'Not compulsory. People usually round up or leave 5–10%.',
+        ex: ['A gorjeta não está incluída.', 'Napiwek nie jest wliczony.', 'The tip isn’t included.', 'gorjeta'] },
+    ] },
   { id: 'city', title: 'W mieście', titleEn: 'In the city', emoji: '🏙️', bg: ['#125a7a', '#082d3d'],
     intro: ['Zapytasz o drogę i zrozumiesz odpowiedź.'],
     introEn: ['You’ll ask for directions and understand the answer.'],
@@ -524,6 +599,33 @@ const UNITS = [
       { pt: 'À direita', pl: 'W prawo', en: 'Right / on the right', say: 'a dirajta',
         ex: ['Vire à direita, por favor.', 'Proszę skręcić w prawo.', 'Turn right, please.', 'à direita'] },
       { pt: 'Em frente', pl: 'Prosto', en: 'Straight ahead', say: 'ãj frẽt' },
+    ] },
+  { id: 'transport', title: 'Metro, tramwaj, pociąg', titleEn: 'Getting around', emoji: '🚇', bg: ['#1f4a7a', '#0a1f38'],
+    intro: ['W Lizbonie jeździsz z kartą Navegante: kupujesz ją, doładowujesz i przykładasz przy bramce lub w tramwaju.',
+            'W Porto karta nazywa się Andante.'],
+    introEn: ['In Lisbon you travel with a Navegante card: buy it, top it up and tap it at the gate or on the tram.',
+              'In Porto the card is called Andante.'],
+    items: [
+      { pt: 'O cartão Navegante', pl: 'Karta na komunikację (Lizbona)', en: 'Transport card (Lisbon)', say: 'u kartãu nawygãt',
+        note: 'Dawniej Viva Viagem. W Porto: Andante.', noteEn: 'Formerly Viva Viagem. In Porto: Andante.',
+        ex: ['Queria um cartão Navegante, por favor.', 'Poproszę kartę Navegante.', 'I’d like a Navegante card, please.', 'cartão Navegante'] },
+      { pt: 'Carregar o cartão', pl: 'Doładować kartę', en: 'Top up the card', say: 'karygar u kartãu',
+        ex: ['Onde posso carregar o cartão?', 'Gdzie mogę doładować kartę?', 'Where can I top up the card?', 'carregar o cartão'] },
+      { pt: 'Uma viagem', pl: 'Jeden przejazd', en: 'One trip', say: 'uma wiażãj',
+        ex: ['Queria carregar duas viagens.', 'Chciałbym(-abym) doładować dwa przejazdy.', 'I’d like to load two trips.', 'viagens'] },
+      { pt: 'O metro', pl: 'Metro', en: 'The metro', say: 'u metru',
+        note: 'W metrze stacja to „estação”, a nie „paragem”.', noteEn: 'On the metro a stop is “estação”, not “paragem”.',
+        ex: ['Vamos de metro até ao Rossio.', 'Jedziemy metrem do Rossio.', 'Let’s take the metro to Rossio.', 'de metro'] },
+      { pt: 'O elétrico', pl: 'Tramwaj', en: 'Tram', say: 'u iletriku',
+        note: 'Słynna „28” w Lizbonie. W Brazylii: bonde.', noteEn: 'Lisbon’s famous “28”. In Brazil: bonde.',
+        ex: ['O elétrico 28 passa por Alfama.', 'Tramwaj 28 przejeżdża przez Alfamę.', 'Tram 28 goes through Alfama.', 'elétrico'] },
+      { pt: 'A próxima paragem', pl: 'Następny przystanek', en: 'The next stop', say: 'a prosima parażãj',
+        ex: ['A próxima paragem é a minha.', 'Następny przystanek jest mój.', 'The next stop is mine.', 'próxima paragem'] },
+      { pt: 'A que horas parte…?', pl: 'O której odjeżdża…?', en: 'What time does … leave?', say: 'a ky orasz part',
+        ex: ['A que horas parte o comboio para Sintra?', 'O której odjeżdża pociąg do Sintry?', 'What time does the train to Sintra leave?', 'A que horas parte'] },
+      { pt: 'Ida e volta', pl: 'W obie strony', en: 'Return (ticket)', say: 'ida y wolta',
+        note: 'W jedną stronę: só ida.', noteEn: 'One way: só ida.',
+        ex: ['Um bilhete de ida e volta para Cascais, por favor.', 'Poproszę bilet w obie strony do Cascais.', 'A return ticket to Cascais, please.', 'ida e volta'] },
     ] },
   { id: 'travel', title: 'W podróży', titleEn: 'Travelling', emoji: '🧳', bg: ['#2a5a3a', '#0f2a18'],
     intro: ['Dworzec, bilet, walizka, klucz: przetrwasz każdą podróż.'],
@@ -552,6 +654,32 @@ const UNITS = [
       { pt: 'O dinheiro', pl: 'Pieniądze / gotówka', en: 'Money / cash', say: 'u dińajru',
         note: '„Em dinheiro” = gotówką.', noteEn: '“Em dinheiro” = in cash.',
         ex: ['Só aceitamos dinheiro.', 'Przyjmujemy tylko gotówkę.', 'We only accept cash.', 'dinheiro'] },
+    ] },
+  { id: 'pharmacy', title: 'Apteka i nagłe sytuacje', titleEn: 'Pharmacy and emergencies', emoji: '🩺', bg: ['#1a6a4a', '#08301f'],
+    intro: ['Oby się nie przydały, ale lepiej je znać.', 'Numer alarmowy w Portugalii (i w całej UE): 112.'],
+    introEn: ['Hopefully you won’t need these, but better to know them.', 'Emergency number in Portugal (and the whole EU): 112.'],
+    items: [
+      { pt: 'A farmácia', pl: 'Apteka', en: 'Pharmacy', say: 'a farmasia',
+        note: 'Zielony krzyż. W nocy działa „farmácia de serviço” (dyżurna).', noteEn: 'Green cross. At night look for the “farmácia de serviço” (on duty).',
+        ex: ['Há uma farmácia aqui perto?', 'Czy jest tu w pobliżu apteka?', 'Is there a pharmacy near here?', 'farmácia'] },
+      { pt: 'Dói-me…', pl: 'Boli mnie…', en: 'My … hurts', say: 'doj-my',
+        note: 'Dosłownie „boli mi”: dói-me a cabeça = boli mnie głowa.', noteEn: 'Literally “it hurts me”: dói-me a cabeça = my head hurts.',
+        ex: ['Dói-me a cabeça.', 'Boli mnie głowa.', 'I have a headache.', 'Dói-me'] },
+      { pt: 'Dor de garganta', pl: 'Ból gardła', en: 'Sore throat', say: 'dor dy garganta',
+        ex: ['Tenho dor de garganta.', 'Boli mnie gardło.', 'I have a sore throat.', 'dor de garganta'] },
+      { pt: 'Febre', pl: 'Gorączka', en: 'Fever', say: 'febr',
+        ex: ['O meu filho tem febre.', 'Mój syn ma gorączkę.', 'My son has a fever.', 'febre'] },
+      { pt: 'Sou alérgico a…', pl: 'Mam alergię na…', en: 'I’m allergic to…', say: 'so alerżiku a',
+        note: 'Kobieta mówi: sou alérgica a…', noteEn: 'A woman says: sou alérgica a…',
+        ex: ['Sou alérgico a penicilina.', 'Mam alergię na penicylinę.', 'I’m allergic to penicillin.', 'alérgico'] },
+      { pt: 'Preciso de um médico', pl: 'Potrzebuję lekarza', en: 'I need a doctor', say: 'presizu dy ũ mediku',
+        ex: ['Por favor, preciso de um médico!', 'Proszę, potrzebuję lekarza!', 'Please, I need a doctor!', 'preciso de um médico'] },
+      { pt: 'O hospital', pl: 'Szpital', en: 'Hospital', say: 'u oszpital',
+        ex: ['Onde fica o hospital mais próximo?', 'Gdzie jest najbliższy szpital?', 'Where is the nearest hospital?', 'hospital'] },
+      { pt: 'Socorro!', pl: 'Pomocy!', en: 'Help!', say: 'sukoru',
+        ex: ['Socorro! Liguem para o 112!', 'Pomocy! Dzwońcie na 112!', 'Help! Call 112!', 'Socorro'] },
+      { pt: 'A polícia', pl: 'Policja', en: 'Police', say: 'a pulisia',
+        ex: ['Roubaram-me a carteira. Onde está a polícia?', 'Ukradli mi portfel. Gdzie jest policja?', 'My wallet was stolen. Where are the police?', 'polícia'] },
     ] },
   { id: 'adj', title: 'Jaki? Jaka?', titleEn: 'Describing things', emoji: '🎨', bg: ['#5a2a7a', '#25103a'],
     intro: ['Dobry, duży, drogi, zamknięty… Opiszesz jedzenie, hotel i sklep.',
@@ -893,6 +1021,40 @@ const VIDEOS = [
       { who: 'B', pt: 'Obrigado! Ontem perdi a mala no comboio…', pl: 'Dziękuję! Wczoraj zgubiłem walizkę w pociągu…', en: 'Thanks! Yesterday I lost my suitcase on the train…' },
       { who: 'A', pt: 'Que azar! Vamos ligar para a estação.', pl: 'Co za pech! Zadzwonimy na dworzec.', en: 'What bad luck! Let’s call the station.' },
     ] },
+  { id: 'v-metro', req: 'transport:5', author: 'tiago', photo: 'city:2', scene: '🚇🎫🗺️', bg: ['#1f4a7a', '#0a1f38'], fast: true,
+    title: 'W metrze', titleEn: 'On the metro',
+    caption: 'Metro w Lizbonie w 30 sekund 🚇 (tempo jak na ulicy)', captionEn: 'The Lisbon metro in 30 seconds 🚇 (street speed)',
+    lines: [
+      { who: 'A', pt: 'Bom dia! Queria carregar o cartão.', pl: 'Dzień dobry! Chciałbym doładować kartę.', en: 'Good morning! I’d like to top up my card.' },
+      { who: 'B', pt: 'Quantas viagens?', pl: 'Ile przejazdów?', en: 'How many trips?' },
+      { who: 'A', pt: 'Duas, por favor. Esta linha vai para o Rossio?', pl: 'Dwa, proszę. Czy ta linia jedzie do Rossio?', en: 'Two, please. Does this line go to Rossio?' },
+      { who: 'B', pt: 'Não, para o Rossio é a linha verde.', pl: 'Nie, do Rossio jedzie zielona linia.', en: 'No, for Rossio it’s the green line.' },
+      { who: 'A', pt: 'E onde fica a linha verde?', pl: 'A gdzie jest zielona linia?', en: 'And where is the green line?' },
+      { who: 'B', pt: 'Desça as escadas e vire à esquerda.', pl: 'Proszę zejść po schodach i skręcić w lewo.', en: 'Go down the stairs and turn left.' },
+    ] },
+  { id: 'v-farmacia', req: 'pharmacy:3', author: 'ines', scene: '🩺💊🧾', bg: ['#1a6a4a', '#08301f'], fast: true,
+    title: 'W aptece', titleEn: 'At the pharmacy',
+    caption: 'Przeziębienie w podróży? Tak to załatwisz 💊', captionEn: 'Caught a cold on holiday? Here’s how to sort it 💊',
+    lines: [
+      { who: 'A', pt: 'Boa tarde, diga.', pl: 'Dzień dobry, słucham.', en: 'Good afternoon, how can I help?' },
+      { who: 'B', pt: 'Boa tarde. Dói-me muito a cabeça e tenho febre.', pl: 'Dzień dobry. Bardzo boli mnie głowa i mam gorączkę.', en: 'Good afternoon. I have a bad headache and a fever.' },
+      { who: 'A', pt: 'É alérgico a algum medicamento?', pl: 'Czy ma Pan alergię na jakiś lek?', en: 'Are you allergic to any medicine?' },
+      { who: 'B', pt: 'Não, não sou.', pl: 'Nie, nie mam.', en: 'No, I’m not.' },
+      { who: 'A', pt: 'Tome este de oito em oito horas.', pl: 'Proszę brać ten co osiem godzin.', en: 'Take this one every eight hours.' },
+      { who: 'B', pt: 'Muito obrigado. Quanto é?', pl: 'Bardzo dziękuję. Ile płacę?', en: 'Thank you very much. How much is it?' },
+      { who: 'A', pt: 'São quatro euros e cinquenta.', pl: 'Cztery euro pięćdziesiąt.', en: 'That’s four euros fifty.' },
+    ] },
+  { id: 'v-restaurante', req: 'restaurant:4', author: 'cafe', photo: 'cafe:7', scene: '🍽️🐟🍷', bg: ['#6a2a1a', '#2a0e08'], fast: true,
+    title: 'Kolacja w restauracji', titleEn: 'Dinner at a restaurant',
+    caption: 'Zamawianie bez stresu (i bez płacenia za couvert) 😉', captionEn: 'Ordering stress-free (and without paying for the couvert) 😉',
+    lines: [
+      { who: 'A', pt: 'Boa noite! Mesa para quantos?', pl: 'Dobry wieczór! Stolik dla ilu osób?', en: 'Good evening! A table for how many?' },
+      { who: 'B', pt: 'Para dois, por favor. Qual é o prato do dia?', pl: 'Dla dwóch, proszę. Jakie jest danie dnia?', en: 'For two, please. What’s the dish of the day?' },
+      { who: 'A', pt: 'Hoje temos bacalhau à Brás.', pl: 'Dziś mamy bacalhau à Brás.', en: 'Today we have bacalhau à Brás.' },
+      { who: 'B', pt: 'Ótimo, para mim o bacalhau. E não queremos o couvert, obrigado.', pl: 'Świetnie, dla mnie dorsz. I nie chcemy przystawek, dziękujemy.', en: 'Great, the cod for me. And we don’t want the couvert, thanks.' },
+      { who: 'A', pt: 'Com certeza. E para beber?', pl: 'Oczywiście. A do picia?', en: 'Of course. And to drink?' },
+      { who: 'B', pt: 'Um copo de vinho verde, por favor.', pl: 'Kieliszek vinho verde, proszę.', en: 'A glass of vinho verde, please.' },
+    ] },
   { id: 'v-city', req: 'city:7', author: 'tiago', photo: 'city:4', scene: '🗺️🏖️🚌', bg: ['#125a7a', '#062636'],
     title: 'Gdzie jest plaża?', titleEn: 'Where is the beach?',
     caption: 'Turyści pytają mnie o to codziennie 😅', captionEn: 'Tourists ask me this every day 😅',
@@ -1008,6 +1170,10 @@ const PHOTOS = {
 };
 /* Znaczniki czasu kwestii w przykładowym filmiku video/pastelaria.mp4 (sekundy) */
 const PASTELARIA_CUES = [[0.8, 2.91], [3.46, 7.12], [7.67, 9.25], [9.8, 12.53], [13.08, 15.14], [15.69, 17.65]];
+// nowe działy korzystają z pasujących zdjęć, które już są w aplikacji
+Object.entries({ 'U:help': 'eu:1', 'help:8': 'eu:1', 'U:restaurant': 'cafe:7', 'restaurant:0': 'cafe:7', 'restaurant:4': 'food:2',
+  'restaurant:7': 'food:3', 'U:transport': 'city:2', 'transport:3': 'city:2', 'transport:4': 'U:obrigado', 'transport:5': 'travel:4',
+  'transport:6': 'U:travel', 'transport:0': 'travel:8', 'transport:1': 'travel:8' }).forEach(([k, from]) => { if (!PHOTOS[k] && PHOTOS[from]) PHOTOS[k] = PHOTOS[from]; });
 VIDEOS.find(v => v.id === 'v-cafe').lines.forEach((L, i) => { L.start = PASTELARIA_CUES[i][0]; L.end = PASTELARIA_CUES[i][1]; });
 
 /* =========================================================
@@ -1054,6 +1220,7 @@ const T = {
     cloudSaved: 'zapis na koncie', localOnly: 'Zapis tylko na tym telefonie', logout: 'Wyloguj',
     ytEn: '· wyjaśnienia po angielsku',
     ttsTap: 'Dotknij ekranu raz, żeby włączyć lektora 🔊',
+    hearTag: 'Ze słuchu', qHear: 'Co słyszysz? Wybierz znaczenie. 🐢 = wolniej',
     voiceFiles: 'Lektor: nagrania, portugalski z Portugalii 🇵🇹',
     voiceTest: 'Test głosu', voiceInfo: v => `Głos lektora: ${v}`, noVoicesAtAll: 'Telefon nie zgłasza żadnych głosów.',
     ttsFail: 'Telefon nie odtworzył głosu. Sprawdź głośność i czy nie jest włączony tryb cichy.',
@@ -1122,6 +1289,7 @@ const T = {
     cloudSaved: 'saved to your account', localOnly: 'Saved on this phone only', logout: 'Log out',
     ytEn: '',
     ttsTap: 'Tap the screen once to turn on the narrator 🔊',
+    hearTag: 'By ear', qHear: 'What do you hear? Pick the meaning. 🐢 = slower',
     voiceFiles: 'Narrator: recordings, European Portuguese 🇵🇹',
     voiceTest: 'Voice test', voiceInfo: v => `Narrator voice: ${v}`, noVoicesAtAll: 'The phone reports no voices at all.',
     ttsFail: 'The phone didn’t play the voice. Check the volume and that silent mode is off.',
@@ -1434,13 +1602,24 @@ function paintDay() {
 function makeReview(id, review) {
   const item = BY_ID[id], box = (S.srs[id] || {}).box || 1;
   let c;
-  if (Math.random() < (review ? .28 : .12)) c = makeAsk(id);   // pisanie męczy: w ćwiczeniach dodatkowych rzadziej
+  const r = Math.random();
+  if (item.ex && S.learned.length >= 12 && r < .22) c = makeHear(id);                 // słuchanie całych zdań
+  else if (r < (review ? .45 : .30)) c = makeAsk(id);   // pisanie męczy: w ćwiczeniach dodatkowych rzadziej
   else {
     c = makeQuiz(id);
     if (box >= 3 && c.kind === 'pt2pl' && Math.random() < .7) c.kind = pick(['pl2pt', 'listen']);
   }
   c.review = !!review;
   return c;
+}
+/* Ze słuchu: całe zdanie bez tekstu, w tempie bliższym ulicy; wybierasz znaczenie */
+function makeHear(id) {
+  const item = BY_ID[id];
+  const learnedEx = ALL.filter(x => x !== item && x.ex && S.learned.includes(x.id));
+  const pool = learnedEx.length >= 3 ? learnedEx : ALL.filter(x => x !== item && x.ex);
+  const tr2 = x => isEn() ? x.ex[2] : x.ex[1];
+  const short = pool.filter(x => tr2(x).length <= 40);          // krótsze odpowiedzi mieszczą się na małych ekranach
+  return { type: 'quiz', kind: 'hear', item, options: shuffle([item, ...shuffle(short.length >= 3 ? short : pool).slice(0, 3)]) };
 }
 /* Zadanie w komentarzu: przetłumacz słowo albo uzupełnij lukę w zdaniu */
 function makeAsk(id) {
@@ -1619,6 +1798,11 @@ const SHORTS = [
   { id: 'tcnQhk0M4_0', ch: 'Mia Esmeriz Academy', req: 'verb:6', en: true, t: 'Jak powiedzieć „idę na zakupy”', tEn: 'How to say “I go shopping”' },
   { id: 'viart_ukUVM', ch: 'Portuguese With Leo', req: 'prep:0', t: '3 czasowniki z przyimkiem EM', tEn: '3 verbs with the preposition EM' },
   { id: 'GjzV5q-o37s', ch: 'Mia Esmeriz Academy', req: 'days:6', en: true, t: 'Rozmowa o pogodzie', tEn: 'Talking about the weather' },
+  { id: 'xZ1w0VS0Fho', ch: 'Learn Portuguese Today', req: 'help:1', en: true, t: 'Ćwiczenie ze słuchania', tEn: 'Listening practice' },
+  { id: 'P1YQIs1cccY', ch: 'Portuguese in Real Life', req: 'help:6', t: 'Krótka historyjka dla początkujących', tEn: 'A short story for beginners' },
+  { id: 'jNrvUuXxG4E', ch: 'Portuguese in Real Life', req: 'transport:3', t: 'Wolny portugalski, odcinek 10', tEn: 'Slow Portuguese, episode 10' },
+  { id: 'C-LQe8rfwG0', ch: 'Portuguese in Real Life', req: 'restaurant:3', t: 'Zgadnij to słowo', tEn: 'Guess this word' },
+  { id: 'UDnOZe8CRhw', ch: 'Learn Portuguese Today', req: 'pharmacy:3', en: true, t: 'Quiz: zdobędziesz 4/4?', tEn: 'Quiz: can you get 4/4?' },
   { id: 'QAVFIyYdUTE', ch: 'Learn Portuguese Today', req: 'num2:0', en: true, t: 'Częsty błąd przy podawaniu wieku', tEn: 'A common mistake when saying your age' },
 ];
 const shownShorts = new Set();
@@ -1839,7 +2023,7 @@ function speakTTS(text, pitch, onend) {
    Liczby i inne złożenia składamy z klocków (trezentos + e + quarenta + e + sete).
    Gdy brakuje nagrania, awaryjnie mówi syntezator telefonu (speakTTS).
    ========================================================= */
-const AUDIO_KEYS = new Set('a10dhjz,a10h7da,a11bbfi,a11ie98,a11kn1c,a12500c,a12vemm,a149tr6,a14f6kx,a14s496,a15rwll,a16at83,a17tkqx,a18aga,a19548,a19gfy5,a19rnzb,a19ug5e,a19ugjc,a1a0jo2,a1bkqn,a1ca8p5,a1cbz6,a1d2kbq,a1hfux,a1in4,a1isa,a1jvno,a1kaguf,a1kd0dw,a1pc4,a1rcq,a1s53,a1ssh,a1su4,a1tv382,a1u1,a1u66,a1u7lh,a1u7zq,a1uik,a1ut424,a1xz,a20ldxo,a20lrk,a211xjf,a2149h,a2183u,a21gdfx,a23kzg,a23l8j,a23wr,a24kp3,a24nt,a272gbh,a2823s,a2bf4,a2nk0az,a2sxy8t,a2t,a2vs,a313tsa,a3hfpu,a3jllnz,a3jmfot,a3k6qvz,a3kjmnd,a3tr5jp,a3umvuc,a43pvfx,a48bh3t,a4dqerp,a4gg90d,a4mi8fa,a4vin34,a595ekz,a5kjj6n,a5qfl7n,a5vnnq3,a5xzwwe,a5yly5x,a605aj9,a6eacoa,a6eesy,a6ezia7,a6fw1hc,a6kkcgb,a6n6fl7,a6paana,a6qwjy5,a7o40em,a7oe5wv,a7szfy3,a7xnwlx,a7z383,a822ufx,a8jrvz,a8z4yhk,a91t27b,a95zv7z,a971gb1,a973qqs,a9if0b7,a9kkegk,a9t62zr,aa41ca9,aaf74wi,aaivcu0,aaj1d0,aak6xq4,aaw06cs,aazrq8g,ab2iz1i,ab3sie2,ab5f8rn,ab6j049,abnfv6t,abrwi5x,abvjqpa,abwyo0h,abxon6q,aby9gmk,ac52mtl,acekajf,acgbsu6,acjk8aj,acl7tu,acmo5d6,acs325p,ad3uia9,ad84219,adbkh7z,addr4g8,adj1ew2,advmhhh,ady72ql,adygxdo,ae4b3sb,ae6lun1,aeb9yk0,aeeamnb,af2nw4x,af5enop,af8d0g3,af902j9,afc2zp7,affts8i,afftshl,afhtdx9,afmza7p,aforft8,afowffw,afqm9uq,afstnuh,agayhs5,agkk6li,agn8t0b,ahfusu,ahj11cl,ahj85b3,ahtr4ye,ahvbo5,ahwits1,ahwre9p,ai3acdc,ailfgq3,ainu7d9,air2t2i,aj0jypd,aj441td,aj4zty2,aj5k39v,ajcao0e,ajiq1ek,ajlt5j4,ajo2j07,ajslajy,ajyjwfa,ak4d7ko,ak4hxxe,ak7epzj,ak7wmir,akc24ny,akc8d09,akdvj48,akiitvp,akmx4pc,akpn4zn,akutk1l,akzpc64,al70nm1,al74ead,al8ag0e,alasf32,alc6kof,alzs0pz,am1km6c,am3qoli,am7rdug,amdqpm0,amgh11y,amjp29d,amlkbae,an2wdd5,an3kjy0,an8h5vs,andzgrn,angol2g,anivwru,ano0ac4,ano4etw,anxzh6w,anzaic0,anzonn7,ao4ymrg,aoqve07,aotaudr,aov5xn1,aowicjh,ap41zvt,ap6vt8w,ap8f54j,apef7hz,apelqqt,apnzaiv,apuz3am,apzv98k,aq2b06e,aqeuwp8,aqmucvl,ardntcq,arhrigb,ariuszd,arl3fs8,arma8h,arov8mm,ars48op,ars48rw,arvyv2c,as14kr0,as7dkd3,as7dw2r,as8v2mg,asj65to,asj78gc,at3j6u2,at47sv5,at573ii,at7q3do,at806qn,atalqcb,atjp5uj,atnpiwi,atp79o5,atva15j,atxg5uh,au3h9y9,au3immc,au8cj0i,aubtznt,aufdoy1,aull7a8,auqz1fs,auu9ttj,auu9twi,auu9wiq,auv8j9f,auzbhkf,av2oweo,av7zmum,av8klg3,avbi649,avbiirs,avm9zz1,avoz2c0,avwlep0,avzuzl2,aw2wzmb,aw8pkg2,awcru69,awhna9g,awojmsp,awu3o0n,awu44zc,awysj3e,awzmumg,ax2f04q,ax5b6au,axdhmvx,axheeu1,axhia7i,axhohnn,axry5kc,ay8d0ij,aye0qzn,ayh2q89,ayhgkoi,ayjr6s7,aysf75u,ayzo3oy,az8skyz,azdc7v1,azdey61,aze31xi,azenzeh,azhr38k,azkog3'.split(','));
+const AUDIO_KEYS = new Set('a10dhjz,a10h7da,a11bbfi,a11ie98,a11kn1c,a12500c,a12vemm,a149tr6,a14c6om,a14f6kx,a14s496,a15rwll,a16at83,a17oui9,a17tkqx,a18aga,a19548,a19gfy5,a19rnzb,a19ug5e,a19ugjc,a1a0jo2,a1bkqn,a1ca8p5,a1cbz6,a1d2kbq,a1hfux,a1in4,a1isa,a1jvno,a1kaguf,a1kd0dw,a1nbm54,a1pc4,a1pfyrr,a1rcq,a1s1fhr,a1s1n,a1s53,a1ssh,a1su4,a1tv382,a1u1,a1u66,a1u7lh,a1u7zq,a1uik,a1ut424,a1xz,a20ldxo,a20lrk,a211xjf,a2149h,a2183u,a21gdfx,a23kzg,a23l8j,a23wr,a24kp3,a24nt,a272gbh,a2823s,a2bf4,a2nk0az,a2o70yf,a2sxy8t,a2t,a2vs,a313tsa,a3c28pk,a3hfpu,a3jllnz,a3jmfot,a3k6qvz,a3kjmnd,a3tr5jp,a3umvuc,a403kt3,a43pvfx,a473lke,a48bh3t,a4dqerp,a4gg90d,a4mi8fa,a4ueqza,a4vin34,a4z48fb,a595ekz,a5jqosg,a5kjj6n,a5koqbn,a5qfl7n,a5vnnq3,a5xzwwe,a5yly5x,a605aj9,a62imve,a65ar15,a6eacoa,a6eesy,a6ezia7,a6fw1hc,a6kkcgb,a6l7fge,a6n6fl7,a6paana,a6qwjy5,a6subtw,a77gtto,a7a1ls5,a7o40em,a7oe5wv,a7szfy3,a7xnwlx,a7z383,a822ufx,a8jk9mw,a8jrvz,a8z4yhk,a91t27b,a95zv7z,a971gb1,a973qqs,a9f5mrp,a9if0b7,a9kkegk,a9ouz2v,a9t62zr,aa147ul,aa41ca9,aa7076f,aaf74wi,aaivcu0,aaj1d0,aak6xq4,aascxlh,aaw06cs,aazrq8g,ab2iz1i,ab3c7tg,ab3sie2,ab4q7aj,ab5f8rn,ab6j049,ab8fl73,abnfv6t,abrwi5x,abvjqpa,abwyo0h,abxon6q,aby9gmk,ac52mtl,acekajf,acgbsu6,acgfo3h,acjk8aj,acl7tu,acmo5d6,acs325p,acuxpv9,aczilws,ad3uia9,ad84219,adbkh7z,addr4g8,adj1ew2,advmhhh,ady72ql,adygxdo,ae2q68m,ae4b3sb,ae6lun1,ae738vb,aeb9yk0,aebn1sq,aed4s9p,aeeamnb,af2amao,af2nw4x,af5enop,af7oplf,af8d0g3,af902j9,afc2zp7,afckym,affts8i,afftshl,afhtdx9,afmwle8,afmza7p,aforft8,afowffw,afqm9uq,afsew0h,afstnuh,afxp92b,ag9mu47,agayhs5,agkk6li,agn8t0b,agwexz1,ahfusu,ahj11cl,ahj85b3,ahl5f1q,ahtr4ye,ahvbo5,ahw3zns,ahwits1,ahwre9p,ai3acdc,ailfgq3,ainu7d9,air2t2i,aj0jypd,aj0nghb,aj441td,aj4zty2,aj5k39v,ajcao0e,ajiq1ek,ajjoxzy,ajlt5j4,ajo2j07,ajslajy,ajt8pc4,ajyjwfa,ak4d7ko,ak4hxxe,ak7epzj,ak7wmir,akc24ny,akc8d09,akdvj48,akek9bl,akiitvp,akmx4pc,akpn4zn,akutk1l,akzpc64,al70nm1,al74ead,al8ag0e,al9907q,alasf32,alc6kof,ale0ou2,alhrk9y,alzs0pz,am1km6c,am3qoli,am7rdug,amc7qgz,amcwzx8,amdqpm0,amgh11y,amjp29d,amlkbae,amqp0fh,amrrcly,amz8w11,an2wdd5,an3kjy0,an4x4i,an8h5vs,an9p6qd,ana8rpt,anbrpto,andzgrn,angol2g,anivwru,ano0ac4,ano4etw,anxzh6w,anzaic0,anzonn7,ao4ymrg,aoejqkv,aoi6lfz,aoqve07,aotaudr,aov5xn1,aovr9oz,aowicjh,aoy7onn,ap41zvt,ap6vt8w,ap8f54j,apch4j0,apef7hz,apelqqt,apmrtsq,apnzaiv,apuz3am,apzv98k,aq2b06e,aq9ny00,aqeuwp8,aqmucvl,aqu12jl,ardntcq,argiikb,arhrigb,ariuszd,arkbr7n,arl3fs8,arma8h,armeheh,arov8mm,ars48op,ars48rw,arvyv2c,as14kr0,as7dkd3,as7dw2r,as8v2mg,asj65to,asj78gc,aspzrct,at3j6u2,at47sv5,at573ii,at7q3do,at806qn,atalqcb,atb32al,atjp5uj,atnpiwi,atp79o5,atva15j,atxg5uh,au3h9y9,au3immc,au4el7m,au8cj0i,aubtznt,audcj1d,aufdoy1,aull7a8,aunjlci,auqz1fs,auu9ttj,auu9twi,auu9wiq,auv8j9f,auzbhkf,av2oweo,av4c260,av7zmum,av8klg3,avbi649,avbiirs,avejgy4,avm9zz1,avoz2c0,avwlep0,avzuzl2,aw2wzmb,aw8pkg2,awbt433,awcru69,awhna9g,awoil0l,awojmsp,awqbqec,awu3o0n,awu44zc,awysj3e,awzmumg,ax2f04q,ax5b6au,axdhmvx,axem2f5,axg2t2q,axheeu1,axhia7i,axhohnn,axry5kc,ay8d0ij,aye0qzn,ayh2q89,ayhgkoi,ayjr6s7,aysf75u,ayzo3oy,az2jpat,az880nh,az8skyz,azdc7v1,azdey61,aze31xi,azenzeh,azhr38k,azkog3'.split(','));
 const audioKey = text => 'a' + hash(text.replace(/…/g, '').trim()).toString(36);
 const player = new Audio(); player.preload = 'auto';
 let playToken = 0;
@@ -1847,7 +2031,7 @@ function stopSpeech() {
   playToken++; try { player.pause(); } catch (e) {}
   if ('speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
 }
-function speak(text, pitch, onend) {
+function speak(text, pitch, onend, rate) {
   const norm = text.replace(/…/g, '').trim();
   let files = AUDIO_KEYS.has(audioKey(norm)) ? [audioKey(norm)] : null;
   if (!files) { const ks = norm.split(/\s+/).map(audioKey); if (ks.length > 1 && ks.every(k => AUDIO_KEYS.has(k))) files = ks; }
@@ -1860,7 +2044,8 @@ function speak(text, pitch, onend) {
     if (i >= files.length) { if (onend) onend(); return; }
     player.src = 'audio/' + files[i++] + '.mp3';
     player.preservesPitch = player.webkitPreservesPitch = !high;
-    player.playbackRate = high ? 1.12 : 1;
+    player.playbackRate = (high ? 1.12 : 1) * (rate || 1);
+    if (!high) player.preservesPitch = player.webkitPreservesPitch = true;   // szybciej/wolniej bez zmiany wysokości głosu
     player.onended = () => setTimeout(next, files.length > 1 ? 30 : 0);
     player.onerror = () => { if (tok === playToken) { playToken++; speakTTS(text, pitch, onend); } };
     const pr = player.play();
@@ -2026,7 +2211,7 @@ function renderVideo(el, c) {
     prog.style.width = (i / v.lines.length * 100) + '%';
     const my = ++token; let done = false;
     const next = () => { if (done || my !== token) return; done = true; clearTimeout(timer); timer = setTimeout(step, 650); };
-    if (S.sound) speak(L.pt, L.who === 'B' ? 1.3 : .85, next);  // dwa "głosy" przez różną wysokość
+    if (S.sound) speak(L.pt, L.who === 'B' ? 1.3 : .85, next, v.fast ? 1.12 : 1);  // dwa "głosy"; scenki "fast" w tempie ulicy
     timer = setTimeout(next, (S.sound ? 2200 : 1400) + L.pt.length * 90); // zapas, gdyby lektor nie zadziałał
   }
   c.play = () => {
@@ -2214,20 +2399,26 @@ function renderInner(c) {
   }
   else if (c.type === 'quiz') {
     const it = c.item;
-    const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : t('qListen');
-    const head = c.kind === 'listen'
+    const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : c.kind === 'hear' ? t('qHear') : t('qListen');
+    const head = c.kind === 'hear'
+      ? `<div class="hear-btns"><button class="listen-btn" aria-label="Play">🔊</button><button class="slow-btn" aria-label="Slow">🐢</button></div>`
+      : c.kind === 'listen'
       ? `<button class="listen-btn" aria-label="Play">🔊</button>`
       : `<div class="q-word ${(c.kind === 'pt2pl' ? it.pt : tr(it)).length > 16 ? 'long' : ''}">${esc(c.kind === 'pt2pl' ? it.pt : tr(it))}</div>`;
-    const label = o => c.kind === 'pt2pl' ? tr(o) : o.pt;
+    const label = o => c.kind === 'hear' ? (isEn() ? o.ex[2] : o.ex[1]) : c.kind === 'pt2pl' ? tr(o) : o.pt;
     const longOpts = c.options.some(o => label(o).length > 22);
     el.innerHTML = `<div>
-        <div class="tag">${t('check')} · ${esc(titleOf(unit))}</div>
+        <div class="tag">${c.kind === 'hear' ? '👂 ' + t('hearTag') : t('check')} · ${esc(titleOf(unit))}</div>
         <div class="q-prompt">${prompt}</div>
         ${head}
         <div class="opts ${longOpts ? 'long' : ''}">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
         <div class="feedback"></div>
       </div>`;
     if (c.kind === 'listen') el.querySelector('.listen-btn').onclick = () => speak(it.pt);
+    if (c.kind === 'hear') {
+      el.querySelector('.listen-btn').onclick = () => speak(it.ex[0], 1, null, 1.12);
+      el.querySelector('.slow-btn').onclick = () => speak(it.ex[0], 1, null, .75);
+    }
     el.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(el, c, +b.dataset.i));
   }
 
@@ -2265,19 +2456,20 @@ function answer(el, c, i) {
     if (S.combo >= 3 && (S.combo === 3 || S.combo === 5 || S.combo % 5 === 0)) comboBanner(S.combo);
     else sfx('ok');
     buzz(15);
-    setTimeout(() => speak(c.item.pt), 350);
+    if (c.kind === 'hear') fb.innerHTML += `<div class="note">🇵🇹 ${highlight(c.item.ex[0], c.item.ex[3])}</div>`;
+    setTimeout(() => c.kind === 'hear' ? speak(c.item.ex[0]) : speak(c.item.pt), 350);
   } else {
     btns[i].classList.add('bad');
     if (S.combo >= 3) toast(t('comboBroken')(S.combo, S.bestCombo));
     S.combo = 0;
-    fb.textContent = t('wrong')(c.item.pt, tr(c.item));
+    fb.textContent = c.kind === 'hear' ? t('wrong')(c.item.ex[0], isEn() ? c.item.ex[2] : c.item.ex[1]) : t('wrong')(c.item.pt, tr(c.item));
     if (!c.gen) {
       S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
       reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
       ensureBuffer(true);
     }
     sfx('bad'); buzz([30, 40, 30]);
-    speak(c.item.pt);
+    speak(c.kind === 'hear' ? c.item.ex[0] : c.item.pt, 1, null, c.kind === 'hear' ? .85 : 1);
   }
   save();
 }
@@ -2483,6 +2675,7 @@ const io = new IntersectionObserver(entries => {
     if (S.sound && c.type === 'build') setTimeout(() => speak(numPt(c.n)), 400 + numParts(c.n).length * 500);
     if (c.type === 'sentence') addXP(2);
     if (S.sound && c.type === 'quiz' && c.kind === 'listen') setTimeout(() => speak(c.item.pt), 250);
+    if (S.sound && c.type === 'quiz' && c.kind === 'hear') setTimeout(() => speak(c.item.ex[0], 1, null, 1.12), 300);
     ensureBuffer();
   });
 }, { root: feed, threshold: [.6] });
