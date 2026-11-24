@@ -1,0 +1,19 @@
+{
+  "name": "Scroll PT – portugalski z Portugalii",
+  "short_name": "Scroll PT",
+  "description": "Nauka portugalskiego europejskiego w formie przewijanego feedu: słówka, zdania, quizy, powtórki i filmiki.",
+  "lang": "pl",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e0f13",
+  "theme_color": "#0e0f13",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

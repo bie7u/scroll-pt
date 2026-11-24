@@ -72,3 +72,14 @@ Zachowanie:
 - Zapis do chmury 1,5 s po każdej zmianie i przy zamknięciu/zminimalizowaniu aplikacji.
 - Po powrocie do aplikacji sprawdza, czy inne urządzenie nie zapisało nowszego postępu (wygrywa nowszy).
 - Bez internetu postęp zapisuje się na telefonie i trafia do chmury przy następnym udanym zapisie.
+
+## Aplikacja na telefonie (PWA)
+
+- `manifest.webmanifest` + `icons/`: instalacja na ekranie głównym, pełny ekran, ikona i nazwa „Scroll PT”.
+- `sw.js` (service worker): strona najpierw z sieci (zawsze świeża wersja), bez internetu z pamięci; zdjęcia, ikony
+  i biblioteka logowania z pamięci z odświeżaniem w tle. Supabase, YouTube i wideo idą zawsze z sieci.
+  Przy zmianie listy plików w `SHELL` podbij `VERSION`.
+- Android/Chrome: przycisk „Zainstaluj” (zdarzenie `beforeinstallprompt`). iPhone: instrukcja
+  „Udostępnij → Do ekranu początkowego” (Apple nie pozwala instalować jednym kliknięciem).
+- Na iPhonie zainstalowana aplikacja ma osobną pamięć od Safari: postęp bez konta nie przechodzi, dlatego
+  po instalacji trzeba się zalogować.
