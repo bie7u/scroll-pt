@@ -393,6 +393,57 @@ const UNITS = [
         note: '„estou a + bezokolicznik” = robię coś teraz. Bardzo portugalska konstrukcja.',
         noteEn: '“estou a + infinitive” = I’m doing something right now. A very Portuguese structure.' },
     ] },
+  { id: 'ser', title: 'Być: osoby i odmiana', titleEn: 'To be: people and forms', emoji: '👥', bg: ['#5a1f5a', '#260a26'],
+    intro: ['„Być” to po portugalsku dwa czasowniki: SER (kim / jaki jesteś na stałe) i ESTAR (gdzie jesteś albo jak się czujesz teraz).',
+            'Najpierw osoby, potem odmiana obu. Słowo „eu” (ja) zwykle się pomija: „Sou estudante.”'],
+    introEn: ['“To be” is two verbs in Portuguese: SER (who / what you are permanently) and ESTAR (where you are or how you feel right now).',
+              'First the people, then both verbs. “Eu” (I) is usually dropped: “Sou estudante.”'],
+    items: [
+      { tip: true, emoji: '👥', title: 'Osoby', titleEn: 'Personal pronouns',
+        text: ['eu = ja · tu = ty (do znajomych, w Portugalii normalne) · ele / ela = on / ona',
+               'o senhor / a senhora = Pan / Pani. „Você” bywa w Portugalii odbierane jako zbyt bezpośrednie.',
+               'nós = my · vocês = wy · eles / elas = oni / one'],
+        textEn: ['eu = I · tu = you (informal, normal in Portugal) · ele / ela = he / she',
+                 'o senhor / a senhora = you (polite). “Você” can sound too direct in Portugal.',
+                 'nós = we · vocês = you (plural) · eles / elas = they'] },
+      { tip: true, emoji: '🪨', title: 'SER: kim jesteś', titleEn: 'SER: who you are',
+        text: ['eu sou · tu és · ele / ela / o senhor é', 'nós somos · vocês são · eles / elas são',
+               'Narodowość, zawód, cechy, skąd jesteś: Sou polaco. Ela é professora. Somos de Varsóvia.'],
+        textEn: ['eu sou · tu és · ele / ela / o senhor é', 'nós somos · vocês são · eles / elas são',
+                 'Nationality, job, traits, where you’re from: Sou polaco. Ela é professora. Somos de Varsóvia.'] },
+      { pt: 'Eu sou', pl: 'Ja jestem', en: 'I am', say: 'eł so',
+        ex: ['Eu sou estudante.', 'Jestem studentem(-tką).', 'I’m a student.', 'sou'] },
+      { pt: 'Tu és', pl: 'Ty jesteś', en: 'You are (informal)', say: 'tu esz',
+        ex: ['Tu és muito simpático!', 'Jesteś bardzo miły!', 'You’re very kind!', 'és'] },
+      { pt: 'Ele é / ela é', pl: 'On jest / ona jest', en: 'He is / she is', say: 'el e / ela e',
+        ex: ['Ela é portuguesa.', 'Ona jest Portugalką.', 'She’s Portuguese.', 'é'] },
+      { pt: 'O senhor é / a senhora é', pl: 'Pan jest / Pani jest', en: 'You are (polite)', say: 'u synior e / a synióra e',
+        note: 'Uprzejma forma: czasownik jak dla „on / ona”.', noteEn: 'Polite form: the verb is the same as for “he / she”.',
+        ex: ['O senhor é de Lisboa?', 'Czy Pan jest z Lizbony?', 'Are you from Lisbon, sir?', 'é'] },
+      { pt: 'Nós somos', pl: 'My jesteśmy', en: 'We are', say: 'nosz somusz',
+        ex: ['Nós somos amigos.', 'Jesteśmy przyjaciółmi.', 'We’re friends.', 'somos'] },
+      { pt: 'Vocês são', pl: 'Wy jesteście', en: 'You are (plural)', say: 'wosesz sãu',
+        ex: ['Vocês são de onde?', 'Skąd jesteście?', 'Where are you all from?', 'são'] },
+      { pt: 'Eles são / elas são', pl: 'Oni są / one są', en: 'They are', say: 'elysz sãu',
+        ex: ['Eles são muito simpáticos.', 'Oni są bardzo mili.', 'They’re very nice.', 'são'] },
+      { tip: true, emoji: '📍', title: 'ESTAR: gdzie i jak jesteś teraz', titleEn: 'ESTAR: where and how you are now',
+        text: ['eu estou · tu estás · ele / ela / o senhor está', 'nós estamos · vocês estão · eles / elas estão',
+               'Miejsce, samopoczucie, stan teraz: Estou em Lisboa. Estou cansado. A loja está fechada.'],
+        textEn: ['eu estou · tu estás · ele / ela / o senhor está', 'nós estamos · vocês estão · eles / elas estão',
+                 'Location, mood, current state: Estou em Lisboa. Estou cansado. A loja está fechada.'] },
+      { pt: 'Eu estou', pl: 'Ja jestem (teraz)', en: 'I am (now)', say: 'eł isztoł',
+        ex: ['Estou cansado.', 'Jestem zmęczony(-a).', 'I’m tired.', 'Estou'] },
+      { pt: 'Tu estás', pl: 'Ty jesteś (teraz)', en: 'You are (now, informal)', say: 'tu isztasz',
+        ex: ['Estás bem?', 'Wszystko u ciebie dobrze?', 'Are you OK?', 'Estás'] },
+      { pt: 'Ele está / ela está', pl: 'On jest / ona jest (teraz)', en: 'He is / she is (now)', say: 'el isztá / ela isztá',
+        ex: ['Ela está no hotel.', 'Ona jest w hotelu.', 'She’s at the hotel.', 'está'] },
+      { pt: 'Nós estamos', pl: 'My jesteśmy (teraz)', en: 'We are (now)', say: 'nosz isztamusz',
+        ex: ['Estamos em Lisboa!', 'Jesteśmy w Lizbonie!', 'We’re in Lisbon!', 'Estamos'] },
+      { pt: 'Vocês estão', pl: 'Wy jesteście (teraz)', en: 'You are (now, plural)', say: 'wosesz isztãu',
+        ex: ['Vocês estão prontos?', 'Jesteście gotowi?', 'Are you ready?', 'estão'] },
+      { pt: 'Eles estão / elas estão', pl: 'Oni są / one są (teraz)', en: 'They are (now)', say: 'elysz isztãu',
+        ex: ['Eles estão atrasados.', 'Oni się spóźniają.', 'They’re late.', 'estão'] },
+    ] },
   { id: 'num', title: 'Liczby 1–10', titleEn: 'Numbers 1–10', emoji: '🔢', bg: ['#6b1d5c', '#350d2d'],
     intro: ['Liczby przydadzą się od razu: ceny, godziny, numer pokoju.'],
     introEn: ['Numbers are useful right away: prices, times, room numbers.'],
@@ -1233,17 +1284,36 @@ async function bootstrap() {
 
 /* Plan "nowych" kart: intro działu -> słówka -> puchar, między działami ciekawostki */
 const PLAN = [];
-UNITS.forEach(u => {
-  if (u.tip) { PLAN.push({ type: 'tip', unit: u }); return; }
-  PLAN.push({ type: 'intro', unit: u });
+UNITS.forEach((u, ui) => {
+  if (u.tip) { PLAN.push({ type: 'tip', unit: u, owner: UNITS.slice(ui + 1).find(x => x.items) }); return; }
+  PLAN.push({ type: 'intro', unit: u, owner: u });
   u.items.forEach(it => {
-    if (it.tip) { PLAN.push({ type: 'tip', unit: Object.assign({ bg: u.bg }, it) }); return; }
-    if (it.build) { PLAN.push({ type: 'build', n: it.build, unit: u }); return; }
-    PLAN.push({ type: 'learn', item: it });
-    if (it.ex) PLAN.push({ type: 'sentence', item: it });     // osobny post ze zdaniem
+    if (it.tip) { PLAN.push({ type: 'tip', unit: Object.assign({ bg: u.bg }, it), owner: u }); return; }
+    if (it.build) { PLAN.push({ type: 'build', n: it.build, unit: u, owner: u }); return; }
+    PLAN.push({ type: 'learn', item: it, owner: u });
+    if (it.ex) PLAN.push({ type: 'sentence', item: it, owner: u });     // osobny post ze zdaniem
   });
-  PLAN.push({ type: 'done', unit: u });
+  PLAN.push({ type: 'done', unit: u, owner: u });
 });
+/* Postęp w planie opiera się na znanych słowach, nie tylko na numerze pozycji:
+   nowy dział wstawiony w środek trafia do użytkownika jako następny, a przerobione działy się nie powtarzają. */
+let lastPlanLearn = null;
+function planRedundant(c) {
+  const known = id => S.learned.includes(id);
+  if (c.type === 'learn') return known(c.item.id);
+  if (c.type === 'sentence') return known(c.item.id) && lastPlanLearn !== c.item.id;
+  if (!c.owner) return false;
+  const words = wordsOf(c.owner);
+  return words.length > 0 && words.every(w => known(w.id)) && !(lastPlanLearn && BY_ID[lastPlanLearn] && BY_ID[lastPlanLearn].unit === c.owner);
+}
+const planSig = () => PLAN.filter(c => c.type === 'learn').map(c => c.item.id).join(',');
+function syncPlan() {
+  const sig = planSig();
+  if (S.planSig === sig) return;                 // plan się nie zmienił: zostaje zapisana pozycja
+  lastPlanLearn = null; let i = 0;
+  while (i < PLAN.length && planRedundant(PLAN[i])) i++;
+  S.step = i; S.planSig = sig; save();
+}
 
 /* =========================================================
    SYSTEM POWTÓREK (przegródki Leitnera)
@@ -1645,11 +1715,13 @@ function nextCard() {
   // 2) co ~3 karty quiz z tego, co już znasz
   if (S.learned.length >= 3 && sinceQuiz >= 3) { sinceQuiz = 0; return numbersDone() && Math.random() < .3 ? numCard() : makeQuiz(pick(weightedLearned())); }
   // 3) nowa treść z planu
+  while (S.step < PLAN.length && planRedundant(PLAN[S.step])) S.step++;
   const blocked = S.step < PLAN.length && PLAN[S.step].type === 'learn' && newLimitReached();
   if (blocked && !S.day.limitShown) { S.day.limitShown = true; save(); return { type: 'limit', unit: { emoji: '✅', title: '', bg: ['#0a6b4a', '#03301f'] } }; }
   if (S.step < PLAN.length && !blocked) {
     const c = PLAN[S.step++];
     if (c.type === 'learn') {
+      lastPlanLearn = c.item.id;
       if (!S.learned.includes(c.item.id)) S.learned.push(c.item.id);
       srsNew(c.item.id); S.day.newCount++; paintDay(); sinceQuiz++;
     }
@@ -2328,7 +2400,7 @@ function startFeed() {
   nextChestAt = 10; nextVideoAt = 6; shownVideos.clear(); nextShortAt = 8; shownShorts.clear();
   paintSound(); paintLang(); paintStats();
   document.getElementById('unitLabel').textContent = t('start');
-  startDay(); paintDay(); ensureBuffer(); feed.scrollTop = 0;
+  syncPlan(); startDay(); paintDay(); ensureBuffer(); feed.scrollTop = 0;
 }
 bootstrap();
 setTimeout(() => { if (voice && !/pt[-_]PT/i.test(voice.lang)) toast(t('noVoice')(voice.lang)); }, 1500);

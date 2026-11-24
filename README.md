@@ -5,7 +5,7 @@ Nauka portugalskiego (europejskiego, pt-PT) od zera w formie przewijanego feedu,
 - jeden ekran = jedna karta (CSS scroll-snap), nieskończony feed
 - przełącznik tłumaczeń 🇵🇱 polski / 🇬🇧 angielski (cały interfejs)
 - posty fikcyjnych autorów: słówka, quizy, ciekawostki, scenki-filmiki z lektorem
-- działy: powitania, grzeczności, przedstawianie się, liczby (1–10 i system do 1000), kawiarnia, jedzenie i picie, miasto,
+- działy: powitania, grzeczności, przedstawianie się, być (osoby + odmiana ser i estar), liczby (1–10 i system do 1000), kawiarnia, jedzenie i picie, miasto,
   podróż, przymiotniki, czasowniki, przyimki miejsca, dni tygodnia, słowa czasu, czas przeszły (pretérito perfeito),
   przyszłość (ir + bezokolicznik, tak jak mówi się w Portugalii)
 - przy każdym słówku osobny post ze zdaniem A1/A2 (słowo podświetlone, lektor, tłumaczenie do odsłonięcia)
@@ -46,6 +46,8 @@ Każde słowo ma kartotekę w `S.srs`:
   komentarz bezbłędnie (z akcentami) → +2. Awans najwyżej raz dziennie i tylko po terminie.
 - Samo rozpoznanie (quiz PT → PL) nie podnosi słowa powyżej przegródki 3. Dalej trzeba umieć je przypomnieć:
   quiz PL → PT, odsłuch albo komentarz.
+- Pozycja w planie opiera się na znanych słowach: nowy dział wstawiony w środek trafia do użytkownika jako
+  następny, a przerobione działy są pomijane (`planRedundant`, `syncPlan`).
 - Rano: słowa z `due <= dziś` (max 40, najpierw najsłabsze) lecą jako powtórki, zanim pojawi się nowy materiał.
 - Synchronizacja między urządzeniami wymaga logowania i bazy (np. Supabase/Firebase). Kartotekę da się przenieść 1:1.
 
