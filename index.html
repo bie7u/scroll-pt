@@ -196,6 +196,20 @@
   .sent { font-size: clamp(26px, 7.5vw, 38px); line-height: 1.25; margin: 0 0 22px; font-weight: 700; }
   .sent mark { background: none; color: #ffd23f; }
   .sent-say { margin: -10px 0 22px; font-size: 16px; line-height: 1.4; }
+  .conj-h { font-size: clamp(30px, 9vw, 40px); margin: 0 0 14px; font-weight: 800; }
+  .conj-h span { font-size: .5em; font-weight: 600; color: var(--muted); }
+  .ctable { display: flex; flex-direction: column; gap: 6px; }
+  .crow { display: grid; grid-template-columns: 4.6em 1fr auto; align-items: center; gap: 10px; text-align: left; width: 100%;
+          background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 7px 12px; color: inherit; font: inherit; cursor: pointer; transition: transform .15s; }
+  .crow.tap { transform: scale(.97); background: rgba(255,210,63,.18); }
+  .crow small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+  .cpron { font-size: 15px; font-weight: 600; }
+  .cform { font-size: 21px; font-weight: 700; }
+  .cform em { font-style: normal; color: #ffd23f; }
+  .ctr { font-size: 14px; color: var(--muted); text-align: right; }
+  .cnote { margin-top: 12px; font-size: 13.5px; }
+  .q-sub { font-size: 15px; color: var(--muted); margin: -6px 0 14px; }
+  @media (max-height: 700px) { .crow { padding: 5px 10px; } .cform { font-size: 19px; } .conj-h { margin-bottom: 8px; } .cnote { margin-top: 8px; font-size: 12.5px; } }
   /* komentarze */
   .ask-cta { margin-top: 22px; border: 0; border-radius: 14px; padding: 15px 18px; font-size: 17px; font-weight: 700;
     color: #111; background: #ffd23f; cursor: pointer; width: 100%; }
@@ -719,11 +733,20 @@ const UNITS = [
              '“É” (ser) = a permanent trait: O hotel é caro. Lisboa é grande.',
              '“Está” (estar) = a current state: A sopa está quente. A loja está fechada.'] },
   { id: 'verb', title: 'Czasowniki', titleEn: 'Verbs', emoji: '🏃', bg: ['#1f5a7a', '#0a2738'],
-    intro: ['Najważniejsze czasowniki. Na karcie widzisz bezokolicznik i formę „ja”.',
+    intro: ['Najważniejsze czasowniki. Po każdym zobaczysz tabelkę z odmianą przez osoby: ja, ty, on, my, oni.',
             'Słowo „eu” (ja) zwykle się pomija: „Quero” = „Chcę”.'],
-    introEn: ['The most important verbs. Each card shows the infinitive and the “I” form.',
+    introEn: ['The most important verbs. After each one you’ll see a table with all the persons: I, you, he, we, they.',
               'People usually drop “eu” (I): “Quero” = “I want”.'],
     items: [
+      { tip: true, emoji: '🧩', title: 'Jeden wzór na setki czasowników', titleEn: 'One pattern for hundreds of verbs',
+        text: ['Odcinasz -ar / -er i doklejasz końcówkę osoby:',
+               '-ar (falar): eu falo · tu falas · ele fala · nós falamos · eles falam',
+               '-er (comer): eu como · tu comes · ele come · nós comemos · eles comem',
+               'Pan/Pani (o senhor / a senhora) = jak „ele”. Wy (vocês) = jak „eles”. Ir, ter, poder i querer są nieregularne: te trzeba zapamiętać.'],
+        textEn: ['Drop -ar / -er and add the ending for the person:',
+                 '-ar (falar): eu falo · tu falas · ele fala · nós falamos · eles falam',
+                 '-er (comer): eu como · tu comes · ele come · nós comemos · eles comem',
+                 'Polite “you” (o senhor / a senhora) = like “ele”. Plural “you” (vocês) = like “eles”. Ir, ter, poder and querer are irregular: learn them by heart.'] },
       { pt: 'Querer', pl: 'Chcieć', en: 'To want', say: 'kyrer',
         note: 'eu quero = chcę · queria = chciałbym (grzeczniej)', noteEn: 'eu quero = I want · queria = I’d like (more polite)',
         ex: ['Quero aprender português.', 'Chcę nauczyć się portugalskiego.', 'I want to learn Portuguese.', 'Quero'] },
@@ -1249,6 +1272,11 @@ const T = {
     limitBtn: '⚙️ Zmień limit', capLimit: 'Dobra robota na dziś 💪 <span class="hash">#postęp</span>',
     build: 'Złóż liczbę z klocków', capBuild: 'Tak się buduje każdą liczbę do 1000 🧱 <span class="hash">#liczby</span>',
     sentence: 'Zdanie z użyciem', capSentence: w => `Zdanie dnia ze słowem „${w}” ✍️ <span class="hash">#A1 #zdania</span>`,
+    conjTag: 'Odmiana', conjIrr: 'nieregularny', qConj: 'Jaka forma?',
+    conjIrrNote: 'Nieregularny: tę tabelkę trzeba zapamiętać.',
+    conjRegNote: e => `Regularny -${e}: rdzeń + końcówka. Tak samo odmienisz setki innych czasowników.`,
+    conjPolite: 'Pan/Pani = jak „ele”, wy (vocês) = jak „eles”. Dotknij wiersza, żeby usłyszeć.',
+    capConj: v => `Odmiana „${v}” przez osoby. Zapisz sobie ❤ <span class="hash">#gramatyka #A1</span>`,
   },
   en: {
     newWord: 'New word', say: 'say it', tapReveal: 'tap to see the translation', newUnit: 'New unit',
@@ -1318,6 +1346,11 @@ const T = {
     limitBtn: '⚙️ Change limit', capLimit: 'Great work today 💪 <span class="hash">#progress</span>',
     build: 'Build the number', capBuild: 'This is how every number up to 1000 is built 🧱 <span class="hash">#numbers</span>',
     sentence: 'Example sentence', capSentence: w => `Sentence of the day with “${w}” ✍️ <span class="hash">#A1 #sentences</span>`,
+    conjTag: 'Conjugation', conjIrr: 'irregular', qConj: 'Which form?',
+    conjIrrNote: 'Irregular: learn this table by heart.',
+    conjRegNote: e => `Regular -${e}: stem + ending. Hundreds of other verbs work the same way.`,
+    conjPolite: 'Polite “you” (o senhor) = like “ele”, plural “you” (vocês) = like “eles”. Tap a row to hear it.',
+    capConj: v => `“${v}” in every person. Save it ❤ <span class="hash">#grammar #A1</span>`,
   },
 };
 const t = k => T[S.lang][k];
@@ -1388,6 +1421,49 @@ const SENT_SAY = {
   'future:7': 'woł presizar dy ũ taksi asz sajsz',
 };
 ALL.forEach(it => { if (it.ex && SENT_SAY[it.id]) it.exSay = SENT_SAY[it.id]; });
+/* Odmiana czasowników przez osoby (czas teraźniejszy, pt-PT). f = formy, s = wymowa, pl/en = tłumaczenie każdej formy */
+const PRON = [['eu', 'ja', 'I', 'eł'], ['tu', 'ty', 'you', 'tu'], ['ele / ela', 'on / ona', 'he / she', 'el / ela'],
+              ['nós', 'my', 'we', 'nosz'], ['eles / elas', 'oni / one', 'they', 'elysz / elasz']];
+const PRON1 = ['eu', 'tu', 'ele', 'nós', 'eles'];
+const CONJ = {
+  'Querer': { irr: 1, f: ['quero', 'queres', 'quer', 'queremos', 'querem'], s: ['keru', 'kerysz', 'ker', 'kyremusz', 'kerãj'],
+              pl: ['chcę', 'chcesz', 'chce', 'chcemy', 'chcą'], en: ['want', 'wants'] },
+  'Poder': { irr: 1, f: ['posso', 'podes', 'pode', 'podemos', 'podem'], s: ['posu', 'podysz', 'pod', 'pudemusz', 'podãj'],
+             pl: ['mogę', 'możesz', 'może', 'możemy', 'mogą'], en: ['can', 'can'] },
+  'Ter': { irr: 1, f: ['tenho', 'tens', 'tem', 'temos', 'têm'], s: ['tańu', 'tãjsz', 'tãj', 'temusz', 'tãjãj'],
+           pl: ['mam', 'masz', 'ma', 'mamy', 'mają'], en: ['have', 'has'] },
+  'Falar': { f: ['falo', 'falas', 'fala', 'falamos', 'falam'], s: ['falu', 'falasz', 'fala', 'falamusz', 'falãu'],
+             pl: ['mówię', 'mówisz', 'mówi', 'mówimy', 'mówią'], en: ['speak', 'speaks'] },
+  'Ir': { irr: 1, f: ['vou', 'vais', 'vai', 'vamos', 'vão'], s: ['woł', 'wajsz', 'waj', 'wamusz', 'wãu'],
+          pl: ['idę', 'idziesz', 'idzie', 'idziemy', 'idą'], en: ['go', 'goes'] },
+  'Apanhar': { f: ['apanho', 'apanhas', 'apanha', 'apanhamos', 'apanham'], s: ['apańu', 'apańasz', 'apańa', 'apańamusz', 'apańãu'],
+               pl: ['jadę', 'jedziesz', 'jedzie', 'jedziemy', 'jadą'], en: ['take', 'takes'] },
+  'Comprar': { f: ['compro', 'compras', 'compra', 'compramos', 'compram'], s: ['kõpru', 'kõprasz', 'kõpra', 'kõpramusz', 'kõprãu'],
+               pl: ['kupuję', 'kupujesz', 'kupuje', 'kupujemy', 'kupują'], en: ['buy', 'buys'] },
+  'Pagar': { f: ['pago', 'pagas', 'paga', 'pagamos', 'pagam'], s: ['pagu', 'pagasz', 'paga', 'pagamusz', 'pagãu'],
+             pl: ['płacę', 'płacisz', 'płaci', 'płacimy', 'płacą'], en: ['pay', 'pays'] },
+  'Precisar de': { f: ['preciso', 'precisas', 'precisa', 'precisamos', 'precisam'], s: ['prysizu', 'prysizasz', 'prysiza', 'prysizamusz', 'prysizãu'],
+                   pl: ['potrzebuję', 'potrzebujesz', 'potrzebuje', 'potrzebujemy', 'potrzebują'], en: ['need', 'needs'] },
+  'Comer': { f: ['como', 'comes', 'come', 'comemos', 'comem'], s: ['komu', 'komysz', 'kom', 'kumemusz', 'komãj'],
+             pl: ['jem', 'jesz', 'je', 'jemy', 'jedzą'], en: ['eat', 'eats'] },
+  'Beber': { f: ['bebo', 'bebes', 'bebe', 'bebemos', 'bebem'], s: ['bebu', 'bebysz', 'beb', 'bybemusz', 'bebãj'],
+             pl: ['piję', 'pijesz', 'pije', 'pijemy', 'piją'], en: ['drink', 'drinks'] },
+};
+ALL.forEach(it => { if (CONJ[it.pt]) it.conj = CONJ[it.pt]; });
+const conjEn = (cj, p) => PRON[p][2].replace(' / she', '/she') + ' ' + (p === 2 ? cj.en[1] : cj.en[0]);
+const conjSpeak = (cj, p) => PRON1[p] + ' ' + cj.f[p];
+/* Forma z wyróżnioną końcówką: regularne = rdzeń + końcówka, nieregularne = cała forma */
+function conjForm(it, p) {
+  const f = it.conj.f[p];
+  if (it.conj.irr) return `<em>${esc(f)}</em>`;
+  const stem = it.pt.split(' ')[0].toLowerCase().slice(0, -2);
+  return f.startsWith(stem) ? `${esc(stem)}<em>${esc(f.slice(stem.length))}</em>` : `<em>${esc(f)}</em>`;
+}
+function speakConj(it, from) {
+  let p = from || 0;
+  const go = () => { if (p < 5) speak(conjSpeak(it.conj, p++), 1, () => setTimeout(go, 250)); };
+  go();
+}
 
 const BY_ID = {}; ALL.forEach(it => { BY_ID[it.id] = it; });
 
@@ -1572,6 +1648,7 @@ UNITS.forEach((u, ui) => {
     if (it.build) { PLAN.push({ type: 'build', n: it.build, unit: u, owner: u }); return; }
     PLAN.push({ type: 'learn', item: it, owner: u });
     if (it.ex) PLAN.push({ type: 'sentence', item: it, owner: u });     // osobny post ze zdaniem
+    if (it.conj) PLAN.push({ type: 'conj', item: it, owner: u });       // tabelka odmiany przez osoby
   });
   PLAN.push({ type: 'done', unit: u, owner: u });
 });
@@ -1581,12 +1658,12 @@ let lastPlanLearn = null;
 function planRedundant(c) {
   const known = id => S.learned.includes(id);
   if (c.type === 'learn') return known(c.item.id);
-  if (c.type === 'sentence') return known(c.item.id) && lastPlanLearn !== c.item.id;
+  if (c.type === 'sentence' || c.type === 'conj') return known(c.item.id) && lastPlanLearn !== c.item.id;
   if (!c.owner) return false;
   const words = wordsOf(c.owner);
   return words.length > 0 && words.every(w => known(w.id)) && !(lastPlanLearn && BY_ID[lastPlanLearn] && BY_ID[lastPlanLearn].unit === c.owner);
 }
-const planSig = () => PLAN.filter(c => c.type === 'learn').map(c => c.item.id).join(',');
+const planSig = () => PLAN.filter(c => c.type === 'learn' || c.type === 'conj').map(c => c.type[0] + c.item.id).join(',');
 function syncPlan() {
   const sig = planSig();
   if (S.planSig === sig) return;                 // plan się nie zmienił: zostaje zapisana pozycja
@@ -1947,10 +2024,23 @@ function weightedLearned() {
 
 function makeQuiz(id) {
   const item = BY_ID[id];
+  if (item.conj && S.learned.includes(id)) {
+    if (!(S.conjSeen || []).includes(id)) return { type: 'conj', item };      // kto przeszedł czasowniki przed tabelkami, zobaczy je w powtórkach
+    if (Math.random() < .45) return makeConjQuiz(id);
+  }
   const sameUnit = wordsOf(item.unit).filter(x => x !== item);
   const others = shuffle(sameUnit.length >= 3 ? sameUnit : ALL.filter(x => x !== item)).slice(0, 3);
   const kind = pick(/^num/.test(item.unit.id) ? ['pt2pl', 'pl2pt', 'listen'] : ['pt2pl', 'pl2pt', 'listen', 'pt2pl']);
   return { type: 'quiz', kind, item, options: shuffle([item, ...others]) };
+}
+
+/* Quiz z odmiany: osoba + bezokolicznik -> wybierz formę. Odpowiedzi to formy tego samego czasownika */
+function makeConjQuiz(id) {
+  const it = BY_ID[id], cj = it.conj, p = Math.floor(Math.random() * 5);
+  const mk = q => ({ id: 'conj', f: cj.f[q], pt: conjSpeak(cj, q), pl: PRON[q][1] + ' ' + cj.pl[q], en: conjEn(cj, q), unit: it.unit });
+  const target = mk(p);
+  const others = shuffle([0, 1, 2, 3, 4].filter(q => q !== p && cj.f[q] !== cj.f[p])).slice(0, 3).map(mk);
+  return { type: 'quiz', kind: 'conj', gen: true, conjOf: id, p, verb: it, item: target, options: shuffle([target, ...others]) };
 }
 
 /* Liczby słownie po portugalsku (pt-PT) */
@@ -2078,7 +2168,7 @@ function speakTTS(text, pitch, onend) {
    Liczby i inne złożenia składamy z klocków (trezentos + e + quarenta + e + sete).
    Gdy brakuje nagrania, awaryjnie mówi syntezator telefonu (speakTTS).
    ========================================================= */
-const AUDIO_KEYS = new Set('a10dhjz,a10h7da,a11bbfi,a11ie98,a11kn1c,a12500c,a12vemm,a149tr6,a14c6om,a14f6kx,a14s496,a15rwll,a16at83,a17oui9,a17tkqx,a18aga,a19548,a19gfy5,a19rnzb,a19ug5e,a19ugjc,a1a0jo2,a1bkqn,a1ca8p5,a1cbz6,a1d2kbq,a1hfux,a1in4,a1isa,a1jvno,a1kaguf,a1kd0dw,a1nbm54,a1pc4,a1pfyrr,a1rcq,a1s1fhr,a1s1n,a1s53,a1ssh,a1su4,a1tv382,a1u1,a1u66,a1u7lh,a1u7zq,a1uik,a1ut424,a1xz,a20ldxo,a20lrk,a211xjf,a2149h,a2183u,a21gdfx,a23kzg,a23l8j,a23wr,a24kp3,a24nt,a272gbh,a2823s,a2bf4,a2nk0az,a2o70yf,a2sxy8t,a2t,a2vs,a313tsa,a3c28pk,a3hfpu,a3jllnz,a3jmfot,a3k6qvz,a3kjmnd,a3tr5jp,a3umvuc,a403kt3,a43pvfx,a473lke,a48bh3t,a4dqerp,a4gg90d,a4mi8fa,a4ueqza,a4vin34,a4z48fb,a595ekz,a5jqosg,a5kjj6n,a5koqbn,a5qfl7n,a5vnnq3,a5xzwwe,a5yly5x,a605aj9,a62imve,a65ar15,a6eacoa,a6eesy,a6ezia7,a6fw1hc,a6kkcgb,a6l7fge,a6n6fl7,a6paana,a6qwjy5,a6subtw,a77gtto,a7a1ls5,a7o40em,a7oe5wv,a7szfy3,a7xnwlx,a7z383,a822ufx,a8jk9mw,a8jrvz,a8z4yhk,a91t27b,a95zv7z,a971gb1,a973qqs,a9f5mrp,a9if0b7,a9kkegk,a9ouz2v,a9t62zr,aa147ul,aa41ca9,aa7076f,aaf74wi,aaivcu0,aaj1d0,aak6xq4,aascxlh,aaw06cs,aazrq8g,ab2iz1i,ab3c7tg,ab3sie2,ab4q7aj,ab5f8rn,ab6j049,ab8fl73,abnfv6t,abrwi5x,abvjqpa,abwyo0h,abxon6q,aby9gmk,ac52mtl,acekajf,acgbsu6,acgfo3h,acjk8aj,acl7tu,acmo5d6,acs325p,acuxpv9,aczilws,ad3uia9,ad84219,adbkh7z,addr4g8,adj1ew2,advmhhh,ady72ql,adygxdo,ae2q68m,ae4b3sb,ae6lun1,ae738vb,aeb9yk0,aebn1sq,aed4s9p,aeeamnb,af2amao,af2nw4x,af5enop,af7oplf,af8d0g3,af902j9,afc2zp7,afckym,affts8i,afftshl,afhtdx9,afmwle8,afmza7p,aforft8,afowffw,afqm9uq,afsew0h,afstnuh,afxp92b,ag9mu47,agayhs5,agkk6li,agn8t0b,agwexz1,ahfusu,ahj11cl,ahj85b3,ahl5f1q,ahtr4ye,ahvbo5,ahw3zns,ahwits1,ahwre9p,ai3acdc,ailfgq3,ainu7d9,air2t2i,aj0jypd,aj0nghb,aj441td,aj4zty2,aj5k39v,ajcao0e,ajiq1ek,ajjoxzy,ajlt5j4,ajo2j07,ajslajy,ajt8pc4,ajyjwfa,ak4d7ko,ak4hxxe,ak7epzj,ak7wmir,akc24ny,akc8d09,akdvj48,akek9bl,akiitvp,akmx4pc,akpn4zn,akutk1l,akzpc64,al70nm1,al74ead,al8ag0e,al9907q,alasf32,alc6kof,ale0ou2,alhrk9y,alzs0pz,am1km6c,am3qoli,am7rdug,amc7qgz,amcwzx8,amdqpm0,amgh11y,amjp29d,amlkbae,amqp0fh,amrrcly,amz8w11,an2wdd5,an3kjy0,an4x4i,an8h5vs,an9p6qd,ana8rpt,anbrpto,andzgrn,angol2g,anivwru,ano0ac4,ano4etw,anxzh6w,anzaic0,anzonn7,ao4ymrg,aoejqkv,aoi6lfz,aoqve07,aotaudr,aov5xn1,aovr9oz,aowicjh,aoy7onn,ap41zvt,ap6vt8w,ap8f54j,apch4j0,apef7hz,apelqqt,apmrtsq,apnzaiv,apuz3am,apzv98k,aq2b06e,aq9ny00,aqeuwp8,aqmucvl,aqu12jl,ardntcq,argiikb,arhrigb,ariuszd,arkbr7n,arl3fs8,arma8h,armeheh,arov8mm,ars48op,ars48rw,arvyv2c,as14kr0,as7dkd3,as7dw2r,as8v2mg,asj65to,asj78gc,aspzrct,at3j6u2,at47sv5,at573ii,at7q3do,at806qn,atalqcb,atb32al,atjp5uj,atnpiwi,atp79o5,atva15j,atxg5uh,au3h9y9,au3immc,au4el7m,au8cj0i,aubtznt,audcj1d,aufdoy1,aull7a8,aunjlci,auqz1fs,auu9ttj,auu9twi,auu9wiq,auv8j9f,auzbhkf,av2oweo,av4c260,av7zmum,av8klg3,avbi649,avbiirs,avejgy4,avm9zz1,avoz2c0,avwlep0,avzuzl2,aw2wzmb,aw8pkg2,awbt433,awcru69,awhna9g,awoil0l,awojmsp,awqbqec,awu3o0n,awu44zc,awysj3e,awzmumg,ax2f04q,ax5b6au,axdhmvx,axem2f5,axg2t2q,axheeu1,axhia7i,axhohnn,axry5kc,ay8d0ij,aye0qzn,ayh2q89,ayhgkoi,ayjr6s7,aysf75u,ayzo3oy,az2jpat,az880nh,az8skyz,azdc7v1,azdey61,aze31xi,azenzeh,azhr38k,azkog3'.split(','));
+const AUDIO_KEYS = new Set('a10dhjz,a10h7da,a11bbfi,a11ie98,a11kn1c,a12500c,a12vemm,a149tr6,a14c6om,a14f6kx,a14s496,a15rwll,a16at83,a17oui9,a17tkqx,a18aga,a19548,a19gfy5,a19rnzb,a19ug5e,a19ugjc,a1a0jo2,a1b33l9,a1b3v26,a1b45df,a1baj4e,a1bc5oa,a1bd0c8,a1bkqn,a1ca8p5,a1cbz6,a1d2kbq,a1hfux,a1in4,a1isa,a1jvno,a1kaguf,a1kd0dw,a1nbm54,a1pc4,a1pfyrr,a1rcq,a1s1fhr,a1s1n,a1s53,a1ssh,a1su4,a1tv382,a1u1,a1u66,a1u7lh,a1u7zq,a1uik,a1ut424,a1xz,a20ldxo,a20lrk,a211xjf,a2149h,a2183u,a21gdfx,a23kzg,a23l8j,a23wr,a24kp3,a24nt,a272gbh,a2823s,a2bf4,a2nk0az,a2o70yf,a2sr6ec,a2sxy8t,a2t,a2vs,a2vsix,a2vtuc,a313tsa,a3c28pk,a3hfpu,a3jllnz,a3jmfot,a3k6qvz,a3kjmnd,a3ndsji,a3pubjp,a3tr5jp,a3umvuc,a403kt3,a43pvfx,a473lke,a48bh3t,a4a9gdd,a4dqerp,a4gg90d,a4mi8fa,a4ueqza,a4vin34,a4z48fb,a595ekz,a5jqosg,a5kjj6n,a5koqbn,a5qfl7n,a5vnnq3,a5xzwwe,a5yly5x,a605aj9,a62imve,a62xeou,a636adl,a65ar15,a68o4lq,a6a2jqa,a6asyck,a6eacoa,a6eesy,a6ezia7,a6fw1hc,a6kkcgb,a6l7fge,a6n6fl7,a6paana,a6qwjy5,a6subtw,a77gtto,a7a1ls5,a7o40em,a7oe5wv,a7szfy3,a7xnwlx,a7z383,a822ufx,a868uf3,a8jk9mw,a8jrvz,a8z4yhk,a91t27b,a95zv7z,a971gb1,a973qqs,a9f5mrp,a9if0b7,a9kkegk,a9ouz2v,a9t62zr,aa147ul,aa41ca9,aa7076f,aaf74wi,aaivcu0,aaj1d0,aak6xq4,aascxlh,aaw06cs,aazrq8g,ab2iz1i,ab3c7tg,ab3sie2,ab4q7aj,ab5f8rn,ab6j049,ab8fl73,abnfv6t,abrwi5x,abvjqpa,abwyo0h,abxon6q,aby9gmk,ac52mtl,acekajf,acgbsu6,acgfo3h,acjk8aj,acl7tu,acmo5d6,acs325p,acuxpv9,aczilws,ad3uia9,ad84219,adbkh7z,addr4g8,adj1ew2,advmhhh,adxxlxr,ady72ql,adygxdo,adyqno7,ae2q68m,ae4b3sb,ae6lun1,ae738vb,aeb9yk0,aebn1sq,aed4s9p,aeeamnb,aeszkyd,aewhtfk,af2amao,af2nw4x,af5enop,af7oplf,af8d0g3,af902j9,afc2zp7,afckym,affts8i,afftshl,afhtdx9,afmwle8,afmza7p,aforft8,afowffw,afqm9uq,afsew0h,afstnuh,afxp92b,ag9mu47,agayhs5,agkk6li,agn8t0b,agwexz1,ah7rtf0,ah7t0az,ahfusu,ahj11cl,ahj85b3,ahl5f1q,ahtr4ye,ahvbo5,ahw3zns,ahwits1,ahwre9p,ahx9crj,ai3acdc,ai6u8er,aikxd90,ailfgq3,ainu7d9,air2t2i,aj0jypd,aj0nghb,aj441td,aj4le64,aj4zty2,aj5k39v,ajcao0e,ajiq1ek,ajjoxzy,ajlt5j4,ajo2j07,ajslajy,ajt8pc4,ajyjwfa,ak4d7ko,ak4hxxe,ak7epzj,ak7wmir,akc24ny,akc8d09,akdvj48,akek9bl,akiitvp,akmx4pc,akpn4zn,akutk1l,akzpc64,al70nm1,al74ead,al8ag0e,al9907q,alasf32,alc6kof,ale0ou2,alelcwk,alhrk9y,alzs0pz,am1km6c,am3qoli,am7rdug,amc7qgz,amcwzx8,amdqpm0,amek372,amfl4fo,amgh11y,amjp29d,amlkbae,amqp0fh,amrrcly,amz8w11,an2wdd5,an3kjy0,an4x4i,an8h5vs,an9p6qd,ana8rpt,anbrpto,andzgrn,ang06o5,angol2g,anivwru,ano0ac4,ano4etw,anxzh6w,anzaic0,anzonn7,ao1gqne,ao4ymrg,aoahqt3,aoao4k2,aoapr42,aoaqls0,aoejqkv,aoi6lfz,aomsngb,aoqve07,aotaudr,aov5xn1,aovr9oz,aowicjh,aoy7onn,ap41zvt,ap4xt0k,ap5z8xr,ap6vt8w,ap8f54j,apch4j0,apef7hz,apelqqt,apmrtsq,apnzaiv,app21ht,aprmv7a,apuz3am,apzv98k,aq2b06e,aq9ms5v,aq9ny00,aqeuwp8,aqmucvl,aqu12jl,ardntcq,argiikb,arhrigb,ariuszd,arjd6xw,arjd8bq,arkbr7n,arl3fs8,arma8h,armeheh,arov8mm,ars48op,ars48rw,arvyv2c,as07mm1,as14kr0,as7dkd3,as7dw2r,as8v2mg,asb7pkw,asbv1ou,asd8e44,asj65to,asj78gc,aspzrct,at3j6u2,at47sv5,at573ii,at7q3do,at806qn,atalqcb,atb32al,atckphw,atjp5uj,atnpiwi,atp79o5,atva15j,atxg5uh,au3h9y9,au3immc,au4el7m,au8cj0i,aubtznt,audcj1d,aufdoy1,aull7a8,aunjlci,auqz1fs,auu9ttj,auu9twi,auu9wiq,auv8j9f,auzbhkf,av2oweo,av4c260,av7zmum,av8klg3,avbi649,avbiirs,avejgy4,avm9zz1,avoz2c0,avwlep0,avzuzl2,aw2wzmb,aw8pkg2,awbt433,awcru69,awhna9g,awoil0l,awojmsp,awqbqec,awu3o0n,awu44zc,awysj3e,awzmumg,ax2f04q,ax5b6au,axdhmvx,axem2f5,axg2t2q,axheeu1,axhia7i,axhohnn,axry5kc,ay8d0ij,ay90mj2,ay9r15c,ayb5g9w,aye0qzn,aygnai1,aygw66s,ayh2q89,ayhgkoi,ayjr6s7,aysf75u,ayzo3oy,az2jpat,az880nh,az8skyz,azdc7v1,azdey61,aze31xi,azenzeh,azhr38k,azkog3'.split(','));
 const audioKey = text => 'a' + hash(text.replace(/…/g, '').trim()).toString(36);
 const player = new Audio(); player.preload = 'auto';
 let playToken = 0;
@@ -2152,7 +2242,7 @@ function authorFor(c) {
   if (c.type === 'tip') return AUTHORS.tiago;
   if (c.type === 'rare') return AUTHORS.marta;
   if (c.type === 'sentence') return AUTHORS.frases;
-  if (c.type === 'build' || c.type === 'ask') return AUTHORS.rui;
+  if (c.type === 'build' || c.type === 'ask' || c.type === 'conj') return AUTHORS.rui;
   if (c.type === 'learn') return c.item.unit.id === 'cafe' ? AUTHORS.cafe : c.item.unit.id === 'city' ? AUTHORS.tiago : AUTHORS.ines;
   return AUTHORS.app;
 }
@@ -2167,6 +2257,7 @@ function caption(c) {
     case 'tip': return t('capTip');
     case 'sentence': return t('capSentence')(esc(c.item.pt));
     case 'build': return t('capBuild');
+    case 'conj': return t('capConj')(esc(c.item.pt.split(' ')[0]));
     case 'yt': return esc(isEn() ? c.short.tEn : c.short.t) + (c.short.en && !isEn() ? ` <span class="hash">${t('ytEn')}</span>` : '') + ' <span class="hash">#shorts</span>';
     case 'ask': return t('capAsk');
     case 'limit': return t('capLimit');
@@ -2221,7 +2312,7 @@ function decorate(el, c) {
   }, 650);
   likeBtn.onclick = () => { setLike(!liked); if (liked) { heart(el); nextPost(); } };
   addDoubleTap(el, () => { if (!liked) setLike(true); heart(el); nextPost(); });
-  if (speakable) actions.querySelector('[data-a=speak]').onclick = () => speak(speakText);
+  if (speakable) actions.querySelector('[data-a=speak]').onclick = () => c.type === 'conj' ? speakConj(c.item) : speak(speakText);
   actions.querySelector('[data-a=comment]').onclick = () => openComments(el, c);
   actions.querySelector('[data-a=share]').onclick = () => {
     const txt = c.type === 'sentence' ? `🇵🇹 ${c.item.ex[0]} = ${isEn() ? c.item.ex[2] : c.item.ex[1]}` : c.item ? `🇵🇹 ${c.item.pt} = ${tr(c.item)}` : t('shareText');
@@ -2403,6 +2494,22 @@ function renderInner(c) {
       </div>`;
     el.querySelector('.pl').onclick = e => { c.revealed = true; e.currentTarget.classList.add('shown'); el.querySelector('.reveal-hint').style.visibility = 'hidden'; };
   }
+  else if (c.type === 'conj') {
+    const it = c.item, cj = it.conj;
+    if (!S.conjSeen) S.conjSeen = [];
+    if (!S.conjSeen.includes(it.id)) { S.conjSeen.push(it.id); save(); }
+    const rows = PRON.map((pr, p) => `<button class="crow" data-p="${p}">
+        <span class="cpron">${esc(pr[0])}<small>${esc(isEn() ? pr[2] : pr[1])}</small></span>
+        <span class="cform">${conjForm(it, p)}<small>[${esc(sayConv(cj.s[p]))}]</small></span>
+        <span class="ctr">${esc(isEn() ? conjEn(cj, p) : cj.pl[p])}</span></button>`).join('');
+    el.innerHTML = `<div>
+        <div class="tag">🔁 ${t('conjTag')} · ${esc(it.pt)}${cj.irr ? ' · ⚠️ ' + t('conjIrr') : ''}</div>
+        <h2 class="conj-h">${esc(it.pt.split(' ')[0])} <span>= ${esc(tr(it))}</span></h2>
+        <div class="ctable">${rows}</div>
+        <div class="note cnote">${cj.irr ? t('conjIrrNote') : t('conjRegNote')(it.pt.split(' ')[0].slice(-2))} ${t('conjPolite')}</div>
+      </div>`;
+    el.querySelectorAll('.crow').forEach(b => b.onclick = () => { b.classList.add('tap'); setTimeout(() => b.classList.remove('tap'), 300); speak(conjSpeak(cj, +b.dataset.p)); });
+  }
   else if (c.type === 'ask') {
     const it = c.item;
     const head = c.mode === 'cloze'
@@ -2455,16 +2562,18 @@ function renderInner(c) {
   }
   else if (c.type === 'quiz') {
     const it = c.item;
-    const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : c.kind === 'hear' ? t('qHear') : t('qListen');
-    const head = c.kind === 'hear'
+    const prompt = c.kind === 'pt2pl' ? t('qMeaning') : c.kind === 'pl2pt' ? t('qSay') : c.kind === 'hear' ? t('qHear') : c.kind === 'conj' ? t('qConj') : t('qListen');
+    const head = c.kind === 'conj'
+      ? `<div class="q-word">${esc(PRON1[c.p])} + ${esc(c.verb.pt.split(' ')[0].toLowerCase())}</div><div class="q-sub">${esc(tr(c.verb))} · ${esc(tr(it))}</div>`
+      : c.kind === 'hear'
       ? `<div class="hear-btns"><button class="listen-btn" aria-label="Play">🔊</button><button class="slow-btn" aria-label="Slow">🐢</button></div>`
       : c.kind === 'listen'
       ? `<button class="listen-btn" aria-label="Play">🔊</button>`
       : `<div class="q-word ${(c.kind === 'pt2pl' ? it.pt : tr(it)).length > 16 ? 'long' : ''}">${esc(c.kind === 'pt2pl' ? it.pt : tr(it))}</div>`;
-    const label = o => c.kind === 'hear' ? (isEn() ? o.ex[2] : o.ex[1]) : c.kind === 'pt2pl' ? tr(o) : o.pt;
+    const label = o => c.kind === 'conj' ? o.f : c.kind === 'hear' ? (isEn() ? o.ex[2] : o.ex[1]) : c.kind === 'pt2pl' ? tr(o) : o.pt;
     const longOpts = c.options.some(o => label(o).length > 22);
     el.innerHTML = `<div>
-        <div class="tag">${c.kind === 'hear' ? '👂 ' + t('hearTag') : t('check')} · ${esc(titleOf(unit))}</div>
+        <div class="tag">${c.kind === 'hear' ? '👂 ' + t('hearTag') : c.kind === 'conj' ? '🔁 ' + t('conjTag') : t('check')} · ${esc(titleOf(unit))}</div>
         <div class="q-prompt">${prompt}</div>
         ${head}
         <div class="opts ${longOpts ? 'long' : ''}">${c.options.map((o, i) => `<button class="opt" data-i="${i}">${esc(label(o))}</button>`).join('')}</div>
@@ -2480,7 +2589,7 @@ function renderInner(c) {
 
   // zdjęcia: intro działu, słówko, quiz "jak to powiesz" (zdjęcie nie zdradza tam odpowiedzi)
   const own = c.type === 'intro' ? 'U:' + unit.id
-            : (c.type === 'learn' || c.type === 'sentence' || (c.type === 'quiz' && c.kind === 'pl2pt' && !c.gen)) ? c.item.id : null;
+            : (c.type === 'learn' || c.type === 'sentence' || c.type === 'conj' || (c.type === 'quiz' && c.kind === 'pl2pt' && !c.gen)) ? c.item.id : null;
   applyPhoto(el, own && PHOTOS[own] ? own : genericPhoto(c), c.type !== 'learn' && c.type !== 'intro');
 
   if (cardNo === 1 && feed.children.length === 0) {
@@ -2519,9 +2628,10 @@ function answer(el, c, i) {
     if (S.combo >= 3) toast(t('comboBroken')(S.combo, S.bestCombo));
     S.combo = 0;
     fb.textContent = c.kind === 'hear' ? t('wrong')(c.item.ex[0], isEn() ? c.item.ex[2] : c.item.ex[1]) : t('wrong')(c.item.pt, tr(c.item));
-    if (!c.gen) {
-      S.mistakes[c.item.id] = (S.mistakes[c.item.id] || 0) + 1;
-      reviewQueue.push({ id: c.item.id, due: cardNo + 3 });
+    if (!c.gen || c.conjOf) {
+      const rid = c.conjOf || c.item.id;
+      S.mistakes[rid] = (S.mistakes[rid] || 0) + 1;
+      reviewQueue.push({ id: rid, due: cardNo + 3 });
       ensureBuffer(true);
     }
     sfx('bad'); buzz([30, 40, 30]);
@@ -2728,6 +2838,8 @@ const io = new IntersectionObserver(entries => {
     }
     if (S.sound && c.type === 'learn') setTimeout(() => speak(c.item.pt), 250);
     if (S.sound && c.type === 'sentence') setTimeout(() => speak(c.item.ex[0]), 250);
+    if (S.sound && c.type === 'conj') setTimeout(() => { if (el._active) speakConj(c.item); }, 300);
+    if (c.type === 'conj') addXP(2);
     if (S.sound && c.type === 'build') setTimeout(() => speak(numPt(c.n)), 400 + numParts(c.n).length * 500);
     if (c.type === 'sentence') addXP(2);
     if (S.sound && c.type === 'quiz' && c.kind === 'listen') setTimeout(() => speak(c.item.pt), 250);

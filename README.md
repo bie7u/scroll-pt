@@ -10,6 +10,8 @@ Nauka portugalskiego (europejskiego, pt-PT) od zera w formie przewijanego feedu,
   przyszłość (ir + bezokolicznik, tak jak mówi się w Portugalii)
 - przy każdym słówku osobny post ze zdaniem A1/A2 (słowo podświetlone, wymowa zapisana „po polsku” w `SENT_SAY`,
   lektor, tłumaczenie do odsłonięcia)
+- czasowniki: po zdaniu post z tabelką odmiany przez osoby (`CONJ`: formy, wymowa, tłumaczenie; końcówki regularnych
+  podświetlone, wiersz odtwarza nagranie „eu quero”), wzór końcówek -ar/-er na początku działu i quiz „nós + ter = ?”
 - liczby jako system: ściągi z zasadami + karty „złóż liczbę z klocków” + quiz z losowymi liczbami 1–1000
 - słuchanie: karty „Ze słuchu” (całe zdanie bez tekstu, tempo ×1,12, 🐢 ×0,75), scenki w tempie ulicy (`fast: true`)
 - system powtórek (przegródki): powtórki na dziś przed nowym materiałem, limit nowych słówek dziennie (domyślnie 10)
