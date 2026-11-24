@@ -215,6 +215,15 @@
   .sheet-form input { flex: 1; min-width: 0; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: var(--fg);
     border-radius: 999px; padding: 11px 16px; font-size: 16px; outline: none; }
   .sheet-form button { border: 0; background: none; color: #5ac8fa; font-weight: 700; font-size: 16px; cursor: pointer; padding: 0 8px; }
+  /* Shorts z YouTube */
+  .card.yt .ytwrap, .card.yt .ytshield { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: hidden; }
+  /* odtwarzacz w proporcji 9:16 powiększony tak, żeby wypełnić cały ekran (bez czarnych pasów) */
+  .card.yt iframe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 0; display: block; pointer-events: none;
+    width: max(100%, calc(100dvh * 9 / 16)); height: auto; aspect-ratio: 9 / 16; }
+  .card.yt .post-meta, .card.yt .actions { z-index: 4; }
+  .card.yt .ytshield { z-index: 1; background: transparent; }
+  .card.yt .shade { z-index: 1; }
+  .card.yt .credit { z-index: 3; }
   /* logowanie */
   #auth { position: fixed; inset: 0; z-index: 45; display: none; place-items: center; padding: 24px 16px; overflow-y: auto;
     background: radial-gradient(circle at 50% 20%, #1d3b8b, #0e0f13 70%); }
@@ -865,6 +874,7 @@ const T = {
     hello: n => `Olá, ${n}! 👋`, cloudMigrated: 'Postęp z tego telefonu przeniesiony na konto ☁️', cloudPulled: 'Wczytano nowszy postęp z innego urządzenia ☁️',
     cloudErr: 'Brak połączenia z chmurą. Postęp zapisuje się na telefonie, wyślę go później.', cloudBack: 'Połączenie wróciło, postęp zapisany w chmurze ☁️',
     cloudSaved: 'zapis na koncie', localOnly: 'Zapis tylko na tym telefonie', logout: 'Wyloguj',
+    ytEn: '· wyjaśnienia po angielsku',
     you: 'Ty', comments: 'Komentarze', addComment: 'Dodaj komentarz…', post: 'Wyślij', noComments: 'Jeszcze nikt nie skomentował. Bądź pierwszy!',
     askTag: 'Powtórka w komentarzu', askTranslate: 'Jak powiesz po portugalsku?', askCloze: 'Uzupełnij lukę:',
     askCta: '💬 Napisz odpowiedź w komentarzu', seeComments: '💬 Zobacz komentarze', askPlaceholder: 'Napisz po portugalsku…',
@@ -921,6 +931,7 @@ const T = {
     hello: n => `Olá, ${n}! 👋`, cloudMigrated: 'Progress from this phone moved to your account ☁️', cloudPulled: 'Loaded newer progress from another device ☁️',
     cloudErr: 'No connection to the cloud. Progress is saved on this phone and will be sent later.', cloudBack: 'Back online, progress saved to the cloud ☁️',
     cloudSaved: 'saved to your account', localOnly: 'Saved on this phone only', logout: 'Log out',
+    ytEn: '',
     you: 'You', comments: 'Comments', addComment: 'Add a comment…', post: 'Post', noComments: 'No comments yet. Be the first!',
     askTag: 'Review in the comments', askTranslate: 'How do you say it in Portuguese?', askCloze: 'Fill in the gap:',
     askCta: '💬 Write your answer in the comments', seeComments: '💬 See comments', askPlaceholder: 'Write in Portuguese…',
@@ -1341,6 +1352,93 @@ function openDayPanel() {
 }
 
 /* =========================================================
+   SHORTSY Z YOUTUBE: osadzane oficjalnym odtwarzaczem (youtube-nocookie.com), nie pobierane.
+   Autor zachowuje wyświetlenia, kanał jest podpisany z linkiem do oryginału.
+   Wszystkie zweryfikowane: osadzanie dozwolone (oEmbed 200), format pionowy.
+   req = słowo, które trzeba już znać; en = wyjaśnienia w filmie po angielsku
+   ========================================================= */
+const SHORTS = [
+  { id: '3WcEmMHXohE', ch: 'Learn Portuguese Today', req: 'ola:0', en: true, t: 'Lepsze „cześć” niż zwykłe olá', tEn: 'Upgrade your “Hi” in Portugal' },
+  { id: 'wccGVHv2QjI', ch: 'Talk the Streets', req: 'ola:6', en: true, t: 'Wskazówka do słuchania dla początkujących', tEn: 'A listening tip for beginners' },
+  { id: 'jgQxMxqRP70', ch: 'Portuguese With Leo', req: 'ola:6', t: 'Jak się wymawia „s” po portugalsku?', tEn: 'How do you pronounce “s” in Portuguese?' },
+  { id: '79KBPKq8OXc', ch: 'Learn Portuguese Today', req: 'obrigado:3', en: true, t: '3 sposoby na „przepraszam”', tEn: '3 ways to say “sorry”' },
+  { id: 'Rm3vh-zZg4Q', ch: 'Portuguese With Leo', req: 'obrigado:6', t: 'Wymowa „ão”, jak w não', tEn: 'Pronouncing “ão”, as in não' },
+  { id: 'Qw_6tV62awE', ch: 'Talk the Streets', req: 'num:9', en: true, t: 'Liczby 1 i 2 mają rodzaj?!', tEn: 'Numbers 1 & 2 are gendered?!' },
+  { id: 'yfDINsAvURI', ch: 'Portuguese With Carla', req: 'cafe:1', en: true, t: 'Jak zamówić kawę w Portugalii', tEn: 'How to order coffee in Portugal' },
+  { id: 'mXZL4XKFqk4', ch: 'Talk the Streets', req: 'cafe:7', en: true, t: 'Zamawiamy razem w kawiarni', tEn: 'Ordering at the café together' },
+  { id: 'ZJRCZ0mDhBI', ch: 'A Laura Ensina', req: 'food:1', t: 'Napoje po portugalsku', tEn: 'Drinks in European Portuguese' },
+  { id: 'xeS_JY7VuSA', ch: 'Learn Portuguese Today', req: 'food:3', en: true, t: 'Co mówić w restauracji', tEn: 'What to say at a restaurant' },
+  { id: 'ocgeKcgRVLA', ch: 'Talk the Streets', req: 'travel:3', en: true, t: 'Błąd, którego nie rób w portugalskim supermarkecie', tEn: 'Don’t make this mistake at Portuguese supermarkets' },
+  { id: 'stqgj3QF1J4', ch: 'Talk the Streets', req: 'adj:10', en: true, t: '„Być”: ser czy estar?', tEn: '“To be”: ser or estar?' },
+  { id: 'ITBTdjIowoQ', ch: 'Mia Esmeriz Academy', req: 'verb:2', en: true, t: 'TER + rzeczownik czy SER + przymiotnik?', tEn: 'TER + noun vs SER + adjective' },
+  { id: 'tcnQhk0M4_0', ch: 'Mia Esmeriz Academy', req: 'verb:6', en: true, t: 'Jak powiedzieć „idę na zakupy”', tEn: 'How to say “I go shopping”' },
+  { id: 'viart_ukUVM', ch: 'Portuguese With Leo', req: 'prep:0', t: '3 czasowniki z przyimkiem EM', tEn: '3 verbs with the preposition EM' },
+  { id: 'GjzV5q-o37s', ch: 'Mia Esmeriz Academy', req: 'days:6', en: true, t: 'Rozmowa o pogodzie', tEn: 'Talking about the weather' },
+  { id: 'QAVFIyYdUTE', ch: 'Learn Portuguese Today', req: 'num2:0', en: true, t: 'Częsty błąd przy podawaniu wieku', tEn: 'A common mistake when saying your age' },
+];
+const shownShorts = new Set();
+let nextShortAt = 8;
+function nextShortCard() {
+  const avail = SHORTS.filter(v => S.learned.includes(v.req) && !shownShorts.has(v.id));
+  if (!avail.length || cardNo < nextShortAt) return null;
+  nextShortAt = cardNo + 9 + Math.floor(Math.random() * 5);
+  const unseen = avail.filter(v => !(S.ytSeen || []).includes(v.id));
+  const v = (unseen.length ? unseen : avail)[0];            // w kolejności tematów
+  shownShorts.add(v.id);
+  return { type: 'yt', short: v };
+}
+const ytCmd = (frame, func, args) => { try { frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*'); } catch (e) {} };
+function renderShort(el, c) {
+  const v = c.short;
+  el.classList.add('real', 'yt'); el._card = c; el.dataset.unit = '▶️ Shorts';
+  el.style.background = `#000 url("https://i.ytimg.com/vi/${v.id}/hqdefault.jpg") center / cover`;
+  el.innerHTML = `<div class="ytwrap"></div><div class="ytshield"></div><div class="shade"></div><div class="vprog"><i></i></div>
+    <a class="credit" href="https://www.youtube.com/shorts/${v.id}" target="_blank" rel="noopener">▶ YouTube · ${esc(v.ch)}</a>
+    <button class="unmute">${t('unmute')}</button>`;
+  const wrap = el.querySelector('.ytwrap'), unmute = el.querySelector('.unmute'), prog = el.querySelector('.vprog i');
+  let frame = null, muted = true;
+  const paint = () => { unmute.style.display = muted ? '' : 'none'; };
+  const applySound = () => { if (!frame) return; muted = !(soundUnlocked && S.sound); ytCmd(frame, muted ? 'mute' : 'unMute'); paint(); };
+  c.applySound = applySound;
+  c.onInfo = info => {                                         // wiadomości z odtwarzacza: postęp i nagroda za obejrzenie
+    const dur = (info.progressState && info.progressState.duration) || (info.duration > 0 && info.duration < 600 ? info.duration : 0);
+    if (dur) c.dur = dur;                                      // długość przychodzi tylko w niektórych wiadomościach
+    if (info.currentTime == null) return;
+    if (c.dur) prog.style.width = Math.min(100, info.currentTime / c.dur * 100) + '%';
+    if (!c.rewarded && info.currentTime > Math.min(10, (c.dur || 20) * .6)) {
+      c.rewarded = true; S.ytSeen = S.ytSeen || []; if (!S.ytSeen.includes(v.id)) S.ytSeen.push(v.id);
+      addXP(5, innerWidth / 2, innerHeight * .4); save();
+    }
+  };
+  c.play = () => {
+    if (!frame) {
+      const origin = /^https?:/.test(location.protocol) ? '&origin=' + encodeURIComponent(location.origin) : '';
+      frame = document.createElement('iframe');
+      frame.src = `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${v.id}&controls=0&rel=0&iv_load_policy=3&modestbranding=1&enablejsapi=1${origin}`;
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+      frame.title = v.t; frame.setAttribute('frameborder', '0');
+      frame.onload = () => { try { frame.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: v.id }), '*'); } catch (e) {} setTimeout(applySound, 600); };
+      c.frame = frame; wrap.appendChild(frame);
+    } else { ytCmd(frame, 'playVideo'); applySound(); }
+  };
+  c.stop = () => { if (frame) ytCmd(frame, 'pauseVideo'); };
+  // tarcza nad filmem: przewijanie feedu działa, dotknięcie włącza/wyłącza dźwięk
+  el.querySelector('.ytshield').addEventListener('click', () => {
+    if (muted) { soundUnlocked = true; if (!S.sound) { S.sound = true; paintSound(); save(); } } else soundUnlocked = false;
+    applySound(); if (frame) ytCmd(frame, 'playVideo');
+  });
+  unmute.addEventListener('click', e => { e.stopPropagation(); el.querySelector('.ytshield').click(); });
+  return el;
+}
+window.addEventListener('message', e => {
+  if (!/youtube(-nocookie)?\.com$/.test((e.origin || '').replace(/^https?:\/\/(www\.)?/, ''))) return;
+  let d; try { d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (x) { return; }
+  if (!d || !d.info) return;
+  const el = [...feed.children].find(x => x._card && x._card.frame && x._card.frame.contentWindow === e.source);
+  if (el && el._card.onInfo) el._card.onInfo(d.info);
+});
+
+/* =========================================================
    GENERATOR FEEDU: nieskończony, miesza nowe słowa z powtórkami
    ========================================================= */
 let cardNo = 0;             // ile kart wygenerowano w tej sesji
@@ -1423,6 +1521,8 @@ function nextCard() {
     const v = pick(unseen.length ? unseen : vids); shownVideos.add(v.id);   // każdy filmik max raz na sesję
     return { type: 'video', video: v };
   }
+  // 1c') Short z YouTube co 9–13 kart, gdy znasz już słowa z jego tematu
+  const sh = nextShortCard(); if (sh) return sh;
   // 1d) rzadka karta z małą szansą
   const rareLeft = RARES.filter(r => !S.rares.includes(r.pt));
   if (S.learned.length >= 5 && rareLeft.length && Math.random() < 0.06) return { type: 'rare', unit: RARE_UNIT, item: pick(rareLeft) };
@@ -1479,6 +1579,7 @@ function render(c) { return decorate(renderInner(c), c); }
 /* ===== Opakowanie w "post": autor, podpis, polubienia ===== */
 function authorFor(c) {
   if (c.type === 'video') return AUTHORS[c.video.author];
+  if (c.type === 'yt') return { h: c.short.ch, av: '▶️', c: '#cc0000', ext: true };
   if (c.type === 'quiz') return AUTHORS.rui;
   if (c.type === 'tip') return AUTHORS.tiago;
   if (c.type === 'rare') return AUTHORS.marta;
@@ -1498,6 +1599,7 @@ function caption(c) {
     case 'tip': return t('capTip');
     case 'sentence': return t('capSentence')(esc(c.item.pt));
     case 'build': return t('capBuild');
+    case 'yt': return esc(isEn() ? c.short.tEn : c.short.t) + (c.short.en && !isEn() ? ` <span class="hash">${t('ytEn')}</span>` : '') + ' <span class="hash">#shorts</span>';
     case 'ask': return t('capAsk');
     case 'limit': return t('capLimit');
     case 'rare': return t('capRare');
@@ -1510,7 +1612,7 @@ function caption(c) {
 function decorate(el, c) {
   const a = authorFor(c);
   const key = (c.item && (c.item.id || c.item.pt)) || (c.video && c.video.id) || (c.unit && c.unit.title) || '';
-  const base = 120 + hash(key + c.type) % 9000;               // stała "liczba polubień" dla danego posta
+  const base = a.ext ? 0 : 120 + hash(key + c.type) % 9000;   // stała "liczba polubień"; przy cudzych filmach bez zmyślonych liczb
   if (c.ago === undefined) c.ago = Math.floor(Math.random() * 6);
   const isLearn = c.type === 'learn' || c.type === 'sentence';
   let liked = isLearn ? S.saved.includes(c.item.id) : !!c.liked;
@@ -1518,8 +1620,8 @@ function decorate(el, c) {
 
   const meta = document.createElement('div'); meta.className = 'post-meta';
   meta.innerHTML = `<div class="author"><span class="av" style="background:${a.c}">${a.av}</span><b>${esc(a.h)}</b>
-      <span class="ago">· ${t('ago')[c.ago]}</span>
-      ${a === AUTHORS.app ? '' : `<button class="follow ${following ? 'on' : ''}">${following ? t('following') : t('follow')}</button>`}</div>
+      ${a.ext ? '' : `<span class="ago">· ${t('ago')[c.ago]}</span>`}
+      ${a === AUTHORS.app || a.ext ? '' : `<button class="follow ${following ? 'on' : ''}">${following ? t('following') : t('follow')}</button>`}</div>
     <div class="caption">${caption(c)}</div>`;
   el.appendChild(meta);
 
@@ -1695,6 +1797,7 @@ function renderInner(c) {
   const el = document.createElement('section');
   el.className = 'card';
   if (c.type === 'video') return renderVideo(el, c);
+  if (c.type === 'yt') return renderShort(el, c);
   const unit = c.unit || c.item.unit;
   el.style.background = bg(unit);
   el.dataset.unit = `${unit.emoji} ${titleOf(unit)}`;
@@ -2081,7 +2184,7 @@ langBtn.onclick = () => {
   [...feed.children].forEach((el, i) => {
     const c = el._card;
     if ((c.type === 'quiz' && c.answered) || (c.type === 'ask' && c.done)) return;             // rozwiązany quiz zostawiamy jak był
-    if (c.type === 'video' && el._active) return;             // nie przerywamy oglądanego filmiku
+    if ((c.type === 'video' || c.type === 'yt') && el._active) return;             // nie przerywamy oglądanego filmiku
     if (c.stop) c.stop();
     const n = render(c);
     io.unobserve(el); feed.replaceChild(observe(n), el);
@@ -2108,7 +2211,7 @@ document.querySelector('#sheet .sheet-form').onsubmit = e => {
 function startFeed() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
-  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear();
+  nextChestAt = 10; nextVideoAt = 6; shownVideos.clear(); nextShortAt = 8; shownShorts.clear();
   paintSound(); paintLang(); paintStats();
   document.getElementById('unitLabel').textContent = t('start');
   startDay(); paintDay(); ensureBuffer(); feed.scrollTop = 0;
