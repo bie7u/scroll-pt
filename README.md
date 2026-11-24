@@ -83,3 +83,16 @@ Zachowanie:
   „Udostępnij → Do ekranu początkowego” (Apple nie pozwala instalować jednym kliknięciem).
 - Na iPhonie zainstalowana aplikacja ma osobną pamięć od Safari: postęp bez konta nie przechodzi, dlatego
   po instalacji trzeba się zalogować.
+
+## Lektor (nagrania)
+
+Lektor odtwarza pliki `audio/<klucz>.mp3` (portugalski z Portugalii, wygenerowane gTTS z `lang='pt', tld='pt'`),
+a nie syntezator mowy telefonu, który na wielu Androidach milczy albo nie ma portugalskiego głosu.
+Klucz to `'a' + hash(tekst)` w base36 (funkcja `audioKey`), lista dostępnych kluczy jest w `AUDIO_KEYS`.
+Liczby i inne złożenia grają z klocków (słowo po słowie). Gdy brakuje nagrania, awaryjnie mówi syntezator.
+
+Po dodaniu nowych słówek lub zdań trzeba dograć brakujące nagrania:
+1. zebrać frazy (`ALL[].pt`, `ALL[].ex[0]`, `RARES[].pt`, kwestie `VIDEOS`) z kluczami `audioKey(...)` do JSON,
+2. `python tools/gen_audio.py frazy.json audio` (pomija istniejące pliki),
+3. dopisać nowe klucze do `AUDIO_KEYS` w `index.html`.
+Docelowo nagrania można podmienić na głos prawdziwego lektora pod tymi samymi nazwami plików.

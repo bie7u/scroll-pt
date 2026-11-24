@@ -1054,6 +1054,7 @@ const T = {
     cloudSaved: 'zapis na koncie', localOnly: 'Zapis tylko na tym telefonie', logout: 'Wyloguj',
     ytEn: '· wyjaśnienia po angielsku',
     ttsTap: 'Dotknij ekranu raz, żeby włączyć lektora 🔊',
+    voiceFiles: 'Lektor: nagrania, portugalski z Portugalii 🇵🇹',
     voiceTest: 'Test głosu', voiceInfo: v => `Głos lektora: ${v}`, noVoicesAtAll: 'Telefon nie zgłasza żadnych głosów.',
     ttsFail: 'Telefon nie odtworzył głosu. Sprawdź głośność i czy nie jest włączony tryb cichy.',
     ttsNoPt: 'Brak portugalskiego głosu w telefonie. iPhone: Ustawienia → Dostępność → Treść mówiona → Głosy → Portugalski (Portugalia). Android: Ustawienia → Zamiana tekstu na mowę → zainstaluj portugalski.',
@@ -1121,6 +1122,7 @@ const T = {
     cloudSaved: 'saved to your account', localOnly: 'Saved on this phone only', logout: 'Log out',
     ytEn: '',
     ttsTap: 'Tap the screen once to turn on the narrator 🔊',
+    voiceFiles: 'Narrator: recordings, European Portuguese 🇵🇹',
     voiceTest: 'Voice test', voiceInfo: v => `Narrator voice: ${v}`, noVoicesAtAll: 'The phone reports no voices at all.',
     ttsFail: 'The phone didn’t play the voice. Check the volume and that silent mode is off.',
     ttsNoPt: 'No Portuguese voice on this phone. iPhone: Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal). Android: Settings → Text-to-speech → install Portuguese.',
@@ -1807,7 +1809,7 @@ if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged 
 let ttsWarned = false;
 let currentUtt = null, ttsUnlocked = false, ttsFailures = 0, speakGen = 0, speakTimer = null, ttsTapAsked = false;
 const IS_ANDROID = /android/i.test(navigator.userAgent);
-function speak(text, pitch, onend) {
+function speakTTS(text, pitch, onend) {
   if (!('speechSynthesis' in window)) { if (!ttsWarned) { ttsWarned = true; toast(t('noTTS')); } return; }
   const ss = speechSynthesis;
   if (!voice) pickVoice();                                   // głosy w niektórych telefonach ładują się z opóźnieniem
@@ -1831,17 +1833,65 @@ function speak(text, pitch, onend) {
   if (busy) speakTimer = setTimeout(() => { speakTimer = null; if (gen === speakGen) ss.speak(u); }, 90);   // Safari gubi zdanie tuż po cancel()
   else ss.speak(u);
 }
+/* =========================================================
+   LEKTOR Z NAGRAŃ: audio/<klucz>.mp3 (portugalski z Portugalii, wygenerowane raz dla każdej frazy).
+   Grają jak zwykły dźwięk, więc nie zależą od syntezatora mowy w telefonie.
+   Liczby i inne złożenia składamy z klocków (trezentos + e + quarenta + e + sete).
+   Gdy brakuje nagrania, awaryjnie mówi syntezator telefonu (speakTTS).
+   ========================================================= */
+const AUDIO_KEYS = new Set('a10dhjz,a10h7da,a11bbfi,a11ie98,a11kn1c,a12500c,a12vemm,a149tr6,a14f6kx,a14s496,a15rwll,a16at83,a17tkqx,a18aga,a19548,a19gfy5,a19rnzb,a19ug5e,a19ugjc,a1a0jo2,a1bkqn,a1ca8p5,a1cbz6,a1d2kbq,a1hfux,a1in4,a1isa,a1jvno,a1kaguf,a1kd0dw,a1pc4,a1rcq,a1s53,a1ssh,a1su4,a1tv382,a1u1,a1u66,a1u7lh,a1u7zq,a1uik,a1ut424,a1xz,a20ldxo,a20lrk,a211xjf,a2149h,a2183u,a21gdfx,a23kzg,a23l8j,a23wr,a24kp3,a24nt,a272gbh,a2823s,a2bf4,a2nk0az,a2sxy8t,a2t,a2vs,a313tsa,a3hfpu,a3jllnz,a3jmfot,a3k6qvz,a3kjmnd,a3tr5jp,a3umvuc,a43pvfx,a48bh3t,a4dqerp,a4gg90d,a4mi8fa,a4vin34,a595ekz,a5kjj6n,a5qfl7n,a5vnnq3,a5xzwwe,a5yly5x,a605aj9,a6eacoa,a6eesy,a6ezia7,a6fw1hc,a6kkcgb,a6n6fl7,a6paana,a6qwjy5,a7o40em,a7oe5wv,a7szfy3,a7xnwlx,a7z383,a822ufx,a8jrvz,a8z4yhk,a91t27b,a95zv7z,a971gb1,a973qqs,a9if0b7,a9kkegk,a9t62zr,aa41ca9,aaf74wi,aaivcu0,aaj1d0,aak6xq4,aaw06cs,aazrq8g,ab2iz1i,ab3sie2,ab5f8rn,ab6j049,abnfv6t,abrwi5x,abvjqpa,abwyo0h,abxon6q,aby9gmk,ac52mtl,acekajf,acgbsu6,acjk8aj,acl7tu,acmo5d6,acs325p,ad3uia9,ad84219,adbkh7z,addr4g8,adj1ew2,advmhhh,ady72ql,adygxdo,ae4b3sb,ae6lun1,aeb9yk0,aeeamnb,af2nw4x,af5enop,af8d0g3,af902j9,afc2zp7,affts8i,afftshl,afhtdx9,afmza7p,aforft8,afowffw,afqm9uq,afstnuh,agayhs5,agkk6li,agn8t0b,ahfusu,ahj11cl,ahj85b3,ahtr4ye,ahvbo5,ahwits1,ahwre9p,ai3acdc,ailfgq3,ainu7d9,air2t2i,aj0jypd,aj441td,aj4zty2,aj5k39v,ajcao0e,ajiq1ek,ajlt5j4,ajo2j07,ajslajy,ajyjwfa,ak4d7ko,ak4hxxe,ak7epzj,ak7wmir,akc24ny,akc8d09,akdvj48,akiitvp,akmx4pc,akpn4zn,akutk1l,akzpc64,al70nm1,al74ead,al8ag0e,alasf32,alc6kof,alzs0pz,am1km6c,am3qoli,am7rdug,amdqpm0,amgh11y,amjp29d,amlkbae,an2wdd5,an3kjy0,an8h5vs,andzgrn,angol2g,anivwru,ano0ac4,ano4etw,anxzh6w,anzaic0,anzonn7,ao4ymrg,aoqve07,aotaudr,aov5xn1,aowicjh,ap41zvt,ap6vt8w,ap8f54j,apef7hz,apelqqt,apnzaiv,apuz3am,apzv98k,aq2b06e,aqeuwp8,aqmucvl,ardntcq,arhrigb,ariuszd,arl3fs8,arma8h,arov8mm,ars48op,ars48rw,arvyv2c,as14kr0,as7dkd3,as7dw2r,as8v2mg,asj65to,asj78gc,at3j6u2,at47sv5,at573ii,at7q3do,at806qn,atalqcb,atjp5uj,atnpiwi,atp79o5,atva15j,atxg5uh,au3h9y9,au3immc,au8cj0i,aubtznt,aufdoy1,aull7a8,auqz1fs,auu9ttj,auu9twi,auu9wiq,auv8j9f,auzbhkf,av2oweo,av7zmum,av8klg3,avbi649,avbiirs,avm9zz1,avoz2c0,avwlep0,avzuzl2,aw2wzmb,aw8pkg2,awcru69,awhna9g,awojmsp,awu3o0n,awu44zc,awysj3e,awzmumg,ax2f04q,ax5b6au,axdhmvx,axheeu1,axhia7i,axhohnn,axry5kc,ay8d0ij,aye0qzn,ayh2q89,ayhgkoi,ayjr6s7,aysf75u,ayzo3oy,az8skyz,azdc7v1,azdey61,aze31xi,azenzeh,azhr38k,azkog3'.split(','));
+const audioKey = text => 'a' + hash(text.replace(/…/g, '').trim()).toString(36);
+const player = new Audio(); player.preload = 'auto';
+let playToken = 0;
+function stopSpeech() {
+  playToken++; try { player.pause(); } catch (e) {}
+  if ('speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
+}
+function speak(text, pitch, onend) {
+  const norm = text.replace(/…/g, '').trim();
+  let files = AUDIO_KEYS.has(audioKey(norm)) ? [audioKey(norm)] : null;
+  if (!files) { const ks = norm.split(/\s+/).map(audioKey); if (ks.length > 1 && ks.every(k => AUDIO_KEYS.has(k))) files = ks; }
+  if (!files) return speakTTS(text, pitch, onend);
+  stopSpeech();
+  const tok = playToken; let i = 0;
+  const high = pitch && pitch > 1.05;                        // drugi "głos" w scenkach: wyżej i odrobinę szybciej
+  const next = () => {
+    if (tok !== playToken) return;
+    if (i >= files.length) { if (onend) onend(); return; }
+    player.src = 'audio/' + files[i++] + '.mp3';
+    player.preservesPitch = player.webkitPreservesPitch = !high;
+    player.playbackRate = high ? 1.12 : 1;
+    player.onended = () => setTimeout(next, files.length > 1 ? 30 : 0);
+    player.onerror = () => { if (tok === playToken) { playToken++; speakTTS(text, pitch, onend); } };
+    const pr = player.play();
+    if (pr) pr.catch(err => {
+      if (tok !== playToken || !err || err.name === 'AbortError') return;
+      if (err.name === 'NotAllowedError') { if (!ttsTapAsked) { ttsTapAsked = true; toast(t('ttsTap')); } if (onend) onend(); }
+      else { playToken++; speakTTS(text, pitch, onend); }
+    });
+  };
+  next();
+}
+
 /* iPhone pozwala mówić dopiero po pierwszym dotknięciu: cicha wypowiedź przy pierwszym dotyku odblokowuje mowę */
 function unlockTTS() {
   if (ttsUnlocked || !('speechSynthesis' in window)) return;
   ttsUnlocked = true; const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u);
 }
+function unlockAudio() {
+  if (unlockAudio.done || !player.paused) return; unlockAudio.done = true;
+  player.muted = true; player.src = 'audio/' + audioKey('e') + '.mp3';
+  const pr = player.play(); const back = () => { player.pause(); player.muted = false; };
+  if (pr) pr.then(back, () => { player.muted = false; }); else back();
+}
+addEventListener('touchend', unlockAudio, { once: true, passive: true });
+addEventListener('click', unlockAudio, { once: true });
 addEventListener('touchend', unlockTTS, { once: true, passive: true });
 addEventListener('click', unlockTTS, { once: true });
 function testVoice() {
   pickVoice();
   const all = 'speechSynthesis' in window ? speechSynthesis.getVoices() : [];
-  toast(!('speechSynthesis' in window) ? t('noTTS') : voice ? t('voiceInfo')(`${voice.name} (${voice.lang})`) : t('ttsNoPt') + (all.length ? '' : ' ' + t('noVoicesAtAll')));
+  toast(t('voiceFiles'));
   speak('Olá! Bom dia. Tudo bem?');
 }
 
@@ -1987,7 +2037,7 @@ function renderVideo(el, c) {
   c.stop = () => {
     if (!playing) return;
     playing = false; token++; clearTimeout(timer);
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    stopSpeech();
     playBtn.textContent = '▶'; playBtn.style.display = 'grid';
   };
   playBtn.onclick = e => { e.stopPropagation(); c.play(); };
@@ -2480,7 +2530,7 @@ langBtn.onclick = () => {
 };
 
 function doReset() {
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  stopSpeech();
   S = Object.assign(fresh(), { lang: S.lang, sound: S.sound, nick: S.nick }); save();
   startFeed(); toast(t('restart'));
 }
@@ -2495,7 +2545,7 @@ document.querySelector('#sheet .sheet-form').onsubmit = e => {
 
 /* Start: jeśli wracasz, zaczynasz od krótkiej powtórki */
 function startFeed() {
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  stopSpeech();
   feed.innerHTML = ''; cardNo = 0; reviewQueue.length = 0; sinceQuiz = 0;
   nextChestAt = 10; nextVideoAt = 6; shownVideos.clear(); nextShortAt = 8; shownShorts.clear();
   paintSound(); paintLang(); paintStats();
